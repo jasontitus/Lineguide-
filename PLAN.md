@@ -294,133 +294,212 @@ For the Pride & Prejudice test script, the parser detected ~20 scenes across 2 a
 **Goal:** Multi-user: invitations, cloud sync of recordings, real-time updates.
 **Requirement:** Scale-to-zero, easy to set up and manage, low ops burden.
 
-### Backend Decision: Firebase (Recommended)
+### Backend Decision: Supabase
 
-After evaluating the options:
+The server's job is lightweight — just tracking who can do what and storing
+copies of recorded lines for sharing. Clients download everything locally and
+work offline. This makes Supabase's free tier a perfect fit:
 
-| Criteria | Firebase | Supabase | Docker on Cloud Run |
-|----------|----------|----------|---------------------|
-| **Scale to zero** | Yes (Firestore, Functions, Storage all serverless) | Partially (DB always on, ~$25/mo minimum for hosted) | Yes (Cloud Run scales to zero) |
-| **Setup effort** | Very low — `flutterfire configure` | Low — dashboard + SQL | Medium — Dockerfile, Cloud SQL, etc. |
-| **Ops burden** | Near-zero (fully managed) | Low for hosted, medium for self-hosted | Medium (container updates, DB management) |
-| **Flutter SDK** | First-class (`cloud_firestore`, `firebase_auth`, `firebase_storage`) | Good (`supabase_flutter`) | Roll your own REST/gRPC client |
-| **Auth** | Firebase Auth (email, magic link, Google, Apple) — best-in-class | GoTrue — good but fewer providers | Custom auth or Firebase Auth anyway |
-| **File storage** | Firebase Storage (GCS-backed, generous free tier) | Supabase Storage (S3-compatible) | Cloud Storage (manual setup) |
-| **Realtime** | Firestore real-time listeners (built-in) | Supabase Realtime (good) | WebSockets (build it yourself) |
-| **Offline** | Firestore has built-in offline persistence | No built-in offline | No built-in offline |
-| **Cost at low scale** | Free tier: 1GB Firestore, 5GB Storage, 50K reads/day | Free tier: 500MB DB, 1GB storage | Free tier: 2M requests/month |
-| **Cost at moderate scale** | ~$5-15/mo for a few productions | ~$25/mo (always-on Postgres) | ~$5-10/mo (scale-to-zero) |
-| **Deep links** | Firebase Dynamic Links / App Check | Manual deep link setup | Manual |
+**Free tier:** 500MB Postgres, 1GB Storage, 50K monthly active users, unlimited API requests
 
-**Verdict: Firebase** wins on scale-to-zero, zero ops, first-class Flutter support, and built-in offline persistence (critical for rehearsal). The key advantage over Supabase is that Firebase has **no always-on component** — a production with 15 actors who use it for 6 weeks costs almost nothing.
+**Why Supabase works well here:**
+- **Low query volume** — Clients sync on launch and when recordings change, not constantly polling. A 15-person cast checking in a few times a day stays well within free tier limits.
+- **Storage for audio** — ~25MB per production (500 lines × ~50KB each). 1GB free = ~40 productions before paying.
+- **Row Level Security** — Postgres RLS is straightforward: cast members see their productions, organizers can edit. Cleaner than Firestore rules for relational data.
+- **Real Postgres** — Easier to reason about than NoSQL. Migrations via SQL. Can query with any Postgres tool.
+- **Good Flutter SDK** — `supabase_flutter` handles auth, realtime, storage, and database.
+- **Magic links** — Easy onboarding for actors who aren't technical.
 
-Docker on Cloud Run is more flexible but requires more setup/maintenance. If we outgrow Firebase or need more complex server logic later, we can add a Cloud Run service alongside Firebase.
+**What about offline?** Supabase doesn't have built-in offline persistence like Firestore, but we don't need it — we already have Drift (SQLite) locally. The client is the source of truth during rehearsal. Supabase is just the sync layer.
 
-### Firebase Architecture
+### Supabase Architecture
 
 ```
-┌─────────────────────────────────────────────────┐
-│                  Firebase Project                │
-│                                                  │
-│  ┌──────────────┐  ┌──────────────────────────┐ │
-│  │  Firebase     │  │  Cloud Firestore         │ │
-│  │  Auth         │  │                          │ │
-│  │  (email,      │  │  /productions/{id}       │ │
-│  │   magic link, │  │    /script               │ │
-│  │   Google,     │  │    /scenes/{id}          │ │
-│  │   Apple)      │  │    /characters/{id}      │ │
-│  └──────────────┘  │    /cast/{userId}         │ │
-│                     │    /recordings/{lineId}   │ │
-│  ┌──────────────┐  └──────────────────────────┘ │
-│  │  Firebase     │                               │
-│  │  Storage      │  ┌──────────────────────────┐ │
-│  │  (GCS)        │  │  Cloud Functions (opt.)  │ │
-│  │               │  │  - Send invite emails    │ │
-│  │  /recordings/ │  │  - Audio normalization   │ │
-│  │    {prod}/    │  │  - TTS pre-generation    │ │
-│  │    {lineId}/  │  └──────────────────────────┘ │
-│  │    {userId}.  │                               │
-│  │    m4a        │                               │
-│  └──────────────┘                                │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────┐
+│                 Supabase Project                  │
+│                                                   │
+│  ┌──────────────┐  ┌───────────────────────────┐ │
+│  │  Supabase     │  │  Postgres (w/ RLS)        │ │
+│  │  Auth         │  │                           │ │
+│  │  (email,      │  │  users                    │ │
+│  │   magic link, │  │  productions              │ │
+│  │   Google,     │  │  cast_members             │ │
+│  │   Apple)      │  │  script_lines             │ │
+│  └──────────────┘  │  scenes                    │ │
+│                     │  recordings (metadata)     │ │
+│  ┌──────────────┐  └───────────────────────────┘ │
+│  │  Supabase     │                                │
+│  │  Storage      │  ┌───────────────────────────┐ │
+│  │  (S3)         │  │  Realtime (optional)      │ │
+│  │               │  │  - recordings table        │ │
+│  │  /recordings/ │  │  - notify when new audio   │ │
+│  │    {prod_id}/ │  │    is available            │ │
+│  │    {line_id}_ │  └───────────────────────────┘ │
+│  │    {user_id}  │                                │
+│  │    .m4a       │  ┌───────────────────────────┐ │
+│  └──────────────┘  │  Edge Functions (optional) │ │
+│                     │  - Send invite emails      │ │
+│                     │  - Audio normalization     │ │
+│                     └───────────────────────────┘ │
+└──────────────────────────────────────────────────┘
 ```
 
-### Firestore Data Model
+### Postgres Schema
+
+```sql
+-- Users (extends Supabase auth.users)
+create table public.profiles (
+  id uuid references auth.users primary key,
+  display_name text not null,
+  avatar_url text,
+  created_at timestamptz default now()
+);
+
+-- Productions
+create table public.productions (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  organizer_id uuid references public.profiles(id) not null,
+  status text not null default 'draft',
+  created_at timestamptz default now()
+);
+
+-- Cast members (who is in which production, playing what)
+create table public.cast_members (
+  id uuid primary key default gen_random_uuid(),
+  production_id uuid references public.productions(id) on delete cascade,
+  user_id uuid references public.profiles(id),
+  character_name text not null,
+  role text not null check (role in ('organizer', 'primary', 'understudy')),
+  invited_at timestamptz default now(),
+  joined_at timestamptz,
+  unique (production_id, user_id, character_name)
+);
+
+-- Scenes
+create table public.scenes (
+  id uuid primary key default gen_random_uuid(),
+  production_id uuid references public.productions(id) on delete cascade,
+  scene_name text not null,
+  act text,
+  location text,
+  description text,
+  start_line_index int not null,
+  end_line_index int not null,
+  sort_order int not null default 0
+);
+
+-- Script lines
+create table public.script_lines (
+  id uuid primary key default gen_random_uuid(),
+  production_id uuid references public.productions(id) on delete cascade,
+  act text,
+  scene text,
+  line_number int not null,
+  order_index int not null,
+  character_name text,
+  line_text text not null,
+  line_type text not null,
+  stage_direction text
+);
+
+-- Recording metadata (audio files live in Storage)
+create table public.recordings (
+  id uuid primary key default gen_random_uuid(),
+  production_id uuid references public.productions(id) on delete cascade,
+  script_line_id uuid references public.script_lines(id) on delete cascade,
+  user_id uuid references public.profiles(id) not null,
+  character_name text not null,
+  storage_path text not null,
+  duration_ms int,
+  recorded_at timestamptz default now(),
+  unique (script_line_id, user_id)
+);
+```
+
+### Row Level Security
+
+```sql
+-- Productions: visible to cast members
+alter table public.productions enable row level security;
+create policy "Cast can view their productions" on public.productions
+  for select using (
+    id in (select production_id from public.cast_members where user_id = auth.uid())
+  );
+create policy "Organizer can update" on public.productions
+  for update using (organizer_id = auth.uid());
+
+-- Cast members: visible within production
+alter table public.cast_members enable row level security;
+create policy "Cast can view cast list" on public.cast_members
+  for select using (
+    production_id in (select production_id from public.cast_members where user_id = auth.uid())
+  );
+
+-- Recordings: any cast member can read, only recorder can write
+alter table public.recordings enable row level security;
+create policy "Cast can view recordings" on public.recordings
+  for select using (
+    production_id in (select production_id from public.cast_members where user_id = auth.uid())
+  );
+create policy "Users can insert own recordings" on public.recordings
+  for insert with check (user_id = auth.uid());
+```
+
+### Client Sync Strategy
+
+The app is **offline-first** — Drift (SQLite) is the local source of truth.
+Supabase is a sync layer, not a live dependency.
 
 ```
-/users/{userId}
-  - name, email, photoUrl
-  - joinedAt
+App Launch:
+  1. Load everything from local Drift DB (instant)
+  2. Background: fetch updates from Supabase since last_sync_at
+  3. Merge: new recordings, cast changes, scene edits
+  4. Download any new audio files to local storage
 
-/productions/{productionId}
-  - title, organizerId, status, createdAt
-  - scriptRawText (or reference to Storage)
+Recording a Line:
+  1. Save audio locally (instant)
+  2. Save Recording metadata to Drift (instant)
+  3. Background: upload audio to Supabase Storage
+  4. Background: insert Recording row in Supabase Postgres
+  5. Other cast members see it on their next sync
 
-  /scenes/{sceneId}
-    - sceneName, location, description
-    - act, startLineIndex, endLineIndex
-    - characters: [string array]
-
-  /scriptLines/{lineId}
-    - act, scene, lineNumber, orderIndex
-    - character, text, lineType, stageDirection
-
-  /cast/{userId}
-    - role: "organizer" | "primary" | "understudy"
-    - characterName
-    - joinedAt, invitedAt
-
-  /recordings/{lineId_userId}
-    - lineId, userId, characterName
-    - audioUrl (Storage path)
-    - durationMs, recordedAt
-    - isPrimary: bool
-```
-
-### Security Rules (Firestore)
-```
-- /productions/{id}: read if user is in /cast subcollection
-- /productions/{id}: write if user is organizer
-- /productions/{id}/cast: read by any cast member, write by organizer
-- /productions/{id}/recordings: read by any cast member, write by recording user
-- /productions/{id}/scenes: read by any cast member, write by organizer
-- /productions/{id}/scriptLines: read by any cast member, write by organizer
+Rehearsal:
+  - 100% local. No network needed.
+  - Audio plays from local files.
+  - STT/TTS runs on-device.
 ```
 
 ### Tasks
-- [ ] Set up Firebase project with `flutterfire configure`
-- [ ] Firebase Auth integration:
-  - Email + magic link sign-in (easiest for actors to onboard)
-  - Optional Google/Apple sign-in
-  - Auth state managed via Riverpod + `firebase_auth`
-- [ ] Firestore data layer:
-  - Mirror local Drift models to Firestore documents
-  - Real-time listeners for production updates
-  - Offline persistence enabled (built-in with Firestore)
-- [ ] Production sharing & invitations:
-  - Organizer creates production → Firestore document
-  - Generate invite share links with production ID + suggested role
-  - Send via system share sheet (email, SMS, WhatsApp, etc.)
-  - Deep link handling: invitee opens link → app → join production
-- [ ] Cast management:
-  - Organizer assigns primary + understudy per character
-  - Cast members see their assigned roles on join
-  - Role acceptance flow
-- [ ] Recording sync:
-  - Record locally → upload to Firebase Storage on complete
-  - Other cast members download recordings on demand / wifi
-  - Firestore document tracks recording metadata (availability, duration)
-  - Background upload with retry
-  - Conflict resolution: latest recording wins per (line, user)
-- [ ] Real-time recording availability:
-  - Firestore real-time listeners on /recordings collection
-  - When cast member records a line → others see it instantly
-  - Recording progress percentage per character
-- [ ] Offline-first architecture:
-  - Local Drift DB remains source of truth during rehearsal
-  - Firestore offline persistence for metadata
-  - Pre-download all recordings for a scene before going offline
-  - Sync queue for changes made offline
+- [ ] Set up Supabase project (dashboard, get URL + anon key)
+- [ ] Add `supabase_flutter` dependency, initialize in main.dart
+- [ ] Auth integration:
+  - Magic link sign-in (easiest for actors)
+  - Optional email/password fallback
+  - Auth state managed via Riverpod
+- [ ] Sync service:
+  - On launch: pull productions, cast, scenes, recordings metadata
+  - Track `last_sync_at` per production
+  - Delta sync: only fetch rows modified since last sync
+  - Merge into local Drift DB
+- [ ] Recording upload:
+  - Upload audio file to Supabase Storage after recording
+  - Insert/upsert recording metadata row
+  - Retry with exponential backoff on failure
+  - Show upload progress in UI
+- [ ] Recording download:
+  - On joining a production: download all existing recordings
+  - On sync: download any new recordings
+  - Pre-download recordings for selected scene before rehearsal
+  - Store locally so rehearsal works offline
+- [ ] Invitation flow:
+  - Organizer generates share link with production_id + character_name
+  - Share via system share sheet
+  - Invitee opens link → app → magic link auth → auto-join production
+- [ ] Realtime (optional, low priority):
+  - Subscribe to recordings table changes via Supabase Realtime
+  - Show toast when a cast member finishes recording a line
 
 ---
 
@@ -538,7 +617,7 @@ Phase 7 (Watch)              Phase 8 (Polish)
 | Question | Options | Recommendation |
 |----------|---------|----------------|
 | State management | Riverpod vs Bloc | **Riverpod** — less boilerplate, great for dependency injection |
-| Backend | Firebase vs Supabase vs Cloud Run | **Firebase** — scale-to-zero, zero ops, first-class Flutter SDK, built-in offline (see Phase 5 analysis) |
+| Backend | Firebase vs Supabase vs Cloud Run | **Supabase** — generous free tier, Postgres with RLS, simple auth, storage for recordings, lightweight client usage pattern (see Phase 5) |
 | TTS fallback before Kokoro | `flutter_tts` (system TTS) | Yes, ship with system TTS first, upgrade to Kokoro in Phase 6 |
 | STT fallback before Whisper | `speech_to_text` (system STT) | Yes, ship with system STT first, upgrade to Whisper in Phase 6 |
 | Script format support | Play, screenplay, musical | Start with standard play format, expand based on user scripts |

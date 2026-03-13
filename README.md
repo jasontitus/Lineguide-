@@ -63,8 +63,8 @@ A watchOS/wearOS companion app provides:
 │  ┌──────────────────▼───────────────────────────┐ │
 │  │            Data Layer                         │ │
 │  │  ┌─────────┐ ┌──────────┐ ┌───────────────┐ │ │
-│  │  │ SQLite  │ │  Audio   │ │  Supabase /    │ │ │
-│  │  │ Local   │ │  Files   │ │  Firebase      │ │ │
+│  │  │ SQLite  │ │  Audio   │ │  Supabase      │ │ │
+│  │  │ Local   │ │  Files   │ │  Cloud         │ │ │
 │  │  └─────────┘ └──────────┘ └───────────────┘ │ │
 │  └──────────────────────────────────────────────┘ │
 └──────────────────────────────────────────────────┘
@@ -78,7 +78,7 @@ A watchOS/wearOS companion app provides:
 | **OCR** | ML Kit / Google Vision (placeholder) | Good baseline; swappable for Gemini later |
 
 ### Backend (Lightweight)
-- **Supabase** (or Firebase) for auth, invitations, production metadata, and audio file storage
+- **Supabase** for auth, invitations, production metadata, and audio file storage
 - Postgres with Row Level Security so cast members only see their productions
 - Supabase Storage for audio recordings with per-production buckets
 - Realtime subscriptions for recording availability updates
