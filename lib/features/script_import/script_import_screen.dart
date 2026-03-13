@@ -217,6 +217,7 @@ class _ScriptImportScreenState extends ConsumerState<ScriptImportScreen> {
                   child: FilledButton(
                     onPressed: () {
                       ref.read(currentScriptProvider.notifier).state = script;
+                      persistScript(ref);
                       context.push('/editor');
                     },
                     child: const Text('Edit Script'),

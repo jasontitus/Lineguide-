@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../data/models/production_models.dart';
+import '../../data/models/script_models.dart';
 import '../../providers/production_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -93,9 +94,23 @@ class HomeScreen extends ConsumerWidget {
             title: Text(production.title),
             subtitle: Text(production.status.name.toUpperCase()),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {
+            onTap: () async {
               ref.read(currentProductionProvider.notifier).state = production;
-              context.push('/import');
+              ref.read(recordingsProvider.notifier).loadForProduction(production.id);
+              // Load persisted script if available
+              final savedScript = await loadPersistedScript(ref, production.id);
+              if (savedScript != null) {
+                ref.read(currentScriptProvider.notifier).state = ParsedScript(
+                  title: production.title,
+                  lines: savedScript.lines,
+                  characters: savedScript.characters,
+                  scenes: savedScript.scenes,
+                  rawText: savedScript.rawText,
+                );
+                if (context.mounted) context.push('/editor');
+              } else {
+                if (context.mounted) context.push('/import');
+              }
             },
           ),
         );

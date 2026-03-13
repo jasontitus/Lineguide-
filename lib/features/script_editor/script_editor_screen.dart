@@ -52,6 +52,21 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.save_outlined),
+            tooltip: 'Save to database',
+            onPressed: () async {
+              await persistScript(ref);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Script saved'),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              }
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.checklist),
             tooltip: 'Validate Script',
             onPressed: () => showValidationPanel(context, script),

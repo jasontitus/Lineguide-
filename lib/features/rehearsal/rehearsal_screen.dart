@@ -8,11 +8,13 @@ import 'package:just_audio/just_audio.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../data/models/script_models.dart';
+import '../../data/models/rehearsal_models.dart';
 import '../../data/services/tts_service.dart';
 import '../../data/services/stt_service.dart';
 import '../../providers/production_providers.dart';
 import '../../features/settings/settings_screen.dart';
 import 'scene_selector_screen.dart';
+import 'rehearsal_history_screen.dart';
 
 /// Rehearsal state machine.
 enum RehearsalState {
@@ -48,10 +50,18 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   double _matchScore = 0.0;
   bool _showMatchFeedback = false;
 
+  // Session tracking
+  late DateTime _sessionStartedAt;
+  final List<LineAttempt> _lineAttempts = [];
+  int _currentAttemptCount = 0;
+  double _currentBestScore = 0.0;
+
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+
+    _sessionStartedAt = DateTime.now();
 
     // Reset to beginning
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -118,9 +128,8 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
       );
     }
 
-    final sceneLines = script.linesInScene(scene);
-    final dialogueLines =
-        sceneLines.where((l) => l.lineType == LineType.dialogue).toList();
+    final cueToCue = ref.watch(cueToCueModeProvider);
+    final dialogueLines = _getRehearsalLines(script, scene, myCharacter);
 
     final isComplete = currentIdx >= dialogueLines.length;
     final currentLine = isComplete ? null : dialogueLines[currentIdx];
@@ -134,7 +143,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildTopBar(context, scene, progress, rehearsalState),
+            _buildTopBar(context, scene, progress, rehearsalState, cueToCue),
             LinearProgressIndicator(
               value: progress,
               backgroundColor: Colors.grey[900],
@@ -163,7 +172,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   }
 
   Widget _buildTopBar(BuildContext context, ScriptScene scene, double progress,
-      RehearsalState rehearsalState) {
+      RehearsalState rehearsalState, bool cueToCue) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
@@ -197,6 +206,19 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
               ],
             ),
           ),
+          // Cue-to-cue badge
+          if (cueToCue)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              margin: const EdgeInsets.only(right: 4),
+              decoration: BoxDecoration(
+                color: Colors.blue.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text('C2C',
+                  style: TextStyle(color: Colors.blue, fontSize: 9,
+                      fontWeight: FontWeight.bold)),
+            ),
           // State indicator
           _buildStateChip(rehearsalState),
           const SizedBox(width: 8),
@@ -458,16 +480,26 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
   Widget _buildCompletionView(
       BuildContext context, ScriptScene scene, int totalLines) {
+    final completedLines = _lineAttempts.where((a) => !a.skipped).length;
+    final avgScore = _lineAttempts.isEmpty
+        ? 0.0
+        : _lineAttempts.fold<double>(0, (s, a) => s + a.bestScore) /
+            _lineAttempts.length;
+    final struggled = _lineAttempts.where((a) => a.bestScore < 0.7).toList();
+    final duration = DateTime.now().difference(_sessionStartedAt);
+
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.check_circle_outline,
+              avgScore >= 0.8
+                  ? Icons.emoji_events
+                  : Icons.check_circle_outline,
               size: 80,
-              color: Theme.of(context).colorScheme.primary,
+              color: avgScore >= 0.8 ? Colors.amber : Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(height: 24),
             const Text(
@@ -480,10 +512,56 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '${scene.sceneName}\n$totalLines lines',
+              scene.sceneName,
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[500], fontSize: 16),
             ),
+            const SizedBox(height: 16),
+            // Stats row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _completionStat('${(avgScore * 100).toInt()}%', 'Score',
+                    avgScore >= 0.8 ? Colors.green : Colors.orange),
+                _completionStat('$completedLines/$totalLines', 'Lines',
+                    Colors.white70),
+                _completionStat(
+                    '${duration.inMinutes}m ${duration.inSeconds.remainder(60)}s',
+                    'Time',
+                    Colors.white70),
+              ],
+            ),
+            // Struggled lines
+            if (struggled.isNotEmpty) ...[
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Lines to practice:',
+                        style: TextStyle(color: Colors.orange,
+                            fontWeight: FontWeight.bold, fontSize: 13)),
+                    const SizedBox(height: 8),
+                    ...struggled.take(5).map((a) => Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            '- ${a.lineText}',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                color: Colors.grey[400], fontSize: 12),
+                          ),
+                        )),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 32),
             FilledButton.icon(
               onPressed: _restartScene,
@@ -494,6 +572,12 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 textStyle: const TextStyle(fontSize: 18),
               ),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () => context.push('/history'),
+              icon: const Icon(Icons.history),
+              label: const Text('View History'),
             ),
             const SizedBox(height: 12),
             OutlinedButton(
@@ -508,6 +592,19 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _completionStat(String value, String label, Color color) {
+    return Column(
+      children: [
+        Text(value,
+            style: TextStyle(
+                color: color, fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text(label,
+            style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+      ],
     );
   }
 
@@ -590,8 +687,9 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
         _player.stop();
         _advanceLine(totalLines);
       case RehearsalState.listeningForMe:
-        // Accept whatever was said and advance
+        // Accept whatever was said and advance (manual skip)
         _stt.stop();
+        _recordCurrentLineAttempt(skipped: _matchScore < (ref.read(matchThresholdProvider) / 100.0));
         _advanceLine(totalLines);
       case RehearsalState.paused:
       case RehearsalState.sceneComplete:
@@ -642,6 +740,35 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     );
   }
 
+  // ── Cue-to-Cue Filtering ─────────────────────────────
+
+  /// Returns the dialogue lines to rehearse, filtered for cue-to-cue mode
+  /// if enabled. In cue-to-cue mode, only the actor's lines plus one cue
+  /// line before each are included.
+  List<ScriptLine> _getRehearsalLines(
+      ParsedScript script, ScriptScene scene, String? myCharacter) {
+    final sceneLines = script.linesInScene(scene);
+    final allDialogue =
+        sceneLines.where((l) => l.lineType == LineType.dialogue).toList();
+
+    final cueToCue = ref.read(cueToCueModeProvider);
+    if (!cueToCue || myCharacter == null) return allDialogue;
+
+    // Build a filtered list: for each of the actor's lines, include
+    // the immediately preceding line (the cue) plus the actor's line.
+    final filtered = <ScriptLine>[];
+    for (var i = 0; i < allDialogue.length; i++) {
+      if (allDialogue[i].character == myCharacter) {
+        // Add cue line (the one before) if not already added
+        if (i > 0 && !filtered.contains(allDialogue[i - 1])) {
+          filtered.add(allDialogue[i - 1]);
+        }
+        filtered.add(allDialogue[i]);
+      }
+    }
+    return filtered;
+  }
+
   // ── Engine Logic ──────────────────────────────────────
 
   /// Process the current line: play audio/TTS for others, or start listening for me.
@@ -653,18 +780,21 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
     if (script == null || scene == null) return;
 
-    final sceneLines = script.linesInScene(scene);
-    final dialogueLines =
-        sceneLines.where((l) => l.lineType == LineType.dialogue).toList();
+    final dialogueLines = _getRehearsalLines(script, scene, myCharacter);
 
     if (currentIdx >= dialogueLines.length) {
       ref.read(rehearsalStateProvider.notifier).state =
           RehearsalState.sceneComplete;
+      _saveSession(dialogueLines);
       return;
     }
 
     final line = dialogueLines[currentIdx];
     final isMyLine = line.character == myCharacter;
+
+    // Reset attempt tracking for new line
+    _currentAttemptCount = 0;
+    _currentBestScore = 0.0;
 
     if (isMyLine) {
       _startListeningForMyLine(line);
@@ -710,17 +840,17 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
     final script = ref.read(currentScriptProvider);
     final scene = ref.read(selectedSceneProvider);
+    final myCharacter = ref.read(rehearsalCharacterProvider);
     if (script == null || scene == null) return;
 
-    final sceneLines = script.linesInScene(scene);
-    final dialogueLines =
-        sceneLines.where((l) => l.lineType == LineType.dialogue).toList();
+    final dialogueLines = _getRehearsalLines(script, scene, myCharacter);
     final currentIdx = ref.read(currentLineIndexProvider);
 
     if (currentIdx + 1 >= dialogueLines.length) {
       ref.read(currentLineIndexProvider.notifier).state = currentIdx + 1;
       ref.read(rehearsalStateProvider.notifier).state =
           RehearsalState.sceneComplete;
+      _saveSession(dialogueLines);
       _scrollToCurrentLine();
       return;
     }
@@ -756,30 +886,37 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
     final threshold = ref.read(matchThresholdProvider) / 100.0;
 
+    _currentAttemptCount++;
+
     await _stt.listen(
       onResult: (recognized) {
         if (!mounted) return;
+        final score = SttService.matchScore(line.text, recognized);
         setState(() {
           _recognizedText = recognized;
-          _matchScore = SttService.matchScore(line.text, recognized);
+          _matchScore = score;
           _showMatchFeedback = recognized.isNotEmpty;
         });
 
+        if (score > _currentBestScore) _currentBestScore = score;
+
         // Auto-advance if match exceeds threshold
-        if (_matchScore >= threshold) {
+        if (score >= threshold) {
           _stt.stop();
           HapticFeedback.lightImpact();
+
+          // Record the attempt
+          _recordAttempt(line, skipped: false);
 
           // Brief delay so user sees the "Match!" feedback
           Future.delayed(const Duration(milliseconds: 600), () {
             if (mounted) {
               final script = ref.read(currentScriptProvider);
               final scene = ref.read(selectedSceneProvider);
+              final myCharacter = ref.read(rehearsalCharacterProvider);
               if (script == null || scene == null) return;
-              final dialogueLines = script
-                  .linesInScene(scene)
-                  .where((l) => l.lineType == LineType.dialogue)
-                  .toList();
+              final dialogueLines =
+                  _getRehearsalLines(script, scene, myCharacter);
               _advanceLine(dialogueLines.length);
             }
           });
@@ -862,6 +999,12 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     ref.read(currentLineIndexProvider.notifier).state = 0;
     ref.read(rehearsalStateProvider.notifier).state = RehearsalState.ready;
 
+    // Reset session tracking
+    _sessionStartedAt = DateTime.now();
+    _lineAttempts.clear();
+    _currentAttemptCount = 0;
+    _currentBestScore = 0.0;
+
     setState(() {
       _showMatchFeedback = false;
       _recognizedText = '';
@@ -891,6 +1034,71 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
       _player.pause();
       ref.read(rehearsalStateProvider.notifier).state = RehearsalState.paused;
     }
+  }
+
+  /// Record an attempt for the given line.
+  void _recordAttempt(ScriptLine line, {required bool skipped}) {
+    _lineAttempts.add(LineAttempt(
+      lineId: line.id,
+      lineText: line.text.length > 80
+          ? '${line.text.substring(0, 77)}...'
+          : line.text,
+      attemptCount: _currentAttemptCount,
+      bestScore: _currentBestScore,
+      skipped: skipped,
+    ));
+  }
+
+  /// Record attempt for the current line (used when manually advancing).
+  void _recordCurrentLineAttempt({required bool skipped}) {
+    final script = ref.read(currentScriptProvider);
+    final scene = ref.read(selectedSceneProvider);
+    final myCharacter = ref.read(rehearsalCharacterProvider);
+    final currentIdx = ref.read(currentLineIndexProvider);
+    if (script == null || scene == null) return;
+
+    final dialogueLines = _getRehearsalLines(script, scene, myCharacter);
+    if (currentIdx < dialogueLines.length) {
+      final line = dialogueLines[currentIdx];
+      if (line.character == myCharacter) {
+        _recordAttempt(line, skipped: skipped);
+      }
+    }
+  }
+
+  /// Save the completed rehearsal session to history.
+  void _saveSession(List<ScriptLine> dialogueLines) {
+    final scene = ref.read(selectedSceneProvider);
+    final myCharacter = ref.read(rehearsalCharacterProvider);
+    final production = ref.read(currentProductionProvider);
+    final cueToCue = ref.read(cueToCueModeProvider);
+    if (scene == null || myCharacter == null) return;
+
+    final myLines = dialogueLines
+        .where((l) => l.character == myCharacter)
+        .length;
+    final completedLines = _lineAttempts.where((a) => !a.skipped).length;
+    final avgScore = _lineAttempts.isEmpty
+        ? 0.0
+        : _lineAttempts.fold<double>(0, (s, a) => s + a.bestScore) /
+            _lineAttempts.length;
+
+    final session = RehearsalSession(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      productionId: production?.id ?? '',
+      sceneId: scene.sceneName,
+      sceneName: scene.displayLabel,
+      character: myCharacter,
+      startedAt: _sessionStartedAt,
+      endedAt: DateTime.now(),
+      totalLines: myLines,
+      completedLines: completedLines,
+      averageMatchScore: avgScore,
+      lineAttempts: List.from(_lineAttempts),
+      cueToCueMode: cueToCue,
+    );
+
+    ref.read(rehearsalHistoryProvider.notifier).add(session);
   }
 
   void _scrollToCurrentLine() {
