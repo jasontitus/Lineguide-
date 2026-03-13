@@ -1,6 +1,11 @@
 import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:flutter/foundation.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf_render/pdf_render.dart';
 
 import '../models/script_models.dart';
 import 'script_parser.dart';
@@ -23,19 +28,69 @@ class ScriptImportService {
     return _parser.parse(rawText, title: title);
   }
 
-  /// Import from a PDF file.
-  /// For now, this is a placeholder — in production, this would:
-  /// 1. Convert PDF pages to images
-  /// 2. Run on-device OCR (ML Kit)
-  /// 3. Parse the resulting text
+  /// Import from a PDF file using the on-device OCR pipeline:
+  /// 1. Render each PDF page to an image
+  /// 2. Run ML Kit text recognition on each page image
+  /// 3. Concatenate text and parse as a script
   Future<ParsedScript> importFromPdf(String pdfPath) async {
-    // TODO: Implement PDF → image → OCR pipeline
-    // For now, throw a helpful error
-    throw UnimplementedError(
-      'PDF import requires OCR pipeline. '
-      'Use importFromTextFile() with pre-OCR\'d text, '
-      'or wait for the OCR integration in Phase 6.',
-    );
+    final doc = await PdfDocument.openFile(pdfPath);
+    final pageCount = doc.pageCount;
+
+    final textRecognizer = TextRecognizer();
+    final buffer = StringBuffer();
+
+    try {
+      for (var i = 1; i <= pageCount; i++) {
+        // Render page to image at 2x for good OCR quality
+        final page = await doc.getPage(i);
+        final pageImage = await page.render(
+          width: (page.width * 2).toInt(),
+          height: (page.height * 2).toInt(),
+        );
+        final image = await pageImage.createImageDetached();
+
+        // Save to temp file for ML Kit (requires file path)
+        final byteData =
+            await image.toByteData(format: ui.ImageByteFormat.png);
+        image.dispose();
+
+        if (byteData == null) continue;
+
+        final tempDir = await getTemporaryDirectory();
+        final tempFile = File(p.join(tempDir.path, 'ocr_page_$i.png'));
+        await tempFile.writeAsBytes(byteData.buffer.asUint8List());
+
+        // Run OCR
+        final inputImage = InputImage.fromFilePath(tempFile.path);
+        final recognized = await textRecognizer.processImage(inputImage);
+
+        // Reconstruct text preserving line breaks
+        for (final block in recognized.blocks) {
+          for (final line in block.lines) {
+            buffer.writeln(line.text);
+          }
+          buffer.writeln(); // paragraph break between blocks
+        }
+
+        // Clean up temp file
+        await tempFile.delete();
+
+        debugPrint('PDF OCR: Page $i/$pageCount done '
+            '(${recognized.blocks.length} blocks)');
+      }
+    } finally {
+      textRecognizer.close();
+      doc.dispose();
+    }
+
+    final rawText = buffer.toString();
+    if (rawText.trim().isEmpty) {
+      throw Exception(
+          'No text found in PDF. The file may be image-only or corrupted.');
+    }
+
+    final title = _titleFromPath(pdfPath);
+    return _parser.parse(rawText, title: title);
   }
 
   /// Save a parsed script export to the app's documents directory.

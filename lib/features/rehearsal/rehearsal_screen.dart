@@ -11,6 +11,7 @@ import '../../data/models/script_models.dart';
 import '../../data/models/rehearsal_models.dart';
 import '../../data/services/tts_service.dart';
 import '../../data/services/stt_service.dart';
+import '../../data/services/voice_clone_service.dart';
 import '../../providers/production_providers.dart';
 import '../../features/settings/settings_screen.dart';
 import 'scene_selector_screen.dart';
@@ -44,6 +45,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   final AudioPlayer _player = AudioPlayer();
   final TtsService _tts = TtsService.instance;
   final SttService _stt = SttService.instance;
+  final VoiceCloneService _voiceClone = VoiceCloneService.instance;
 
   final bool _autoPlay = true; // auto-advance through other characters' lines
   String _recognizedText = '';
@@ -830,7 +832,28 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
       }
     }
 
-    // Fall back to TTS — map speed (0.5x–2.0x) to TTS rate (0.25–1.0)
+    // Try voice clone if a profile exists for this character
+    final production = ref.read(currentProductionProvider);
+    if (production != null && _voiceClone.canClone(line.character)) {
+      final clonedPath = await _voiceClone.generateLine(
+        productionId: production.id,
+        character: line.character,
+        lineId: line.id,
+        text: line.text,
+      );
+      if (clonedPath != null) {
+        try {
+          await _player.setFilePath(clonedPath);
+          await _player.setSpeed(speed);
+          await _player.play();
+          return;
+        } catch (_) {
+          // Fall through to system TTS
+        }
+      }
+    }
+
+    // Fall back to system TTS — map speed (0.5x–2.0x) to TTS rate (0.25–1.0)
     await _tts.setRate(speed * 0.5);
     await _tts.speak(line.text, character: line.character);
     // Completion handled by TTS completion handler

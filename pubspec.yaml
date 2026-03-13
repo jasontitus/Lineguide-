@@ -48,6 +48,9 @@ dependencies:
   # Backend
   supabase_flutter: ^2.8.2
 
+  # Connectivity
+  connectivity_plus: ^6.1.0
+
   # Utilities
   uuid: ^4.5.1
   intl: ^0.20.2

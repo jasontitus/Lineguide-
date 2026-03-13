@@ -172,6 +172,11 @@ class _RecordingStudioScreenState extends ConsumerState<RecordingStudioScreen> {
               ],
             ),
           ),
+          IconButton(
+            icon: const Icon(Icons.record_voice_over, color: Colors.white70),
+            tooltip: 'Voice Profile',
+            onPressed: () => context.push('/voice-profile'),
+          ),
           Text(
             '${_currentLineIdx + 1} / ${_myLines.length}',
             style: TextStyle(color: Colors.grey[500], fontSize: 12),

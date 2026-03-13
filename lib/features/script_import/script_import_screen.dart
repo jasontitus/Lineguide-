@@ -68,7 +68,7 @@ class _ScriptImportScreenState extends ConsumerState<ScriptImportScreen> {
             const SizedBox(height: 8),
             Text(
               'Upload a script file to get started.\n'
-              'Supported: .txt (plain text)',
+              'Supported: .txt, .pdf (with OCR)',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context)
@@ -85,9 +85,9 @@ class _ScriptImportScreenState extends ConsumerState<ScriptImportScreen> {
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
-              onPressed: null, // TODO: PDF import
+              onPressed: _pickPdfFile,
               icon: const Icon(Icons.picture_as_pdf),
-              label: const Text('Import PDF (coming soon)'),
+              label: const Text('Import PDF'),
             ),
             if (_error != null) ...[
               const SizedBox(height: 24),
@@ -316,6 +316,48 @@ class _ScriptImportScreenState extends ConsumerState<ScriptImportScreen> {
       Color(0xFFA1887F),
     ];
     return colors[index.abs() % colors.length];
+  }
+
+  Future<void> _pickPdfFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      final filePath = result.files.first.path;
+      if (filePath == null) return;
+
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+
+      final service = ref.read(scriptImportServiceProvider);
+
+      try {
+        final script = await service.importFromPdf(filePath);
+        setState(() {
+          _preview = script;
+          _loading = false;
+        });
+      } on UnimplementedError {
+        // ML Kit not available — show helpful message
+        setState(() {
+          _error = 'PDF import requires Google ML Kit Text Recognition.\n'
+              'Add google_mlkit_text_recognition to pubspec.yaml, '
+              'or convert your PDF to a text file first.';
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Failed to import PDF: $e';
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _pickTextFile() async {
