@@ -56,6 +56,11 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
             onPressed: () => context.push('/scenes'),
           ),
           IconButton(
+            icon: const Icon(Icons.people_outline),
+            tooltip: 'Cast',
+            onPressed: () => context.push('/cast'),
+          ),
+          IconButton(
             icon: const Icon(Icons.mic),
             tooltip: 'Record Lines',
             onPressed: () => context.push('/record'),
