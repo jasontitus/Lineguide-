@@ -507,13 +507,15 @@ Rehearsal:
 **Goal:** Replace placeholder/cloud services with high-quality on-device models.
 
 ### Tasks
-- [x] **Kokoro TTS integration (MLX)**:
-  - Kokoro-MLX Python server (`server/kokoro_server.py`) for fast Apple Silicon inference
-  - Flutter `TtsService` calls server HTTP API → plays returned WAV via `just_audio`
+- [x] **Kokoro TTS integration (on-device MLX)**:
+  - Uses `kokoro-swift` SPM package for on-device Apple Silicon inference via MLX
+  - Flutter ↔ Swift bridge via `MethodChannel('com.lineguide/kokoro_mlx')`
+  - `KokoroMLXService.swift` handles model loading, inference, WAV encoding
+  - `KokoroMLXPlugin.swift` exposes platform channel to Dart
   - Voice selection: 15 Kokoro voices auto-assigned to characters
-  - Audio cache: synthesized lines cached locally to avoid re-synthesis
-  - Server auto-downloads MLX model weights on first run (~80 MB)
-  - Run server: `cd server && pip install -r requirements.txt && python kokoro_server.py`
+  - Audio cache: synthesized WAV files cached in app Caches directory
+  - Model weights (~86 MB) auto-downloaded from HuggingFace on first `loadModel()`
+  - Graceful fallback to system TTS on non-Apple-Silicon devices or Android
 - [ ] **Whisper STT integration**:
   - Bundle Whisper small/medium model (balance accuracy vs size)
   - Use `whisper_flutter_plus` for on-device inference

@@ -144,22 +144,20 @@ class SettingsScreen extends ConsumerWidget {
             secondary: const Icon(Icons.people_outline),
           ),
           ListTile(
-            title: const Text('Kokoro TTS server'),
+            title: const Text('Kokoro TTS (on-device)'),
             subtitle: Text(
-              TtsService.instance.isKokoroAvailable
-                  ? 'Connected (Kokoro MLX)'
-                  : 'Not connected — using system TTS',
+              TtsService.instance.isKokoroLoaded
+                  ? 'Loaded — using on-device MLX inference'
+                  : 'Not loaded — using system TTS',
             ),
             leading: Icon(
-              TtsService.instance.isKokoroAvailable
+              TtsService.instance.isKokoroLoaded
                   ? Icons.record_voice_over
                   : Icons.voice_over_off,
-              color: TtsService.instance.isKokoroAvailable
+              color: TtsService.instance.isKokoroLoaded
                   ? Colors.green
                   : Colors.orange,
             ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => _showKokoroUrlDialog(context),
           ),
           _sectionHeader(context, 'AI Models'),
           ListTile(
@@ -204,39 +202,6 @@ class SettingsScreen extends ConsumerWidget {
     if (context.mounted) {
       context.go('/auth');
     }
-  }
-
-  void _showKokoroUrlDialog(BuildContext context) {
-    final controller =
-        TextEditingController(text: 'http://localhost:8787');
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Kokoro MLX Server'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Server URL',
-            hintText: 'http://localhost:8787',
-          ),
-          keyboardType: TextInputType.url,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              TtsService.instance.setKokoroUrl(controller.text.trim());
-              TtsService.instance.init();
-              Navigator.pop(ctx);
-            },
-            child: const Text('Connect'),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _sectionHeader(BuildContext context, String title) {

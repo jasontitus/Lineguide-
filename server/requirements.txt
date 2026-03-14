@@ -1,7 +1,0 @@
-kokoro>=0.8
-mlx>=0.22
-mlx-lm>=0.20
-fastapi>=0.115
-uvicorn[standard]>=0.34
-soundfile>=0.13
-numpy>=1.26

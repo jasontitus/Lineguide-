@@ -1,18 +1,14 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 /// TTS engine type used for fallback speech synthesis.
 enum TtsEngine {
-  /// Kokoro MLX neural TTS via local server (default, higher quality).
+  /// Kokoro on-device neural TTS via MLX (default, higher quality).
   kokoroMlx,
 
-  /// System TTS (last resort if Kokoro server unreachable).
+  /// System TTS (last resort if Kokoro model not loaded).
   system,
 }
 
@@ -22,11 +18,13 @@ enum TtsEngine {
 ///   1. Real recording by primary actor
 ///   2. Real recording by understudy (if fallback enabled)
 ///   3. Voice-cloned audio (if voice cloning enabled)
-///   4. Kokoro MLX TTS (default fallback)
-///   5. System TTS (last resort — only if Kokoro server unreachable)
+///   4. Kokoro MLX on-device TTS (default fallback)
+///   5. System TTS (last resort — only if Kokoro unavailable)
 class TtsService {
   TtsService._();
   static final instance = TtsService._();
+
+  static const _channel = MethodChannel('com.lineguide/kokoro_mlx');
 
   final FlutterTts _systemTts = FlutterTts();
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -40,18 +38,14 @@ class TtsService {
   final Map<String, Map<String, String>> _characterSystemVoices = {};
   List<dynamic> _availableSystemVoices = [];
 
-  // Kokoro MLX server configuration
-  String _kokoroBaseUrl = 'http://localhost:8787';
-  bool _kokoroAvailable = false;
-
-  // Audio cache directory
-  String? _cacheDir;
+  // Kokoro MLX state
+  bool _kokoroLoaded = false;
 
   // Completion callback
   Function? _completionHandler;
 
   TtsEngine get activeEngine => _activeEngine;
-  bool get isKokoroAvailable => _kokoroAvailable;
+  bool get isKokoroLoaded => _kokoroLoaded;
 
   /// Available Kokoro voices for character assignment.
   static const List<String> kokoroVoices = [
@@ -72,28 +66,17 @@ class TtsService {
     'bm_lewis',
   ];
 
-  /// Set the Kokoro MLX server URL.
-  void setKokoroUrl(String url) {
-    _kokoroBaseUrl = url;
-    _kokoroAvailable = false; // Re-check on next speak
-  }
-
   Future<void> init() async {
     if (_initialized) return;
 
-    // Set up audio cache directory
-    final appDir = await getApplicationDocumentsDirectory();
-    _cacheDir = p.join(appDir.path, 'tts_cache');
-    await Directory(_cacheDir!).create(recursive: true);
-
-    // Check if Kokoro MLX server is reachable
-    _kokoroAvailable = await _checkKokoroServer();
-    if (_kokoroAvailable) {
+    // Try to load Kokoro MLX model on device
+    _kokoroLoaded = await _initKokoroMlx();
+    if (_kokoroLoaded) {
       _activeEngine = TtsEngine.kokoroMlx;
-      debugPrint('TTS: Using Kokoro MLX server at $_kokoroBaseUrl');
+      debugPrint('TTS: Using Kokoro MLX on-device neural TTS');
     } else {
       _activeEngine = TtsEngine.system;
-      debugPrint('TTS: Kokoro MLX server not reachable, using system TTS');
+      debugPrint('TTS: Kokoro MLX not available, using system TTS');
     }
 
     // Initialize system TTS as fallback
@@ -104,7 +87,7 @@ class TtsService {
 
     _availableSystemVoices = await _systemTts.getVoices as List<dynamic>;
 
-    // Listen for audio player completion
+    // Listen for audio player completion (for Kokoro playback)
     _audioPlayer.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
         _completionHandler?.call();
@@ -114,26 +97,33 @@ class TtsService {
     _initialized = true;
   }
 
-  /// Check if the Kokoro MLX server is healthy.
-  Future<bool> _checkKokoroServer() async {
+  /// Initialize on-device Kokoro MLX model.
+  /// Returns true if the model is loaded and ready for inference.
+  Future<bool> _initKokoroMlx() async {
     try {
-      final client = HttpClient();
-      client.connectionTimeout = const Duration(seconds: 2);
-      try {
-        final request =
-            await client.getUrl(Uri.parse('$_kokoroBaseUrl/health'));
-        final response = await request.close();
-        await response.drain<void>();
-        return response.statusCode == 200;
-      } finally {
-        client.close();
-      }
+      final result = await _channel.invokeMethod<bool>('loadModel');
+      return result ?? false;
+    } on PlatformException catch (e) {
+      debugPrint('Kokoro MLX: load failed: ${e.message}');
+      return false;
+    } on MissingPluginException {
+      // Platform channel not registered (e.g. running on Android or web)
+      debugPrint('Kokoro MLX: platform channel not available');
+      return false;
+    }
+  }
+
+  /// Check if the Kokoro MLX model is downloaded but not yet loaded.
+  Future<bool> isModelDownloaded() async {
+    try {
+      final status = await _channel.invokeMapMethod<String, dynamic>('getModelStatus');
+      return status?['downloaded'] == true;
     } catch (_) {
       return false;
     }
   }
 
-  /// Assign a distinct Kokoro voice to a character for variety during rehearsal.
+  /// Assign a distinct voice to a character for variety during rehearsal.
   void assignVoice(String character, int characterIndex) {
     // Assign a Kokoro voice
     final voiceIdx = characterIndex % kokoroVoices.length;
@@ -149,16 +139,19 @@ class TtsService {
     }
   }
 
-  /// Speak text for a character using Kokoro MLX TTS.
+  /// Speak text for a character using Kokoro MLX on-device TTS.
   ///
-  /// Falls back to system TTS only if the Kokoro server is unreachable.
+  /// Falls back to system TTS only if Kokoro is not available on this device.
   Future<void> speak(String text, {String? character}) async {
     if (!_initialized) await init();
 
     // Try Kokoro MLX first
-    if (await _speakWithKokoroMlx(text, character: character)) return;
+    if (_kokoroLoaded) {
+      final spoke = await _speakWithKokoroMlx(text, character: character);
+      if (spoke) return;
+    }
 
-    // Kokoro not available — fall back to system TTS
+    // Fall back to system TTS
     if (character != null &&
         _characterSystemVoices.containsKey(character)) {
       final voice = _characterSystemVoices[character]!;
@@ -167,72 +160,27 @@ class TtsService {
     await _systemTts.speak(text);
   }
 
-  /// Synthesize and play audio using the Kokoro MLX server.
+  /// Synthesize and play audio using on-device Kokoro MLX.
   /// Returns true if successful.
-  Future<bool> _speakWithKokoroMlx(String text,
-      {String? character}) async {
-    // Re-check server availability if it was previously unavailable
-    if (!_kokoroAvailable) {
-      _kokoroAvailable = await _checkKokoroServer();
-      if (!_kokoroAvailable) return false;
-    }
-
+  Future<bool> _speakWithKokoroMlx(String text, {String? character}) async {
     final voice = (character != null && _characterVoices.containsKey(character))
         ? _characterVoices[character]!
         : 'af_heart';
 
-    // Check cache first
-    final cacheKey =
-        '${text.hashCode}_${voice}_${_currentSpeed.toStringAsFixed(1)}';
-    final cacheFile = File(p.join(_cacheDir!, '$cacheKey.wav'));
-
-    if (cacheFile.existsSync()) {
-      try {
-        await _audioPlayer.setFilePath(cacheFile.path);
-        await _audioPlayer.play();
-        return true;
-      } catch (_) {
-        // Cache file corrupt, re-synthesize
-        await cacheFile.delete();
-      }
-    }
-
-    // Call Kokoro MLX server
     try {
-      final client = HttpClient();
-      client.connectionTimeout = const Duration(seconds: 5);
-      try {
-        final request =
-            await client.postUrl(Uri.parse('$_kokoroBaseUrl/synthesize'));
-        request.headers.contentType = ContentType.json;
-        request.write(
-          '{"text": ${_jsonEscape(text)}, "voice": "$voice", "speed": $_currentSpeed}',
-        );
-        final response = await request.close();
+      final audioPath = await _channel.invokeMethod<String>('synthesize', {
+        'text': text,
+        'voice': voice,
+        'speed': _currentSpeed,
+      });
 
-        if (response.statusCode != 200) {
-          debugPrint('Kokoro MLX: server returned ${response.statusCode}');
-          _kokoroAvailable = false;
-          return false;
-        }
+      if (audioPath == null) return false;
 
-        // Write audio to cache file
-        final sink = cacheFile.openWrite();
-        await response.pipe(sink);
-        await sink.close();
-
-        // Play the audio
-        await _audioPlayer.setFilePath(cacheFile.path);
-        await _audioPlayer.play();
-
-        _activeEngine = TtsEngine.kokoroMlx;
-        return true;
-      } finally {
-        client.close();
-      }
-    } catch (e) {
-      debugPrint('Kokoro MLX: synthesis failed: $e');
-      _kokoroAvailable = false;
+      await _audioPlayer.setFilePath(audioPath);
+      await _audioPlayer.play();
+      return true;
+    } on PlatformException catch (e) {
+      debugPrint('Kokoro MLX: synthesis failed: ${e.message}');
       return false;
     }
   }
@@ -260,22 +208,14 @@ class TtsService {
     _systemTts.setCompletionHandler(() => handler());
   }
 
-  /// Clear the TTS audio cache.
-  Future<void> clearCache() async {
-    if (_cacheDir == null) return;
-    final dir = Directory(_cacheDir!);
-    if (dir.existsSync()) {
-      await for (final entity in dir.list()) {
-        if (entity is File && entity.path.endsWith('.wav')) {
-          await entity.delete();
-        }
-      }
+  /// Delete the on-device Kokoro model to free storage.
+  Future<void> deleteModel() async {
+    try {
+      await _channel.invokeMethod('deleteModel');
+      _kokoroLoaded = false;
+      _activeEngine = TtsEngine.system;
+    } catch (e) {
+      debugPrint('Kokoro MLX: delete failed: $e');
     }
-    debugPrint('TTS: Cache cleared');
-  }
-
-  /// JSON-escape a string value (including surrounding quotes).
-  static String _jsonEscape(String s) {
-    return '"${s.replaceAll('\\', '\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\n').replaceAll('\r', '\\r')}"';
   }
 }

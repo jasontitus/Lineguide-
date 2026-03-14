@@ -77,8 +77,14 @@ class ModelDownloadService {
       sizeBytes: 2 * 1024 * 1024,
       downloadUrl: '', // populated when backend is ready
     ),
-    // Kokoro TTS now runs via Kokoro-MLX server (no on-device ONNX needed).
-    // The MLX model is downloaded automatically by the server on first run.
+    AiModel(
+      id: 'kokoro_tts',
+      name: 'Kokoro TTS (MLX)',
+      description: 'On-device neural TTS via Apple MLX (~86 MB, auto-downloaded)',
+      sizeLabel: '~86 MB',
+      sizeBytes: 86 * 1024 * 1024,
+      downloadUrl: '', // Model downloaded by kokoro-swift on first loadModel() call
+    ),
     AiModel(
       id: 'whisper_stt',
       name: 'Whisper STT',
