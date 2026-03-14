@@ -6,6 +6,7 @@ import '../../app.dart';
 import '../../core/constants.dart';
 import '../../data/services/model_download_service.dart';
 import '../../data/services/supabase_service.dart';
+import '../../data/services/tts_service.dart';
 import '../../main.dart';
 import '../auth/auth_screen.dart';
 
@@ -141,6 +142,22 @@ class SettingsScreen extends ConsumerWidget {
             onChanged: (v) =>
                 ref.read(understudyFallbackProvider.notifier).state = v,
             secondary: const Icon(Icons.people_outline),
+          ),
+          ListTile(
+            title: const Text('Kokoro TTS (on-device)'),
+            subtitle: Text(
+              TtsService.instance.isKokoroLoaded
+                  ? 'Loaded — using on-device MLX inference'
+                  : 'Not loaded — using system TTS',
+            ),
+            leading: Icon(
+              TtsService.instance.isKokoroLoaded
+                  ? Icons.record_voice_over
+                  : Icons.voice_over_off,
+              color: TtsService.instance.isKokoroLoaded
+                  ? Colors.green
+                  : Colors.orange,
+            ),
           ),
           _sectionHeader(context, 'AI Models'),
           ListTile(

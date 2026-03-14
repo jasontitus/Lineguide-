@@ -12,6 +12,7 @@ import 'features/script_editor/script_editor_screen.dart';
 import 'features/script_editor/character_manager_screen.dart';
 import 'features/script_editor/scene_editor_screen.dart';
 import 'features/cast_manager/cast_manager_screen.dart';
+import 'features/cast_manager/voice_config_screen.dart';
 import 'features/recording_studio/recording_character_screen.dart';
 import 'features/recording_studio/recording_studio_screen.dart';
 import 'features/recording_studio/recordings_browser_screen.dart';
@@ -80,6 +81,10 @@ GoRouter _buildRouter(Ref ref) => GoRouter(
     GoRoute(
       path: '/cast',
       builder: (context, state) => const CastManagerScreen(),
+    ),
+    GoRoute(
+      path: '/voice-config',
+      builder: (context, state) => const VoiceConfigScreen(),
     ),
     GoRoute(
       path: '/record',

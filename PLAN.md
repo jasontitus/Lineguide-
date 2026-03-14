@@ -507,12 +507,15 @@ Rehearsal:
 **Goal:** Replace placeholder/cloud services with high-quality on-device models.
 
 ### Tasks
-- [ ] **Kokoro TTS integration**:
-  - Bundle Kokoro ONNX model (or download on first use)
-  - Implement Flutter platform channel or FFI bridge to ONNX Runtime
-  - Voice selection: map characters to distinct Kokoro voices
-  - Pre-generate TTS for scenes to avoid latency during rehearsal
-  - Cache generated audio files
+- [x] **Kokoro TTS integration (on-device MLX)**:
+  - Uses `kokoro-swift` SPM package for on-device Apple Silicon inference via MLX
+  - Flutter ↔ Swift bridge via `MethodChannel('com.lineguide/kokoro_mlx')`
+  - `KokoroMLXService.swift` handles model loading, inference, WAV encoding
+  - `KokoroMLXPlugin.swift` exposes platform channel to Dart
+  - Voice selection: 15 Kokoro voices auto-assigned to characters
+  - Audio cache: synthesized WAV files cached in app Caches directory
+  - Model weights (~86 MB) auto-downloaded from HuggingFace on first `loadModel()`
+  - Graceful fallback to system TTS on non-Apple-Silicon devices or Android
 - [ ] **Whisper STT integration**:
   - Bundle Whisper small/medium model (balance accuracy vs size)
   - Use `whisper_flutter_plus` for on-device inference

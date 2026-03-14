@@ -79,11 +79,11 @@ class ModelDownloadService {
     ),
     AiModel(
       id: 'kokoro_tts',
-      name: 'Kokoro TTS',
-      description: 'On-device neural text-to-speech (~80 MB)',
-      sizeLabel: '~80 MB',
-      sizeBytes: 80 * 1024 * 1024,
-      downloadUrl: '',
+      name: 'Kokoro TTS (MLX)',
+      description: 'On-device neural TTS via Apple MLX (~86 MB, auto-downloaded)',
+      sizeLabel: '~86 MB',
+      sizeBytes: 86 * 1024 * 1024,
+      downloadUrl: '', // Model downloaded by kokoro-swift on first loadModel() call
     ),
     AiModel(
       id: 'whisper_stt',
