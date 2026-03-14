@@ -13,6 +13,7 @@ import '../../data/services/tts_service.dart';
 import '../../data/services/stt_service.dart';
 import '../../data/services/stt_adaptation_service.dart';
 import '../../data/services/voice_clone_service.dart';
+import '../../data/services/voice_config_service.dart';
 import '../../providers/production_providers.dart';
 import '../../features/settings/settings_screen.dart';
 import 'scene_selector_screen.dart';
@@ -88,11 +89,22 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   Future<void> _initAudio() async {
     await _tts.init();
 
-    // Assign voices to characters for variety
+    // Assign voices to characters using production voice config
     final script = ref.read(currentScriptProvider);
+    final production = ref.read(currentProductionProvider);
     if (script != null) {
+      final voiceConfig = VoiceConfigService.instance;
       for (var i = 0; i < script.characters.length; i++) {
-        _tts.assignVoice(script.characters[i].name, i);
+        final charName = script.characters[i].name;
+        if (production != null) {
+          final voiceId =
+              await voiceConfig.resolveVoice(production.id, charName, i);
+          final speed =
+              await voiceConfig.resolveSpeed(production.id, charName);
+          _tts.assignVoice(charName, i, voiceId: voiceId, speed: speed);
+        } else {
+          _tts.assignVoice(charName, i);
+        }
       }
     }
 

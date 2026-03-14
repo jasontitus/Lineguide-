@@ -117,6 +117,11 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.record_voice_over),
+            tooltip: 'Voice settings',
+            onPressed: () => context.push('/voice-config'),
+          ),
+          IconButton(
             icon: const Icon(Icons.model_training),
             tooltip: 'Train AI models',
             onPressed: () => _showTrainingDialog(context, script),

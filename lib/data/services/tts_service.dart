@@ -31,8 +31,11 @@ class TtsService {
   bool _initialized = false;
   TtsEngine _activeEngine = TtsEngine.kokoroMlx;
 
-  // Map character names to Kokoro voice IDs for variety
+  // Map character names to Kokoro voice IDs (set by voice config or fallback)
   final Map<String, String> _characterVoices = {};
+
+  // Per-character speed overrides (from voice config)
+  final Map<String, double> _characterSpeeds = {};
 
   // System TTS voices (fallback)
   final Map<String, Map<String, String>> _characterSystemVoices = {};
@@ -123,11 +126,18 @@ class TtsService {
     }
   }
 
-  /// Assign a distinct voice to a character for variety during rehearsal.
-  void assignVoice(String character, int characterIndex) {
-    // Assign a Kokoro voice
-    final voiceIdx = characterIndex % kokoroVoices.length;
-    _characterVoices[character] = kokoroVoices[voiceIdx];
+  /// Assign a specific Kokoro voice and speed to a character.
+  ///
+  /// Called by rehearsal screen after resolving voice config (preset + overrides).
+  void assignVoice(String character, int characterIndex,
+      {String? voiceId, double? speed}) {
+    // Use provided voiceId or fall back to round-robin from kokoroVoices
+    _characterVoices[character] =
+        voiceId ?? kokoroVoices[characterIndex % kokoroVoices.length];
+
+    if (speed != null) {
+      _characterSpeeds[character] = speed;
+    }
 
     // Also assign a system TTS voice as fallback
     if (_availableSystemVoices.isNotEmpty) {
@@ -167,11 +177,16 @@ class TtsService {
         ? _characterVoices[character]!
         : 'af_heart';
 
+    // Use per-character speed if set, otherwise global speed
+    final speed = (character != null && _characterSpeeds.containsKey(character))
+        ? _characterSpeeds[character]!
+        : _currentSpeed;
+
     try {
       final audioPath = await _channel.invokeMethod<String>('synthesize', {
         'text': text,
         'voice': voice,
-        'speed': _currentSpeed,
+        'speed': speed,
       });
 
       if (audioPath == null) return false;
