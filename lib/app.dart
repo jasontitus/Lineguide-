@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/auth_screen.dart';
 import 'features/home/home_screen.dart';
+import 'features/production_hub/production_hub_screen.dart';
 import 'features/script_import/script_import_screen.dart';
 import 'features/script_editor/script_editor_screen.dart';
 import 'features/script_editor/character_manager_screen.dart';
@@ -47,6 +48,10 @@ GoRouter _buildRouter(Ref ref) => GoRouter(
           builder: (context, state) => const SettingsScreen(),
         ),
       ],
+    ),
+    GoRoute(
+      path: '/production',
+      builder: (context, state) => const ProductionHubScreen(),
     ),
     GoRoute(
       path: '/import',
