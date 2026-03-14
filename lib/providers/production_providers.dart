@@ -100,6 +100,15 @@ class RecordingsNotifier extends StateNotifier<Map<String, Recording>> {
   }
 }
 
+/// Understudy recordings for the current production, keyed by script line ID.
+/// These are recordings made by understudies and can be used as fallback
+/// when the primary actor hasn't recorded a line.
+final understudyRecordingsProvider =
+    StateNotifierProvider<RecordingsNotifier, Map<String, Recording>>((ref) {
+  final repo = ref.read(productionRepositoryProvider);
+  return RecordingsNotifier(repo);
+});
+
 /// Character being recorded in the recording studio.
 final recordingCharacterProvider = StateProvider<String?>((ref) => null);
 

@@ -234,6 +234,19 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
                   style: TextStyle(color: Colors.blue, fontSize: 9,
                       fontWeight: FontWeight.bold)),
             ),
+          // Voice clone opt-out badge
+          if (!ref.watch(voiceCloningEnabledProvider))
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              margin: const EdgeInsets.only(right: 4),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text('No Clone',
+                  style: TextStyle(color: Colors.orange, fontSize: 9,
+                      fontWeight: FontWeight.bold)),
+            ),
           // Adapted STT badge
           if (_activeAdapter != null)
             Container(
@@ -831,7 +844,13 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     }
   }
 
-  /// Play another character's line via recording or TTS.
+  /// Play another character's line.
+  ///
+  /// Audio priority chain:
+  ///   1. Real recording by primary actor
+  ///   2. Real recording by understudy (if understudy fallback enabled)
+  ///   3. Voice-cloned audio (if voice cloning enabled)
+  ///   4. Kokoro TTS (default fallback — never uses system TTS)
   Future<void> _playOtherLine(ScriptLine line) async {
     ref.read(rehearsalStateProvider.notifier).state =
         RehearsalState.playingOther;
@@ -842,7 +861,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
     final speed = ref.read(playbackSpeedProvider);
 
-    // Check for a recording first
+    // 1. Check for a primary actor recording first
     final recordings = ref.read(recordingsProvider);
     final recording = recordings[line.id];
 
@@ -851,16 +870,36 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
         await _player.setFilePath(recording.localPath);
         await _player.setSpeed(speed);
         await _player.play();
-        // Completion handled by playerStateStream listener
         return;
       } catch (_) {
-        // Fall through to TTS
+        // Fall through to understudy
       }
     }
 
-    // Try voice clone if a profile exists for this character
+    // 2. Understudy fallback — use understudy recording if primary is missing
+    final understudyFallback = ref.read(understudyFallbackProvider);
+    if (understudyFallback) {
+      final understudyRecordings = ref.read(understudyRecordingsProvider);
+      final understudyRecording = understudyRecordings[line.id];
+
+      if (understudyRecording != null) {
+        try {
+          await _player.setFilePath(understudyRecording.localPath);
+          await _player.setSpeed(speed);
+          await _player.play();
+          return;
+        } catch (_) {
+          // Fall through to voice clone
+        }
+      }
+    }
+
+    // 3. Try voice clone if enabled and a profile exists for this character
+    final voiceCloningEnabled = ref.read(voiceCloningEnabledProvider);
     final production = ref.read(currentProductionProvider);
-    if (production != null && _voiceClone.canClone(line.character)) {
+    if (voiceCloningEnabled &&
+        production != null &&
+        _voiceClone.canClone(line.character)) {
       final clonedPath = await _voiceClone.generateLine(
         productionId: production.id,
         character: line.character,
@@ -874,12 +913,12 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
           await _player.play();
           return;
         } catch (_) {
-          // Fall through to system TTS
+          // Fall through to Kokoro TTS
         }
       }
     }
 
-    // Fall back to system TTS — map speed (0.5x–2.0x) to TTS rate (0.25–1.0)
+    // 4. Kokoro TTS fallback (never uses system TTS)
     await _tts.setRate(speed * 0.5);
     await _tts.speak(line.text, character: line.character);
     // Completion handled by TTS completion handler

@@ -16,6 +16,14 @@ enum JumpBackTrigger { shake, doubleTap, swipeLeft, keyword }
 final jumpBackTriggerProvider = StateProvider<JumpBackTrigger>(
     (ref) => JumpBackTrigger.doubleTap);
 
+/// When true, voice cloning is disabled — the app will use real recordings
+/// or system TTS only. Actors can opt out of having their voice cloned.
+final voiceCloningEnabledProvider = StateProvider<bool>((ref) => true);
+
+/// When true, fall back to understudy recordings when the primary actor
+/// hasn't recorded a line.
+final understudyFallbackProvider = StateProvider<bool>((ref) => true);
+
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -25,6 +33,8 @@ class SettingsScreen extends ConsumerWidget {
     final playbackSpeed = ref.watch(playbackSpeedProvider);
     final matchThreshold = ref.watch(matchThresholdProvider);
     final jumpBackTrigger = ref.watch(jumpBackTriggerProvider);
+    final voiceCloningEnabled = ref.watch(voiceCloningEnabledProvider);
+    final understudyFallback = ref.watch(understudyFallbackProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -101,6 +111,30 @@ class SettingsScreen extends ConsumerWidget {
                       v.round(),
             ),
             trailing: Text('$matchThreshold%'),
+          ),
+          _sectionHeader(context, 'AI & Voice'),
+          SwitchListTile(
+            title: const Text('Voice cloning'),
+            subtitle: Text(voiceCloningEnabled
+                ? 'AI voice cloning is enabled for other characters'
+                : 'Opted out — only real recordings or system TTS will be used'),
+            value: voiceCloningEnabled,
+            onChanged: (v) =>
+                ref.read(voiceCloningEnabledProvider.notifier).state = v,
+            secondary: Icon(
+              voiceCloningEnabled
+                  ? Icons.record_voice_over
+                  : Icons.voice_over_off,
+            ),
+          ),
+          SwitchListTile(
+            title: const Text('Understudy fallback'),
+            subtitle: const Text(
+                'Use understudy recordings when primary actor hasn\'t recorded'),
+            value: understudyFallback,
+            onChanged: (v) =>
+                ref.read(understudyFallbackProvider.notifier).state = v,
+            secondary: const Icon(Icons.people_outline),
           ),
           _sectionHeader(context, 'About'),
           const ListTile(
