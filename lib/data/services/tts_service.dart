@@ -48,6 +48,10 @@ class TtsService {
 
   TtsEngine get activeEngine => _activeEngine;
   bool get isKokoroReady => _kokoroTts != null;
+  bool get isInitialized => _initialized;
+  int get kokoroSampleRate => _kokoroSampleRate;
+  int get kokoroNumSpeakers => _kokoroTts?.numSpeakers ?? 0;
+  String? _lastInitError;
 
   Future<void> init() async {
     if (_initialized) return;
@@ -94,10 +98,13 @@ class TtsService {
             model: paths.model,
             voices: paths.voices,
             tokens: paths.tokens,
-            dataDir: paths.dataDir,
+            dataDir: p.join(paths.dataDir, 'espeak-ng-data'),
+            lexicon:
+                '${p.join(paths.dataDir, 'lexicon-us-en.txt')},'
+                '${p.join(paths.dataDir, 'lexicon-zh.txt')}',
           ),
           numThreads: 2,
-          debug: false,
+          debug: true,
           provider: 'cpu',
         ),
       );
@@ -107,6 +114,7 @@ class TtsService {
       debugPrint('Kokoro loaded: ${_kokoroTts!.numSpeakers} speakers, ${_kokoroSampleRate}Hz');
       return true;
     } catch (e) {
+      _lastInitError = e.toString();
       debugPrint('Kokoro init failed: $e');
       return false;
     }
@@ -265,6 +273,47 @@ class TtsService {
   /// Listen for TTS completion events.
   void setCompletionHandler(Function handler) {
     _completionHandler = () => handler();
+  }
+
+  /// Debug info for diagnostics screen.
+  Future<Map<String, String>> getDebugInfo() async {
+    final paths = await ModelManager.instance.getKokoroPaths();
+    final kokoroReady = await ModelManager.instance.isKokoroReady();
+
+    // Count files in kokoro directory
+    var fileCount = 0;
+    var dirCount = 0;
+    var hasEspeakData = false;
+    final dir = await ModelManager.instance.modelsDir;
+    final kokoroDir = Directory('$dir/kokoro-multi-lang-v1_0');
+    if (await kokoroDir.exists()) {
+      await for (final entity in kokoroDir.list(recursive: false)) {
+        if (entity is File) {
+          fileCount++;
+        } else if (entity is Directory) {
+          dirCount++;
+          if (entity.path.contains('espeak-ng-data')) {
+            hasEspeakData = true;
+          }
+        }
+      }
+    }
+
+    return {
+      'initialized': _initialized.toString(),
+      'activeEngine': _activeEngine.name,
+      'kokoroReady': isKokoroReady.toString(),
+      'kokoroModelDownloaded': kokoroReady.toString(),
+      'filesInDir': '$fileCount files, $dirCount dirs',
+      'hasEspeakData': hasEspeakData.toString(),
+      'kokoroSampleRate': _kokoroSampleRate.toString(),
+      'kokoroNumSpeakers': kokoroNumSpeakers.toString(),
+      'lastInitError': _lastInitError ?? 'none',
+      'modelPath': paths?.model ?? 'not found',
+      'voicesPath': paths?.voices ?? 'not found',
+      'tokensPath': paths?.tokens ?? 'not found',
+      'dataDir': paths?.dataDir ?? 'not found',
+    };
   }
 
   /// Clean up resources.

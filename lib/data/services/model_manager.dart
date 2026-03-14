@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:archive/archive_io.dart';
 import 'package:flutter/foundation.dart';
@@ -276,10 +275,23 @@ class ModelManager {
       onProgress?.call(progress * 0.8);
     });
 
+    // Verify archive downloaded correctly
+    final archiveFile = File(archivePath);
+    final archiveSize = await archiveFile.length();
+    debugPrint('Archive downloaded: ${(archiveSize / 1024 / 1024).toStringAsFixed(1)} MB');
+    if (archiveSize < 1000) {
+      throw Exception('Archive too small ($archiveSize bytes) — download likely failed');
+    }
+
     // Extract in a separate isolate using streaming I/O
     debugPrint('Extracting archive to $destDir ...');
     onProgress?.call(0.85);
-    await Isolate.run(() => _extractArchiveStreaming(archivePath, destDir));
+    try {
+      await compute(_extractArchiveStreaming, (archivePath, destDir));
+    } catch (e) {
+      debugPrint('Archive extraction failed: $e');
+      rethrow;
+    }
 
     // Clean up archive
     try {
@@ -295,7 +307,8 @@ class ModelManager {
   /// Step 1: Stream-decompress bzip2 to a temp .tar file on disk.
   /// Step 2: Stream-extract tar entries to destination, one file at a time.
   /// Peak memory is ~one file, not the entire archive.
-  static void _extractArchiveStreaming(String archivePath, String destDir) {
+  static void _extractArchiveStreaming((String, String) args) {
+    final (archivePath, destDir) = args;
     // Decompress bzip2 → temp tar file
     final tempDir = Directory.systemTemp.createTempSync('lineguide_extract');
     final tarPath = p.join(tempDir.path, 'temp.tar');
