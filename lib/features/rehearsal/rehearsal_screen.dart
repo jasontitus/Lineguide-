@@ -11,6 +11,7 @@ import '../../data/models/script_models.dart';
 import '../../data/models/rehearsal_models.dart';
 import '../../data/services/tts_service.dart';
 import '../../data/services/stt_service.dart';
+import '../../data/services/stt_adaptation_service.dart';
 import '../../data/services/voice_clone_service.dart';
 import '../../providers/production_providers.dart';
 import '../../features/settings/settings_screen.dart';
@@ -46,6 +47,8 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   final TtsService _tts = TtsService.instance;
   final SttService _stt = SttService.instance;
   final VoiceCloneService _voiceClone = VoiceCloneService.instance;
+  final SttAdaptationService _sttAdapt = SttAdaptationService.instance;
+  String? _activeAdapter; // per-actor or per-production LoRA adapter path
 
   final bool _autoPlay = true; // auto-advance through other characters' lines
   String _recognizedText = '';
@@ -98,6 +101,16 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
         _onOtherLineFinished();
       }
     });
+
+    // Check for per-actor or per-production STT adapter
+    final production = ref.read(currentProductionProvider);
+    final myCharacter = ref.read(rehearsalCharacterProvider);
+    if (production != null && myCharacter != null) {
+      _activeAdapter = _sttAdapt.getBestAdapter(production.id, myCharacter);
+      if (_activeAdapter != null) {
+        debugPrint('Rehearsal: Using adapted STT model: $_activeAdapter');
+      }
+    }
 
     // Auto-start if enabled
     if (_autoPlay) {
@@ -219,6 +232,19 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
               ),
               child: const Text('C2C',
                   style: TextStyle(color: Colors.blue, fontSize: 9,
+                      fontWeight: FontWeight.bold)),
+            ),
+          // Adapted STT badge
+          if (_activeAdapter != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              margin: const EdgeInsets.only(right: 4),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text('AI',
+                  style: TextStyle(color: Colors.green, fontSize: 9,
                       fontWeight: FontWeight.bold)),
             ),
           // State indicator

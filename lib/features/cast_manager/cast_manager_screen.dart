@@ -5,6 +5,8 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../data/models/script_models.dart';
+import '../../data/services/stt_adaptation_service.dart';
+import '../../data/services/voice_clone_service.dart';
 import '../../providers/production_providers.dart';
 
 /// Local cast assignment data — who plays which character.
@@ -115,6 +117,11 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.model_training),
+            tooltip: 'Train AI models',
+            onPressed: () => _showTrainingDialog(context, script),
+          ),
+          IconButton(
             icon: const Icon(Icons.share),
             tooltip: 'Share cast list',
             onPressed: () => _shareCastList(script, assignments),
@@ -198,6 +205,15 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
     int recordedCount,
     int totalLines,
   ) {
+    final production = ref.read(currentProductionProvider);
+    final voiceClone = VoiceCloneService.instance;
+    final sttAdapt = SttAdaptationService.instance;
+    final canClone = voiceClone.canClone(char.name);
+    final voiceProfile = voiceClone.getProfile(char.name);
+    final sttProfile = production != null
+        ? sttAdapt.getActorProfile(production.id, char.name)
+        : null;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -243,6 +259,30 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
                   icon: const Icon(Icons.person_add_outlined),
                   tooltip: 'Invite actor',
                   onPressed: () => _inviteActor(char.name),
+                ),
+              ],
+            ),
+            // AI readiness badges
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: [
+                _aiBadge(
+                  icon: Icons.record_voice_over,
+                  label: 'Voice Clone',
+                  ready: canClone,
+                  detail: voiceProfile != null
+                      ? '${(voiceProfile.quality * 100).toInt()}%'
+                      : null,
+                ),
+                _aiBadge(
+                  icon: Icons.hearing,
+                  label: 'STT Adapt',
+                  ready: sttProfile?.hasEnoughData ?? false,
+                  detail: sttProfile != null
+                      ? '${sttProfile.totalAudioSeconds.toStringAsFixed(0)}s'
+                      : null,
                 ),
               ],
             ),
@@ -342,6 +382,187 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
           ),
         ],
       ],
+    );
+  }
+
+  void _showTrainingDialog(BuildContext context, ParsedScript script) {
+    final production = ref.read(currentProductionProvider);
+    if (production == null) return;
+
+    final sttAdapt = SttAdaptationService.instance;
+    final voiceClone = VoiceCloneService.instance;
+    final strategy = sttAdapt.recommendStrategy(production.id);
+    final actorProfiles = sttAdapt.getProductionActorProfiles(production.id);
+    final prodProfile = sttAdapt.getProductionProfile(production.id);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.model_training),
+            SizedBox(width: 8),
+            Text('AI Training'),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Strategy recommendation
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: strategy == TrainingStrategy.notReady
+                      ? Colors.orange.withValues(alpha: 0.1)
+                      : Colors.green.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      strategy == TrainingStrategy.notReady
+                          ? Icons.hourglass_empty
+                          : Icons.check_circle,
+                      color: strategy == TrainingStrategy.notReady
+                          ? Colors.orange
+                          : Colors.green,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        switch (strategy) {
+                          TrainingStrategy.perActor =>
+                            'Ready for per-actor training! Each character has enough audio.',
+                          TrainingStrategy.perProduction =>
+                            'Ready for production-wide training. Pool all recordings together.',
+                          TrainingStrategy.notReady =>
+                            'Need more recordings. Keep recording to unlock AI features.',
+                        },
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Per-actor status
+              Text('Per-Actor Status',
+                  style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 8),
+              ...script.characters.map((char) {
+                final ap = sttAdapt.getActorProfile(production.id, char.name);
+                final vp = voiceClone.getProfile(char.name);
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 100,
+                        child: Text(char.name,
+                            style: const TextStyle(fontSize: 12),
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                      Expanded(
+                        child: LinearProgressIndicator(
+                          value: ap.readiness,
+                          backgroundColor: Colors.grey[800],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text('${ap.totalAudioSeconds.toStringAsFixed(0)}s',
+                          style: TextStyle(
+                              fontSize: 11, color: Colors.grey[500])),
+                    ],
+                  ),
+                );
+              }),
+
+              // Production totals
+              const SizedBox(height: 12),
+              Text(
+                'Total: ${prodProfile.totalAudioSeconds.toStringAsFixed(0)}s audio, '
+                '${prodProfile.samples.length} samples',
+                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+          if (strategy != TrainingStrategy.notReady)
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                _startTraining(production.id, strategy);
+              },
+              icon: const Icon(Icons.play_arrow),
+              label: Text(strategy == TrainingStrategy.perActor
+                  ? 'Train Per-Actor'
+                  : 'Train Production'),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _startTraining(String productionId, TrainingStrategy strategy) {
+    final sttAdapt = SttAdaptationService.instance;
+
+    if (strategy == TrainingStrategy.perActor) {
+      final profiles = sttAdapt.getProductionActorProfiles(productionId);
+      for (final profile in profiles) {
+        if (profile.hasEnoughData) {
+          sttAdapt.requestActorTraining(
+            productionId: productionId,
+            actorId: profile.actorId,
+          );
+        }
+      }
+    } else {
+      sttAdapt.requestProductionTraining(productionId: productionId);
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(strategy == TrainingStrategy.perActor
+            ? 'Per-actor training requested'
+            : 'Production training requested'),
+      ),
+    );
+  }
+
+  Widget _aiBadge({
+    required IconData icon,
+    required String label,
+    required bool ready,
+    String? detail,
+  }) {
+    final color = ready ? Colors.green : Colors.grey;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 4),
+          Text(
+            detail != null ? '$label ($detail)' : label,
+            style: TextStyle(fontSize: 10, color: color),
+          ),
+        ],
+      ),
     );
   }
 
