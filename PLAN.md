@@ -507,12 +507,13 @@ Rehearsal:
 **Goal:** Replace placeholder/cloud services with high-quality on-device models.
 
 ### Tasks
-- [ ] **Kokoro TTS integration**:
-  - Bundle Kokoro ONNX model (or download on first use)
-  - Implement Flutter platform channel or FFI bridge to ONNX Runtime
-  - Voice selection: map characters to distinct Kokoro voices
-  - Pre-generate TTS for scenes to avoid latency during rehearsal
-  - Cache generated audio files
+- [x] **Kokoro TTS integration (MLX)**:
+  - Kokoro-MLX Python server (`server/kokoro_server.py`) for fast Apple Silicon inference
+  - Flutter `TtsService` calls server HTTP API → plays returned WAV via `just_audio`
+  - Voice selection: 15 Kokoro voices auto-assigned to characters
+  - Audio cache: synthesized lines cached locally to avoid re-synthesis
+  - Server auto-downloads MLX model weights on first run (~80 MB)
+  - Run server: `cd server && pip install -r requirements.txt && python kokoro_server.py`
 - [ ] **Whisper STT integration**:
   - Bundle Whisper small/medium model (balance accuracy vs size)
   - Use `whisper_flutter_plus` for on-device inference
