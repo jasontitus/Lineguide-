@@ -96,13 +96,15 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     if (script != null) {
       final voiceConfig = VoiceConfigService.instance;
       for (var i = 0; i < script.characters.length; i++) {
-        final charName = script.characters[i].name;
+        final char = script.characters[i];
         if (production != null) {
-          final voiceId =
-              await voiceConfig.resolveVoice(production.id, charName, i);
+          final voiceId = await voiceConfig.resolveVoice(
+            production.id, char.name, i,
+            isFemale: char.gender != CharacterGender.male,
+          );
           final speed =
-              await voiceConfig.resolveSpeed(production.id, charName);
-          _tts.assignVoice(charName, i, voiceId: voiceId, speed: speed);
+              await voiceConfig.resolveSpeed(production.id, char.name);
+          _tts.assignVoice(char.name, i, voiceId: voiceId, speed: speed);
         } else {
           _tts.assignVoice(charName, i);
         }
