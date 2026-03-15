@@ -50,7 +50,7 @@ class _KokoroDebugScreenState extends State<KokoroDebugScreen> {
     final files = <String>[];
     try {
       final dir = await ModelManager.instance.modelsDir;
-      final kokoroDir = Directory(p.join(dir, 'kokoro-multi-lang-v1_0'));
+      final kokoroDir = Directory(p.join(dir, 'kokoro_mlx'));
       if (await kokoroDir.exists()) {
         await for (final entity in kokoroDir.list(recursive: false)) {
           final name = p.basename(entity.path);

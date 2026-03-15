@@ -92,7 +92,7 @@ class ModelDownloadService {
       sizeLabel: '~14 MB',
       sizeBytes: 14 * 1024 * 1024,
       downloadUrl:
-          'https://media.githubusercontent.com/media/mlalma/KokoroTestApp/main/Resources/voices.npz',
+          'https://github.com/mlalma/KokoroTestApp/raw/main/Resources/voices.npz',
       filename: 'voices.npz',
       subdir: 'kokoro_mlx',
     ),
