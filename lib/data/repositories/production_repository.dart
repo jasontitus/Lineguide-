@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../database/app_database.dart';
+import '../models/cast_member_model.dart' as models;
 import '../models/production_models.dart' as models;
 import '../models/script_models.dart' as models;
 
@@ -31,6 +32,7 @@ class ProductionRepository {
       status: Value(production.status.name),
       scriptPath: Value(production.scriptPath),
       locale: Value(production.locale),
+      joinCode: Value(production.joinCode),
       createdAt: Value(production.createdAt),
     ));
   }
@@ -51,7 +53,46 @@ class ProductionRepository {
       status: models.ProductionStatus.values.byName(row.status),
       scriptPath: row.scriptPath,
       locale: row.locale,
+      joinCode: row.joinCode,
       createdAt: row.createdAt,
+    );
+  }
+
+  // ── Cast Members ───────────────────────────────────
+
+  Future<List<models.CastMemberModel>> getCastMembers(
+      String productionId) async {
+    final rows = await _db.getCastForProduction(productionId);
+    return rows.map(_castMemberFromRow).toList();
+  }
+
+  Future<void> saveCastMember(models.CastMemberModel member) async {
+    await _db.insertCastMember(CastMembersCompanion(
+      id: Value(member.id),
+      productionId: Value(member.productionId),
+      userId: Value(member.userId),
+      characterName: Value(member.characterName),
+      displayName: Value(member.displayName),
+      role: Value(member.role.name),
+      invitedAt: Value(member.invitedAt ?? DateTime.now()),
+      joinedAt: Value(member.joinedAt),
+    ));
+  }
+
+  Future<void> deleteCastMember(String id) async {
+    await _db.deleteCastMember(id);
+  }
+
+  models.CastMemberModel _castMemberFromRow(CastMember row) {
+    return models.CastMemberModel(
+      id: row.id,
+      productionId: row.productionId,
+      userId: row.userId,
+      characterName: row.characterName,
+      displayName: row.displayName,
+      role: models.CastRole.values.byName(row.role),
+      invitedAt: row.invitedAt,
+      joinedAt: row.joinedAt,
     );
   }
 

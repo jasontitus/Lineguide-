@@ -1,77 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../data/models/cast_member_model.dart';
 import '../../data/models/script_models.dart';
-import '../../data/services/stt_adaptation_service.dart';
-import '../../data/services/voice_clone_service.dart';
+import '../../data/services/supabase_service.dart';
 import '../../providers/production_providers.dart';
-
-/// Local cast assignment data — who plays which character.
-class CastAssignment {
-  final String characterName;
-  final String? primaryName; // display name of primary actor
-  final String? understudyName;
-  final String? primaryUserId;
-  final String? understudyUserId;
-
-  const CastAssignment({
-    required this.characterName,
-    this.primaryName,
-    this.understudyName,
-    this.primaryUserId,
-    this.understudyUserId,
-  });
-
-  CastAssignment copyWith({
-    String? characterName,
-    String? primaryName,
-    String? understudyName,
-    String? primaryUserId,
-    String? understudyUserId,
-  }) {
-    return CastAssignment(
-      characterName: characterName ?? this.characterName,
-      primaryName: primaryName ?? this.primaryName,
-      understudyName: understudyName ?? this.understudyName,
-      primaryUserId: primaryUserId ?? this.primaryUserId,
-      understudyUserId: understudyUserId ?? this.understudyUserId,
-    );
-  }
-
-  bool get hasAssignment => primaryName != null || understudyName != null;
-}
-
-/// Provider for cast assignments, keyed by character name.
-final castAssignmentsProvider =
-    StateNotifierProvider<CastAssignmentsNotifier, Map<String, CastAssignment>>(
-        (ref) {
-  return CastAssignmentsNotifier();
-});
-
-class CastAssignmentsNotifier
-    extends StateNotifier<Map<String, CastAssignment>> {
-  CastAssignmentsNotifier() : super({});
-
-  void assign(CastAssignment assignment) {
-    state = {...state, assignment.characterName: assignment};
-  }
-
-  void remove(String characterName) {
-    state = Map.from(state)..remove(characterName);
-  }
-
-  void initFromScript(ParsedScript script) {
-    final map = <String, CastAssignment>{};
-    for (final char in script.characters) {
-      map[char.name] =
-          state[char.name] ?? CastAssignment(characterName: char.name);
-    }
-    state = map;
-  }
-}
 
 class CastManagerScreen extends ConsumerStatefulWidget {
   const CastManagerScreen({super.key});
@@ -85,9 +23,9 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final script = ref.read(currentScriptProvider);
-      if (script != null) {
-        ref.read(castAssignmentsProvider.notifier).initFromScript(script);
+      final production = ref.read(currentProductionProvider);
+      if (production != null) {
+        ref.read(castMembersProvider.notifier).loadForProduction(production.id);
       }
     });
   }
@@ -95,7 +33,8 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
   @override
   Widget build(BuildContext context) {
     final script = ref.watch(currentScriptProvider);
-    final assignments = ref.watch(castAssignmentsProvider);
+    final production = ref.watch(currentProductionProvider);
+    final castMembers = ref.watch(castMembersProvider);
     final recordings = ref.watch(recordingsProvider);
 
     if (script == null) {
@@ -105,8 +44,15 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
       );
     }
 
-    final assignedCount =
-        assignments.values.where((a) => a.hasAssignment).length;
+    final joinCode = production?.joinCode;
+    final joinedCount =
+        castMembers.where((m) => m.hasJoined && m.role != CastRole.organizer).length;
+    final totalRecordedLines = recordings.length;
+    final totalLines = script.lines
+        .where((l) => l.lineType == LineType.dialogue)
+        .length;
+    final progressPct =
+        totalLines > 0 ? (totalRecordedLines / totalLines * 100).round() : 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -122,63 +68,119 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
             onPressed: () => context.push('/voice-config'),
           ),
           IconButton(
-            icon: const Icon(Icons.model_training),
-            tooltip: 'Train AI models',
-            onPressed: () => _showTrainingDialog(context, script),
-          ),
-          IconButton(
             icon: const Icon(Icons.share),
             tooltip: 'Share cast list',
-            onPressed: () => _shareCastList(script, assignments),
+            onPressed: () => _shareCastList(script, castMembers),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Summary bar
+          // ── Join code banner ──
+          if (joinCode != null)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Join Code',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer
+                                    .withValues(alpha: 0.7),
+                              ),
+                        ),
+                        const SizedBox(height: 2),
+                        SelectableText(
+                          joinCode,
+                          style:
+                              Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 4,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer,
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.copy),
+                    tooltip: 'Copy code',
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: joinCode));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Join code copied'),
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    tooltip: 'Share code',
+                    onPressed: () => _shareJoinCode(joinCode),
+                  ),
+                ],
+              ),
+            ),
+          // ── Summary bar ──
           Container(
             padding: const EdgeInsets.all(16),
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: Row(
+            child: Column(
               children: [
-                Icon(Icons.people, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${script.characters.length} characters',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                      Text(
-                        '$assignedCount assigned',
+                Row(
+                  children: [
+                    Icon(Icons.people,
+                        color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        '$joinedCount of ${script.characters.length} actors joined'
+                        ' · $totalRecordedLines/$totalLines lines recorded ($progressPct%)',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                if (assignedCount == script.characters.length)
-                  Chip(
-                    label: const Text('Cast Complete'),
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primaryContainer,
-                    avatar: const Icon(Icons.check, size: 16),
+                if (totalLines > 0) ...[
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: totalRecordedLines / totalLines,
+                    backgroundColor: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.1),
                   ),
+                ],
               ],
             ),
           ),
           const Divider(height: 1),
-          // Character list
+          // ── Character list ──
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: script.characters.length,
               itemBuilder: (context, index) {
                 final char = script.characters[index];
-                final assignment = assignments[char.name] ??
-                    CastAssignment(characterName: char.name);
                 final color = AppTheme.colorForCharacter(char.colorIndex);
+                final primary = ref
+                    .read(castMembersProvider.notifier)
+                    .primaryFor(char.name);
+                final understudy = ref
+                    .read(castMembersProvider.notifier)
+                    .understudyFor(char.name);
 
                 // Recording progress for this character
                 final charLines = script.linesForCharacter(char.name);
@@ -190,8 +192,14 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
                     : recordedCount / charLines.length;
 
                 return _buildCharacterCard(
-                  context, char, assignment, color, recordProgress,
-                  recordedCount, charLines.length,
+                  context,
+                  char,
+                  primary,
+                  understudy,
+                  color,
+                  recordProgress,
+                  recordedCount,
+                  charLines.length,
                 );
               },
             ),
@@ -204,21 +212,13 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
   Widget _buildCharacterCard(
     BuildContext context,
     ScriptCharacter char,
-    CastAssignment assignment,
+    CastMemberModel? primary,
+    CastMemberModel? understudy,
     Color color,
     double recordProgress,
     int recordedCount,
     int totalLines,
   ) {
-    final production = ref.read(currentProductionProvider);
-    final voiceClone = VoiceCloneService.instance;
-    final sttAdapt = SttAdaptationService.instance;
-    final canClone = voiceClone.canClone(char.name);
-    final voiceProfile = voiceClone.getProfile(char.name);
-    final sttProfile = production != null
-        ? sttAdapt.getActorProfile(production.id, char.name)
-        : null;
-
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -259,35 +259,10 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
                     ],
                   ),
                 ),
-                // Invite button
                 IconButton(
                   icon: const Icon(Icons.person_add_outlined),
                   tooltip: 'Invite actor',
                   onPressed: () => _inviteActor(char.name),
-                ),
-              ],
-            ),
-            // AI readiness badges
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: [
-                _aiBadge(
-                  icon: Icons.record_voice_over,
-                  label: 'Voice Clone',
-                  ready: canClone,
-                  detail: voiceProfile != null
-                      ? '${(voiceProfile.quality * 100).toInt()}%'
-                      : null,
-                ),
-                _aiBadge(
-                  icon: Icons.hearing,
-                  label: 'STT Adapt',
-                  ready: sttProfile?.hasEnoughData ?? false,
-                  detail: sttProfile != null
-                      ? '${sttProfile.totalAudioSeconds.toStringAsFixed(0)}s'
-                      : null,
                 ),
               ],
             ),
@@ -296,18 +271,18 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
             _buildRoleRow(
               context,
               label: 'Primary',
-              assignedName: assignment.primaryName,
+              member: primary,
               color: color,
-              onAssign: () => _assignRole(char.name, 'primary'),
+              onAssign: () => _assignRole(char.name, CastRole.primary),
             ),
             const SizedBox(height: 8),
             // Understudy assignment
             _buildRoleRow(
               context,
               label: 'Understudy',
-              assignedName: assignment.understudyName,
+              member: understudy,
               color: color.withValues(alpha: 0.6),
-              onAssign: () => _assignRole(char.name, 'understudy'),
+              onAssign: () => _assignRole(char.name, CastRole.understudy),
             ),
             // Recording progress
             if (totalLines > 0) ...[
@@ -340,7 +315,7 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
   Widget _buildRoleRow(
     BuildContext context, {
     required String label,
-    required String? assignedName,
+    required CastMemberModel? member,
     required Color color,
     required VoidCallback onAssign,
   }) {
@@ -355,7 +330,7 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
                 ),
           ),
         ),
-        if (assignedName != null) ...[
+        if (member != null) ...[
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
@@ -363,16 +338,33 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: color.withValues(alpha: 0.3)),
             ),
-            child: Text(
-              assignedName,
-              style: TextStyle(color: color, fontSize: 13),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  member.displayName.isNotEmpty
+                      ? member.displayName
+                      : 'Unnamed',
+                  style: TextStyle(color: color, fontSize: 13),
+                ),
+                const SizedBox(width: 6),
+                _statusBadge(member),
+              ],
             ),
           ),
           const Spacer(),
+          // Nudge button if invited but not joined
+          if (!member.hasJoined)
+            IconButton(
+              icon: Icon(Icons.notifications_active,
+                  size: 16, color: Colors.orange[600]),
+              tooltip: 'Send reminder',
+              onPressed: () => _nudge(member),
+              visualDensity: VisualDensity.compact,
+            ),
           IconButton(
             icon: Icon(Icons.close, size: 16, color: Colors.grey[600]),
-            onPressed: () => _unassignRole(
-                assignedName, label == 'Primary' ? 'primary' : 'understudy'),
+            onPressed: () => _unassignRole(member),
             visualDensity: VisualDensity.compact,
           ),
         ] else ...[
@@ -390,202 +382,56 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
     );
   }
 
-  void _showTrainingDialog(BuildContext context, ParsedScript script) {
-    final production = ref.read(currentProductionProvider);
-    if (production == null) return;
-
-    final sttAdapt = SttAdaptationService.instance;
-    final voiceClone = VoiceCloneService.instance;
-    final strategy = sttAdapt.recommendStrategy(production.id);
-    final actorProfiles = sttAdapt.getProductionActorProfiles(production.id);
-    final prodProfile = sttAdapt.getProductionProfile(production.id);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.model_training),
-            SizedBox(width: 8),
-            Text('AI Training'),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Strategy recommendation
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: strategy == TrainingStrategy.notReady
-                      ? Colors.orange.withValues(alpha: 0.1)
-                      : Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      strategy == TrainingStrategy.notReady
-                          ? Icons.hourglass_empty
-                          : Icons.check_circle,
-                      color: strategy == TrainingStrategy.notReady
-                          ? Colors.orange
-                          : Colors.green,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        switch (strategy) {
-                          TrainingStrategy.perActor =>
-                            'Ready for per-actor training! Each character has enough audio.',
-                          TrainingStrategy.perProduction =>
-                            'Ready for production-wide training. Pool all recordings together.',
-                          TrainingStrategy.notReady =>
-                            'Need more recordings. Keep recording to unlock AI features.',
-                        },
-                        style: const TextStyle(fontSize: 13),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Per-actor status
-              Text('Per-Actor Status',
-                  style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 8),
-              ...script.characters.map((char) {
-                final ap = sttAdapt.getActorProfile(production.id, char.name);
-                final vp = voiceClone.getProfile(char.name);
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 100,
-                        child: Text(char.name,
-                            style: const TextStyle(fontSize: 12),
-                            overflow: TextOverflow.ellipsis),
-                      ),
-                      Expanded(
-                        child: LinearProgressIndicator(
-                          value: ap.readiness,
-                          backgroundColor: Colors.grey[800],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text('${ap.totalAudioSeconds.toStringAsFixed(0)}s',
-                          style: TextStyle(
-                              fontSize: 11, color: Colors.grey[500])),
-                    ],
-                  ),
-                );
-              }),
-
-              // Production totals
-              const SizedBox(height: 12),
-              Text(
-                'Total: ${prodProfile.totalAudioSeconds.toStringAsFixed(0)}s audio, '
-                '${prodProfile.samples.length} samples',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-          if (strategy != TrainingStrategy.notReady)
-            FilledButton.icon(
-              onPressed: () {
-                Navigator.pop(context);
-                _startTraining(production.id, strategy);
-              },
-              icon: const Icon(Icons.play_arrow),
-              label: Text(strategy == TrainingStrategy.perActor
-                  ? 'Train Per-Actor'
-                  : 'Train Production'),
-            ),
-        ],
-      ),
-    );
-  }
-
-  void _startTraining(String productionId, TrainingStrategy strategy) {
-    final sttAdapt = SttAdaptationService.instance;
-
-    if (strategy == TrainingStrategy.perActor) {
-      final profiles = sttAdapt.getProductionActorProfiles(productionId);
-      for (final profile in profiles) {
-        if (profile.hasEnoughData) {
-          sttAdapt.requestActorTraining(
-            productionId: productionId,
-            actorId: profile.actorId,
-          );
-        }
-      }
-    } else {
-      sttAdapt.requestProductionTraining(productionId: productionId);
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(strategy == TrainingStrategy.perActor
-            ? 'Per-actor training requested'
-            : 'Production training requested'),
-      ),
-    );
-  }
-
-  Widget _aiBadge({
-    required IconData icon,
-    required String label,
-    required bool ready,
-    String? detail,
-  }) {
-    final color = ready ? Colors.green : Colors.grey;
+  Widget _statusBadge(CastMemberModel member) {
+    final joined = member.hasJoined;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        color: (joined ? Colors.green : Colors.orange).withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
-          Text(
-            detail != null ? '$label ($detail)' : label,
-            style: TextStyle(fontSize: 10, color: color),
-          ),
-        ],
+      child: Text(
+        joined ? 'Joined' : 'Invited',
+        style: TextStyle(
+          fontSize: 10,
+          color: joined ? Colors.green : Colors.orange,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
 
-  void _assignRole(String characterName, String role) {
-    final controller = TextEditingController();
+  void _assignRole(String characterName, CastRole role) {
+    final nameController = TextEditingController();
+    final contactController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Assign $role for $characterName'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Actor name',
-            border: OutlineInputBorder(),
-            hintText: 'Enter actor name',
-          ),
-          autofocus: true,
+        title: Text('Assign ${role.name} for $characterName'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Actor name',
+                border: OutlineInputBorder(),
+                hintText: 'Enter actor name',
+              ),
+              autofocus: true,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: contactController,
+              decoration: const InputDecoration(
+                labelText: 'Email or phone (optional)',
+                border: OutlineInputBorder(),
+                hintText: 'For sending join code',
+              ),
+              keyboardType: TextInputType.emailAddress,
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -593,19 +439,58 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
-              final name = controller.text.trim();
+            onPressed: () async {
+              final name = nameController.text.trim();
               if (name.isEmpty) return;
 
-              final current = ref.read(castAssignmentsProvider)[characterName] ??
-                  CastAssignment(characterName: characterName);
+              final production = ref.read(currentProductionProvider);
+              if (production == null) return;
 
-              final updated = role == 'primary'
-                  ? current.copyWith(primaryName: name)
-                  : current.copyWith(understudyName: name);
+              final contact = contactController.text.trim();
+              final member = CastMemberModel(
+                id: const Uuid().v4(),
+                productionId: production.id,
+                characterName: characterName,
+                displayName: name,
+                contactInfo: contact.isNotEmpty ? contact : null,
+                role: role,
+                invitedAt: DateTime.now(),
+              );
 
-              ref.read(castAssignmentsProvider.notifier).assign(updated);
-              Navigator.pop(context);
+              await ref.read(castMembersProvider.notifier).save(member);
+
+              // Also save to Supabase if signed in
+              final supa = SupabaseService.instance;
+              if (supa.isSignedIn) {
+                try {
+                  await supa.createCastInvitation(
+                    productionId: production.id,
+                    characterName: characterName,
+                    displayName: name,
+                    contactInfo: contact.isNotEmpty ? contact : null,
+                    role: role.toSupabaseString(),
+                  );
+                } catch (e) {
+                  debugPrint('Supabase cast invitation failed: $e');
+                }
+              }
+
+              if (context.mounted) Navigator.pop(context);
+
+              // Show join code in snackbar
+              if (production.joinCode != null && mounted) {
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Assigned $name. Share join code: ${production.joinCode}',
+                    ),
+                    action: SnackBarAction(
+                      label: 'Share',
+                      onPressed: () => _shareJoinCode(production.joinCode!),
+                    ),
+                  ),
+                );
+              }
             },
             child: const Text('Assign'),
           ),
@@ -614,55 +499,75 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
     );
   }
 
-  void _unassignRole(String actorName, String role) {
-    // Find the assignment with this actor and clear it
-    final assignments = ref.read(castAssignmentsProvider);
-    for (final entry in assignments.entries) {
-      final a = entry.value;
-      if (role == 'primary' && a.primaryName == actorName) {
-        ref.read(castAssignmentsProvider.notifier).assign(
-              a.copyWith(primaryName: null),
-            );
-        break;
-      }
-      if (role == 'understudy' && a.understudyName == actorName) {
-        ref.read(castAssignmentsProvider.notifier).assign(
-              a.copyWith(understudyName: null),
-            );
-        break;
-      }
-    }
+  void _unassignRole(CastMemberModel member) {
+    ref.read(castMembersProvider.notifier).remove(member.id);
   }
 
   void _inviteActor(String characterName) {
     final production = ref.read(currentProductionProvider);
     final productionTitle = production?.title ?? 'a production';
+    final joinCode = production?.joinCode;
 
-    // Generate share text with deep link placeholder
-    final shareText =
-        'You\'ve been invited to join "$productionTitle" as $characterName '
-        'on LineGuide! Download the app to get started.';
+    final shareText = joinCode != null
+        ? 'You\'ve been invited to join "$productionTitle" as $characterName '
+            'on LineGuide! Open the app and enter join code: $joinCode'
+        : 'You\'ve been invited to join "$productionTitle" as $characterName '
+            'on LineGuide! Download the app to get started.';
 
     Share.share(shareText, subject: 'LineGuide Invitation');
   }
 
-  void _shareCastList(
-      ParsedScript script, Map<String, CastAssignment> assignments) {
+  void _shareJoinCode(String code) {
+    final production = ref.read(currentProductionProvider);
+    final title = production?.title ?? 'a production';
+
+    Share.share(
+      'Join "$title" on LineGuide!\n\nOpen the app and enter code: $code',
+      subject: 'LineGuide Join Code',
+    );
+  }
+
+  void _nudge(CastMemberModel member) {
+    final production = ref.read(currentProductionProvider);
+    final title = production?.title ?? 'the production';
+    final code = production?.joinCode ?? '';
+
+    final text =
+        'Reminder: You\'re invited to play ${member.characterName} in "$title" '
+        'on LineGuide. Open the app and enter code: $code';
+
+    Share.share(text, subject: 'LineGuide Reminder');
+  }
+
+  void _shareCastList(ParsedScript script, List<CastMemberModel> members) {
+    final production = ref.read(currentProductionProvider);
     final buffer = StringBuffer();
-    buffer.writeln('Cast List: ${script.title}');
+    buffer.writeln('Cast List: ${production?.title ?? script.title}');
+    if (production?.joinCode != null) {
+      buffer.writeln('Join Code: ${production!.joinCode}');
+    }
     buffer.writeln('=' * 30);
     buffer.writeln();
 
     for (final char in script.characters) {
-      final a = assignments[char.name];
       buffer.writeln(char.name);
-      if (a?.primaryName != null) {
-        buffer.writeln('  Primary: ${a!.primaryName}');
+      final primary = members
+          .where(
+              (m) => m.characterName == char.name && m.role == CastRole.primary)
+          .toList();
+      if (primary.isNotEmpty) {
+        buffer.writeln('  Primary: ${primary.first.displayName}'
+            '${primary.first.hasJoined ? " (joined)" : " (invited)"}');
       } else {
         buffer.writeln('  Primary: (unassigned)');
       }
-      if (a?.understudyName != null) {
-        buffer.writeln('  Understudy: ${a!.understudyName}');
+      final understudies = members
+          .where((m) =>
+              m.characterName == char.name && m.role == CastRole.understudy)
+          .toList();
+      if (understudies.isNotEmpty) {
+        buffer.writeln('  Understudy: ${understudies.first.displayName}'
+            '${understudies.first.hasJoined ? " (joined)" : " (invited)"}');
       }
       buffer.writeln('  Lines: ${char.lineCount}');
       buffer.writeln();

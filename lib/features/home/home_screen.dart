@@ -9,6 +9,7 @@ import '../../data/services/supabase_service.dart';
 import '../../features/script_editor/cloud_sync_dialog.dart';
 import '../../providers/production_providers.dart';
 
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -48,10 +49,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: productions.isEmpty
           ? _buildEmptyState(context)
           : _buildProductionList(context, ref, productions),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _createProduction(context, ref),
-        icon: const Icon(Icons.add),
-        label: const Text('New Production'),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'join',
+            onPressed: () => context.push('/join'),
+            icon: const Icon(Icons.vpn_key),
+            label: const Text('Join Production'),
+            backgroundColor:
+                Theme.of(context).colorScheme.secondaryContainer,
+            foregroundColor:
+                Theme.of(context).colorScheme.onSecondaryContainer,
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'create',
+            onPressed: () => _createProduction(context, ref),
+            icon: const Icon(Icons.add),
+            label: const Text('New Production'),
+          ),
+        ],
       ),
     );
   }
@@ -77,6 +96,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             createdAt: DateTime.tryParse(row['created_at'] as String? ?? '') ??
                 DateTime.now(),
             status: _parseStatus(row['status'] as String? ?? 'draft'),
+            joinCode: row['join_code'] as String?,
           );
           await ref.read(productionsProvider.notifier).add(production);
         }
@@ -166,6 +186,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ) async {
     ref.read(currentProductionProvider.notifier).state = production;
     ref.read(recordingsProvider.notifier).loadForProduction(production.id);
+    ref.read(castMembersProvider.notifier).loadForProduction(production.id);
 
     // Load local script first — this is fast (local disk)
     final savedScript = await loadPersistedScript(ref, production.id);
@@ -302,6 +323,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final supa = SupabaseService.instance;
     String productionId = const Uuid().v4();
     String organizerId = 'local';
+    String joinCode = SupabaseService.generateJoinCode();
 
     // If signed in, create in Supabase first so IDs match
     if (supa.isSignedIn) {
@@ -309,6 +331,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         final row = await supa.createProduction(title: title);
         productionId = row['id'] as String;
         organizerId = supa.currentUser!.id;
+        joinCode = row['join_code'] as String? ?? joinCode;
       } catch (e) {
         debugPrint('Cloud production create failed: $e');
       }
@@ -320,6 +343,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       organizerId: organizerId,
       createdAt: DateTime.now(),
       status: ProductionStatus.draft,
+      joinCode: joinCode,
     );
 
     ref.read(productionsProvider.notifier).add(production);

@@ -7,6 +7,7 @@ class Production {
   final ProductionStatus status;
   final String? scriptPath; // local path to original PDF
   final String locale; // BCP-47 locale for STT (e.g. 'en-US', 'en-GB')
+  final String? joinCode; // 6-char code for cast to join
 
   const Production({
     required this.id,
@@ -16,6 +17,7 @@ class Production {
     required this.status,
     this.scriptPath,
     this.locale = 'en-US',
+    this.joinCode,
   });
 
   Production copyWith({
@@ -26,6 +28,7 @@ class Production {
     ProductionStatus? status,
     String? scriptPath,
     String? locale,
+    String? joinCode,
   }) {
     return Production(
       id: id ?? this.id,
@@ -35,6 +38,7 @@ class Production {
       status: status ?? this.status,
       scriptPath: scriptPath ?? this.scriptPath,
       locale: locale ?? this.locale,
+      joinCode: joinCode ?? this.joinCode,
     );
   }
 }

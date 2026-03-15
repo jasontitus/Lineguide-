@@ -1,7 +1,6 @@
 import Foundation
 import AVFoundation
 import MLX
-import KokoroSwift
 import MLXUtilsLibrary
 
 /// On-device Kokoro TTS service using MLX for Apple Silicon inference.

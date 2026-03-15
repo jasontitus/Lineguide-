@@ -7,6 +7,9 @@ import '../../data/models/production_models.dart';
 import '../../data/models/script_models.dart';
 import '../../data/services/model_manager.dart';
 import '../../data/services/supabase_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../data/services/voice_config_service.dart';
 import '../../providers/production_providers.dart';
 import '../rehearsal/rehearsal_history_screen.dart';
 import '../rehearsal/scene_selector_screen.dart';
@@ -27,6 +30,55 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
   void initState() {
     super.initState();
     _checkModels();
+    _loadSavedCharacter();
+  }
+
+  Future<void> _loadSavedCharacter() async {
+    final production = ref.read(currentProductionProvider);
+    if (production == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('rehearsal_character_${production.id}');
+    if (saved != null && mounted) {
+      // Verify character still exists in script
+      final script = ref.read(currentScriptProvider);
+      if (script != null &&
+          script.characters.any((c) => c.name == saved)) {
+        ref.read(rehearsalCharacterProvider.notifier).state = saved;
+        return;
+      }
+    }
+
+    // Fallback: auto-select from cast membership
+    if (mounted) {
+      final castMembers = ref.read(castMembersProvider);
+      final supa = SupabaseService.instance;
+      final userId = supa.currentUser?.id;
+      if (userId != null) {
+        final myMembership = castMembers.where(
+          (m) => m.userId == userId && m.characterName.isNotEmpty,
+        );
+        if (myMembership.isNotEmpty) {
+          final charName = myMembership.first.characterName;
+          final script = ref.read(currentScriptProvider);
+          if (script != null &&
+              script.characters.any((c) => c.name == charName)) {
+            ref.read(rehearsalCharacterProvider.notifier).state = charName;
+            _saveCharacterChoice(charName);
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> _saveCharacterChoice(String? character) async {
+    final production = ref.read(currentProductionProvider);
+    if (production == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    if (character != null) {
+      await prefs.setString('rehearsal_character_${production.id}', character);
+    } else {
+      await prefs.remove('rehearsal_character_${production.id}');
+    }
   }
 
   Future<void> _checkModels() async {
@@ -82,7 +134,6 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
     final script = ref.watch(currentScriptProvider);
     final myCharacter = ref.watch(rehearsalCharacterProvider);
     final sessions = ref.watch(rehearsalHistoryProvider);
-    final theme = Theme.of(context);
 
     if (production == null) {
       return Scaffold(
@@ -106,7 +157,7 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
       ),
       drawer: _buildDrawer(context, hasScript),
       body: hasScript
-          ? _buildRehearsalView(context, script!, myCharacter, sessions)
+          ? _buildRehearsalView(context, script, myCharacter, sessions)
           : _buildNoScriptView(context),
     );
   }
@@ -210,10 +261,6 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
             }),
             const Divider(),
           ],
-          // ── Production Settings ──
-          _drawerSection('Production'),
-          _buildLocaleItem(context, production),
-          const Divider(),
           // ── History & Settings ──
           _drawerItem(Icons.history, 'Rehearsal History', () {
             Navigator.pop(context);
@@ -259,14 +306,28 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
     'en-GB': 'British English',
   };
 
-  Widget _buildLocaleItem(BuildContext context, Production production) {
+  Widget _buildDialectRow(BuildContext context, Production? production) {
+    if (production == null) return const SizedBox.shrink();
     final label = _localeLabels[production.locale] ?? production.locale;
-    return ListTile(
-      leading: const Icon(Icons.language),
-      title: const Text('Script Dialect'),
-      subtitle: Text(label),
-      dense: true,
+    return InkWell(
       onTap: () => _showLocaleDialog(context, production),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Icon(Icons.language, size: 20,
+                color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            Text('Dialect:', style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(width: 8),
+            Text(label, style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold)),
+            const Spacer(),
+            Icon(Icons.chevron_right, size: 20, color: Colors.grey[500]),
+          ],
+        ),
+      ),
     );
   }
 
@@ -275,25 +336,44 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
       context: context,
       builder: (ctx) => SimpleDialog(
         title: const Text('Script Dialect'),
-        children: _localeLabels.entries.map((e) {
-          final isSelected = production.locale == e.key;
-          return RadioListTile<String>(
-            value: e.key,
-            groupValue: production.locale,
-            title: Text(e.value),
-            selected: isSelected,
-            onChanged: (value) {
-              if (value != null) {
-                final updated = production.copyWith(locale: value);
-                ref.read(productionsProvider.notifier).update(updated);
-                ref.read(currentProductionProvider.notifier).state = updated;
+        children: [
+          ..._localeLabels.entries.map((e) {
+            return RadioListTile<String>(
+              value: e.key,
+              groupValue: production.locale,
+              title: Text(e.value),
+              subtitle: Text(e.key == 'en-GB'
+                  ? 'Shakespeare, period drama, British plays'
+                  : 'Modern American theatre'),
+              onChanged: (value) {
+                if (value != null) _updateLocale(value);
                 Navigator.pop(ctx);
-              }
-            },
-          );
-        }).toList(),
+              },
+            );
+          }),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(24, 8, 24, 0),
+            child: Text(
+              'Sets STT recognition language and TTS voice accents. '
+              'Individual characters can override this in Characters settings.',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  void _updateLocale(String locale) {
+    final production = ref.read(currentProductionProvider);
+    if (production == null) return;
+    final updated = production.copyWith(locale: locale);
+    ref.read(productionsProvider.notifier).update(updated);
+    ref.read(currentProductionProvider.notifier).state = updated;
+
+    // Auto-update voice preset to match dialect
+    final presetId = locale == 'en-GB' ? 'victorian_english' : 'modern_american';
+    VoiceConfigService.instance.setPreset(production.id, presetId);
   }
 
   // ── No script state ────────────────────────────────────
@@ -396,24 +476,8 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
                 ),
               ),
             ),
-          // ── Script summary card ──
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  _statChip(context, '$dialogueCount', 'lines'),
-                  _statChip(
-                      context, '${script.characters.length}', 'characters'),
-                  _statChip(context, '${script.scenes.length}', 'scenes'),
-                  _statChip(context, '${script.acts.length}', 'acts'),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
 
-          // ── Character selector ──
+          // ── Character selector + Start Rehearsal (always at top) ──
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -451,30 +515,64 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
                     onChanged: (value) {
                       ref.read(rehearsalCharacterProvider.notifier).state =
                           value;
+                      _saveCharacterChoice(value);
                     },
                   ),
+                  if (myCharacter != null) ...[
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      onPressed: () => context.push('/practice'),
+                      icon: const Icon(Icons.play_arrow),
+                      label: const Text('Start Rehearsal'),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(56),
+                        textStyle: theme.textTheme.titleMedium,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
 
-          // ── Start rehearsal button ──
+          // ── My scenes (if character selected) ──
           if (myCharacter != null) ...[
-            FilledButton.icon(
-              onPressed: () => context.push('/practice'),
-              icon: const Icon(Icons.play_arrow),
-              label: const Text('Start Rehearsal'),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(56),
-                textStyle: theme.textTheme.titleMedium,
+            _buildMyScenes(context, script, myCharacter),
+            const SizedBox(height: 16),
+          ],
+
+          // ── Script summary card ──
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      _statChip(context, '$dialogueCount', 'lines'),
+                      _statChip(
+                          context, '${script.characters.length}', 'characters'),
+                      _statChip(context, '${script.scenes.length}', 'scenes'),
+                      _statChip(context, '${script.acts.length}', 'acts'),
+                    ],
+                  ),
+                  const Divider(height: 24),
+                  _buildDialectRow(context, ref.watch(currentProductionProvider)),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
+          ),
 
-            // ── My scenes summary ──
-            _buildMyScenes(context, script, myCharacter),
-          ] else ...[
+          // ── Recent sessions ──
+          if (sessions.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildRecentSessions(context, sessions),
+          ],
+
+          // ── Prompt to select character ──
+          if (myCharacter == null) ...[
+            const SizedBox(height: 16),
             Card(
               color: theme.colorScheme.surfaceContainerHighest,
               child: const Padding(
@@ -489,12 +587,6 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
                 ),
               ),
             ),
-          ],
-
-          // ── Recent sessions ──
-          if (sessions.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            _buildRecentSessions(context, sessions),
           ],
         ],
       ),

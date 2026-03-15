@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../data/models/cast_member_model.dart';
 import '../data/models/production_models.dart';
 import '../data/models/script_models.dart';
 import '../data/repositories/production_repository.dart';
@@ -115,6 +116,74 @@ final understudyRecordingsProvider =
 
 /// Character being recorded in the recording studio.
 final recordingCharacterProvider = StateProvider<String?>((ref) => null);
+
+/// Cast members for the current production, backed by Drift + Supabase sync.
+final castMembersProvider =
+    StateNotifierProvider<CastMembersNotifier, List<CastMemberModel>>((ref) {
+  final repo = ref.read(productionRepositoryProvider);
+  return CastMembersNotifier(repo);
+});
+
+class CastMembersNotifier extends StateNotifier<List<CastMemberModel>> {
+  final ProductionRepository _repo;
+  String? _productionId;
+
+  CastMembersNotifier(this._repo) : super([]);
+
+  /// Load cast members from Drift for the given production.
+  Future<void> loadForProduction(String productionId) async {
+    _productionId = productionId;
+    state = await _repo.getCastMembers(productionId);
+  }
+
+  /// Add or update a cast member in Drift and state.
+  Future<void> save(CastMemberModel member) async {
+    await _repo.saveCastMember(member);
+    final idx = state.indexWhere((m) => m.id == member.id);
+    if (idx >= 0) {
+      state = [
+        for (int i = 0; i < state.length; i++)
+          if (i == idx) member else state[i],
+      ];
+    } else {
+      state = [...state, member];
+    }
+  }
+
+  /// Remove a cast member.
+  Future<void> remove(String id) async {
+    await _repo.deleteCastMember(id);
+    state = state.where((m) => m.id != id).toList();
+  }
+
+  /// Get the primary actor for a character.
+  CastMemberModel? primaryFor(String characterName) {
+    try {
+      return state.firstWhere(
+        (m) => m.characterName == characterName && m.role == CastRole.primary,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Get the understudy for a character.
+  CastMemberModel? understudyFor(String characterName) {
+    try {
+      return state.firstWhere(
+        (m) =>
+            m.characterName == characterName && m.role == CastRole.understudy,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void clear() {
+    _productionId = null;
+    state = [];
+  }
+}
 
 /// Persist the current script to the database. Call after updating
 /// currentScriptProvider when you want changes saved.

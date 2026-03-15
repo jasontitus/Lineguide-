@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
@@ -81,12 +82,14 @@ class SupabaseService {
     required String title,
   }) async {
     final userId = currentUser!.id;
+    final joinCode = generateJoinCode();
     final row = await _client
         .from('productions')
         .insert({
           'title': title,
           'organizer_id': userId,
           'status': 'draft',
+          'join_code': joinCode,
         })
         .select()
         .single();
@@ -124,6 +127,99 @@ class SupabaseService {
     };
     if (characterName != null) data['character_name'] = characterName;
     await _client.from('cast_members').insert(data);
+  }
+
+  /// Create a cast invitation (no user_id yet — they claim it when they join).
+  Future<Map<String, dynamic>> createCastInvitation({
+    required String productionId,
+    required String characterName,
+    required String displayName,
+    String? contactInfo,
+    required String role,
+  }) async {
+    return _client
+        .from('cast_members')
+        .insert({
+          'production_id': productionId,
+          'character_name': characterName,
+          'display_name': displayName,
+          'contact_info': contactInfo,
+          'role': role,
+          'invited_at': DateTime.now().toIso8601String(),
+        })
+        .select()
+        .single();
+  }
+
+  /// Claim an existing invitation by setting user_id and joined_at.
+  Future<void> claimInvitation({
+    required String castMemberId,
+    required String userId,
+  }) async {
+    await _client.from('cast_members').update({
+      'user_id': userId,
+      'joined_at': DateTime.now().toIso8601String(),
+    }).eq('id', castMemberId);
+  }
+
+  /// Self-join a production (create a new cast_members row with user_id set).
+  Future<Map<String, dynamic>> selfJoinProduction({
+    required String productionId,
+    required String userId,
+    required String characterName,
+    required String displayName,
+    required String role,
+  }) async {
+    return _client
+        .from('cast_members')
+        .insert({
+          'production_id': productionId,
+          'user_id': userId,
+          'character_name': characterName,
+          'display_name': displayName,
+          'role': role,
+          'joined_at': DateTime.now().toIso8601String(),
+        })
+        .select()
+        .single();
+  }
+
+  /// Look up a production by its join code.
+  Future<Map<String, dynamic>?> lookupByJoinCode(String code) async {
+    try {
+      final rows = await _client
+          .from('productions')
+          .select()
+          .eq('join_code', code.toUpperCase())
+          .limit(1);
+      if (rows.isEmpty) return null;
+      return rows.first;
+    } catch (e) {
+      debugPrint('Join code lookup failed: $e');
+      return null;
+    }
+  }
+
+  /// Fetch recording progress per character for a production.
+  Future<List<Map<String, dynamic>>> fetchRecordingProgress(
+      String productionId) async {
+    return _client
+        .from('recordings')
+        .select('line_id, user_id')
+        .eq('production_id', productionId);
+  }
+
+  // ── Join Code Generation ───────────────────────────────
+
+  static const _joinCodeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+  /// Generate a 6-character alphanumeric code (no I/O/0/1 for readability).
+  static String generateJoinCode() {
+    final rng = Random.secure();
+    return List.generate(
+      6,
+      (_) => _joinCodeChars[rng.nextInt(_joinCodeChars.length)],
+    ).join();
   }
 
   // ── Recordings ────────────────────────────────────────
