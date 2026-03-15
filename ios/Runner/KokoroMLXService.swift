@@ -72,10 +72,20 @@ class KokoroMLXService {
         try audioSession.setActive(true)
     }
 
+    /// Unload the model from memory without deleting files.
+    /// Call this when TTS is not needed to reduce memory pressure.
+    func unloadModel() {
+        ttsEngine = nil
+        voices = [:]
+        Memory.clearCache()
+        NSLog("KokoroMLX: Model unloaded, MLX cache cleared")
+    }
+
     /// Delete downloaded model weights to free storage.
     func deleteModel() throws {
         ttsEngine = nil
         voices = [:]
+        Memory.clearCache()
         let dir = modelDirectory
         if FileManager.default.fileExists(atPath: dir.path) {
             try FileManager.default.removeItem(at: dir)
@@ -114,6 +124,16 @@ class KokoroMLXService {
         let outputPath = cacheURL(for: text, voice: voice, speed: speed)
         let sampleRate = KokoroTTS.Constants.samplingRate
         try writeWAV(samples: audioSamples, sampleRate: sampleRate, to: outputPath)
+
+        // Free MLX intermediate computation buffers after each synthesis
+        // to prevent memory accumulation from attention/hidden state tensors
+        Memory.clearCache()
+
+        // Reconfigure audio session for playback before returning.
+        // STT sets it to .record — without this, just_audio can't produce sound.
+        let audioSession = AVAudioSession.sharedInstance()
+        try audioSession.setCategory(.playback, mode: .default)
+        try audioSession.setActive(true)
 
         return outputPath.path
     }

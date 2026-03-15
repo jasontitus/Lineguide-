@@ -176,10 +176,17 @@ class SettingsScreen extends ConsumerWidget {
           ),
           ListTile(
             leading: const Icon(Icons.mic),
-            title: const Text('Parakeet Debug'),
-            subtitle: const Text('Test STT engine and match scoring'),
+            title: const Text('STT Debug'),
+            subtitle: const Text('Test speech recognition with vocabulary hints'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/parakeet-debug'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.terminal),
+            title: const Text('Debug Log'),
+            subtitle: const Text('View system logs, memory usage, and errors'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/debug-log'),
           ),
           _sectionHeader(context, 'Account'),
           ListTile(

@@ -25,6 +25,7 @@ import 'features/settings/ai_models_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/settings/kokoro_debug_screen.dart';
 import 'features/settings/parakeet_debug_screen.dart';
+import 'features/settings/debug_log_screen.dart';
 
 /// Key used to persist the "skip auth" choice across app launches.
 const _authSkippedKey = 'auth_skipped';
@@ -132,6 +133,10 @@ GoRouter _buildRouter(Ref ref) => GoRouter(
     GoRoute(
       path: '/parakeet-debug',
       builder: (context, state) => const ParakeetDebugScreen(),
+    ),
+    GoRoute(
+      path: '/debug-log',
+      builder: (context, state) => const DebugLogScreen(),
     ),
   ],
 );

@@ -7,6 +7,7 @@ import 'data/database/app_database.dart';
 import 'data/services/supabase_service.dart';
 import 'data/services/tts_service.dart';
 import 'data/services/stt_service.dart';
+import 'data/services/debug_log_service.dart';
 
 /// Global database instance, provided via Riverpod.
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -36,6 +37,9 @@ void main() async {
       debugPrint('Supabase init failed: $e');
     }
   }
+
+  // Initialize debug logging first so other services can use it
+  await DebugLogService.instance.init();
 
   // Initialize ML services (non-blocking — will use fallbacks if models not ready)
   Future.microtask(() async {

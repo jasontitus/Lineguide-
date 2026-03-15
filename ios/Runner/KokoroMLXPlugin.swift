@@ -74,6 +74,10 @@ class KokoroMLXPlugin: NSObject {
                 "downloaded": kokoroService.isModelDownloaded,
             ])
 
+        case "unloadModel":
+            kokoroService.unloadModel()
+            result(true)
+
         case "deleteModel":
             do {
                 try kokoroService.deleteModel()

@@ -16,6 +16,8 @@
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
 		A1B2C3D401000001E0000001 /* KokoroMLXPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D401000002E0000001 /* KokoroMLXPlugin.swift */; };
 		BGDL000200000000000001 /* BackgroundDownloadPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = BGDL000100000000000001 /* BackgroundDownloadPlugin.swift */; };
+		ASTT000200000000000001 /* AppleSttPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = ASTT000100000000000001 /* AppleSttPlugin.swift */; };
+		MMON000200000000000001 /* MemoryMonitorPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = MMON000100000000000001 /* MemoryMonitorPlugin.swift */; };
 		A1B2C3D401000003E0000001 /* KokoroMLXService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D401000004E0000001 /* KokoroMLXService.swift */; };
 		KOKORO000200000000000001 /* AlbertEmbeddings.swift in Sources */ = {isa = PBXBuildFile; fileRef = KOKORO000100000000000001 /* AlbertEmbeddings.swift */; };
 		KOKORO000200000000000002 /* AlbertEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = KOKORO000100000000000002 /* AlbertEncoder.swift */; };
@@ -148,6 +150,8 @@
 		BF4690A6972A1F9D8EBB97E9 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		A1B2C3D401000002E0000001 /* KokoroMLXPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KokoroMLXPlugin.swift; sourceTree = "<group>"; };
 		BGDL000100000000000001 /* BackgroundDownloadPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundDownloadPlugin.swift; sourceTree = "<group>"; };
+		ASTT000100000000000001 /* AppleSttPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSttPlugin.swift; sourceTree = "<group>"; };
+		MMON000100000000000001 /* MemoryMonitorPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryMonitorPlugin.swift; sourceTree = "<group>"; };
 		ENTL000100000000000001 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		A1B2C3D401000004E0000001 /* KokoroMLXService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KokoroMLXService.swift; sourceTree = "<group>"; };
 		KOKORO000100000000000001 /* AlbertEmbeddings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbertEmbeddings.swift; sourceTree = "<group>"; };
@@ -303,6 +307,8 @@
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 				4C96AB88695FDD4A90758E11 /* MLXSttPlugin.swift */,
 				BGDL000100000000000001 /* BackgroundDownloadPlugin.swift */,
+				ASTT000100000000000001 /* AppleSttPlugin.swift */,
+				MMON000100000000000001 /* MemoryMonitorPlugin.swift */,
 				KOKORO000300000000000001 /* KokoroVendored */,
 				MISAKI000300000000000001 /* MisakiVendored */,
 			);
@@ -783,6 +789,8 @@
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */,
 				A1B2C3D401000001E0000001 /* KokoroMLXPlugin.swift in Sources */,
+				ASTT000200000000000001 /* AppleSttPlugin.swift in Sources */,
+				MMON000200000000000001 /* MemoryMonitorPlugin.swift in Sources */,
 				A1B2C3D401000003E0000001 /* KokoroMLXService.swift in Sources */,
 				6C9D3AFED19C5CBACEC128A8 /* MLXSttPlugin.swift in Sources */,
 				BGDL000200000000000001 /* BackgroundDownloadPlugin.swift in Sources */,

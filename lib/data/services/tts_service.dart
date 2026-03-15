@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:just_audio/just_audio.dart';
 
+import 'debug_log_service.dart';
 import 'model_manager.dart';
 
 /// TTS engine type.
@@ -48,8 +49,10 @@ class TtsService {
   // Kokoro MLX state
   bool _kokoroLoaded = false;
 
-  // Completion callback
+  // Completion callback — guarded by generation counter to fire exactly once per speak()
   Function? _completionHandler;
+  bool _isSpeaking = false;
+  int _speakGen = 0; // incremented each speak(), prevents stale completions
 
   TtsEngine get activeEngine => _activeEngine;
   bool get isKokoroLoaded => _kokoroLoaded;
@@ -95,12 +98,17 @@ class TtsService {
     _availableSystemVoices = await _systemTts.getVoices as List<dynamic>;
 
     _systemTts.setCompletionHandler(() {
-      _completionHandler?.call();
+      _fireCompletion('systemTts');
     });
 
+    // DO NOT use playerStateStream for completion detection — it re-emits stale
+    // 'completed' events during the next line's Kokoro synthesis, causing lines
+    // to be skipped. Instead, completion is fired from _speakWithKokoroMlx after
+    // play() returns, guarded by a generation counter.
     _audioPlayer.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
-        _completionHandler?.call();
+        DebugLogService.instance.log(LogCategory.tts,
+            'audioPlayer stream completed (gen=$_speakGen, speaking=$_isSpeaking) — ignored, using gen counter');
       }
     });
 
@@ -161,14 +169,23 @@ class TtsService {
   /// Falls back to system TTS only if Kokoro is not available on this device.
   Future<void> speak(String text, {String? character}) async {
     if (!_initialized) await init();
+    final dlog = DebugLogService.instance;
+    final preview = text.length > 40 ? '${text.substring(0, 37)}...' : text;
+
+    // Increment generation — any stale completion from previous speak() is ignored
+    _speakGen++;
+    _isSpeaking = true;
 
     // Try Kokoro MLX first
     if (_kokoroLoaded) {
+      dlog.log(LogCategory.tts, 'Kokoro speak: "$preview" (char=$character)');
       final spoke = await _speakWithKokoroMlx(text, character: character);
-      if (spoke) return;
+      if (spoke) return; // completion will fire from _audioPlayer stream
+      dlog.log(LogCategory.tts, 'Kokoro failed, falling back to system TTS');
     }
 
     // Fall back to system TTS
+    dlog.log(LogCategory.tts, 'System TTS: "$preview"');
     if (character != null &&
         _characterSystemVoices.containsKey(character)) {
       final voice = _characterSystemVoices[character]!;
@@ -180,6 +197,7 @@ class TtsService {
   /// Synthesize and play audio using on-device Kokoro MLX.
   /// Returns true if successful.
   Future<bool> _speakWithKokoroMlx(String text, {String? character}) async {
+    final gen = _speakGen; // capture for stale-check after async gaps
     final voice = (character != null && _characterVoices.containsKey(character))
         ? _characterVoices[character]!
         : 'af_heart';
@@ -196,21 +214,61 @@ class TtsService {
         'speed': speed,
       });
 
-      if (audioPath == null) return false;
+      if (audioPath == null) {
+        DebugLogService.instance.logError(LogCategory.tts, 'Kokoro returned null audio path');
+        return false;
+      }
 
+      // Bail out if a newer speak() was called during synthesis
+      if (gen != _speakGen) {
+        DebugLogService.instance.log(LogCategory.tts,
+            'Kokoro synthesis finished but gen stale ($gen != $_speakGen), discarding');
+        return true; // return true to prevent system TTS fallback
+      }
+
+      // Stop any previous playback and reset player state before loading new audio.
+      // This ensures the audio session is properly re-acquired after STT released it.
+      await _audioPlayer.stop();
       await _audioPlayer.setFilePath(audioPath);
+      DebugLogService.instance.log(LogCategory.tts, 'Kokoro playing audio');
       await _audioPlayer.play();
+
+      // play() returned — audio finished (or was stopped).
+      // Fire completion only if this is still the active speak() call.
+      if (gen == _speakGen) {
+        _fireCompletion('kokoroPlay');
+      } else {
+        DebugLogService.instance.log(LogCategory.tts,
+            'Kokoro play done but gen stale ($gen != $_speakGen), completion skipped');
+      }
       return true;
     } on PlatformException catch (e) {
-      debugPrint('Kokoro MLX: synthesis failed: ${e.message}');
+      DebugLogService.instance.logError(LogCategory.tts, 'Kokoro synthesis failed', e);
+      return false;
+    } catch (e) {
+      DebugLogService.instance.logError(LogCategory.tts, 'Kokoro playback failed', e);
       return false;
     }
   }
 
   double _currentSpeed = 1.0;
 
-  /// Stop current speech.
+  /// Fire the completion handler exactly once per speak() call.
+  /// Prevents stale/duplicate completion events from advancing the rehearsal.
+  void _fireCompletion(String source) {
+    if (_isSpeaking) {
+      _isSpeaking = false;
+      DebugLogService.instance.log(LogCategory.tts, 'Completion fired (source=$source)');
+      _completionHandler?.call();
+    } else {
+      DebugLogService.instance.log(LogCategory.tts, 'Completion IGNORED (source=$source, not speaking)');
+    }
+  }
+
+  /// Stop current speech. Does NOT fire the completion handler.
   Future<void> stop() async {
+    _speakGen++; // Invalidate any in-flight speak() call
+    _isSpeaking = false; // Prevent stop() from triggering completion
     await _audioPlayer.stop();
     await _systemTts.stop();
   }
@@ -227,7 +285,8 @@ class TtsService {
   /// Listen for TTS completion events.
   void setCompletionHandler(Function handler) {
     _completionHandler = handler;
-    _systemTts.setCompletionHandler(() => handler());
+    // Don't override system TTS handler — init() already routes it through
+    // _fireCompletion which provides the _isSpeaking guard.
   }
 
   /// Delete the on-device Kokoro model to free storage.

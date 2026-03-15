@@ -42,12 +42,24 @@ class SttVocabularyService {
       }
     }
 
-    // Extract vocabulary from dialogue
+    // Extract vocabulary from dialogue — preserve apostrophes for
+    // contractions and archaic forms ('tis, o'er, don't)
     for (final line in lines) {
       if (line.lineType != LineType.dialogue) continue;
       final words = _tokenize(line.text);
       for (final word in words) {
         vocab.wordFrequency[word] = (vocab.wordFrequency[word] ?? 0) + 1;
+      }
+      // Also extract words preserving apostrophes for hints
+      final rawWords = line.text
+          .replaceAll(RegExp("[^\\w\\s']"), '')
+          .toLowerCase()
+          .split(RegExp(r'\s+'))
+          .where((w) => w.isNotEmpty);
+      for (final w in rawWords) {
+        if (w.contains("'")) {
+          vocab.importantWords.add(w); // 'tis, o'er, etc.
+        }
       }
     }
 
@@ -73,6 +85,24 @@ class SttVocabularyService {
       '${vocab.importantWords.length} important words, '
       '${vocab.lineTexts.length} lines',
     );
+  }
+
+  /// Get vocabulary hints for Apple STT contextualStrings.
+  ///
+  /// Returns character names and important/unusual words from the script.
+  /// These are passed alongside per-line hints to improve recognition
+  /// of script-specific vocabulary.
+  List<String> getScriptHints(String productionId) {
+    final vocab = _vocabularies[productionId];
+    if (vocab == null) return const [];
+
+    final hints = <String>{};
+    // Character names
+    hints.addAll(vocab.characterNames);
+    // Important words (appear 2+ times, length > 3)
+    hints.addAll(vocab.importantWords);
+    // Cap at 100 to stay within reasonable limits for contextualStrings
+    return hints.take(100).toList();
   }
 
   /// Clear vocabulary for a production.

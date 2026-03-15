@@ -11,6 +11,7 @@ import '../../data/models/script_models.dart';
 import '../../data/models/rehearsal_models.dart';
 import '../../data/services/tts_service.dart';
 import '../../data/services/stt_service.dart';
+import '../../data/services/debug_log_service.dart';
 import '../../data/services/stt_adaptation_service.dart';
 import '../../data/services/stt_vocabulary_service.dart';
 import '../../data/services/voice_clone_service.dart';
@@ -59,6 +60,10 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   double _matchScore = 0.0;
   bool _showMatchFeedback = false;
 
+  // Silence timeout — auto-advance when no new STT results for a while
+  Timer? _silenceTimer;
+  static const _silenceTimeout = Duration(seconds: 5);
+
   // Session tracking
   late DateTime _sessionStartedAt;
   final List<LineAttempt> _lineAttempts = [];
@@ -79,18 +84,30 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
       _initAudio();
     });
 
-    // Listen for playback completion to auto-advance
+    // Listen for playback completion to auto-advance (real recordings only)
     _player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed &&
           _autoPlay &&
           mounted) {
-        _onOtherLineFinished();
+        final rs = ref.read(rehearsalStateProvider);
+        if (rs == RehearsalState.playingOther) {
+          _dlog.log(LogCategory.rehearsal, 'Recording player completed');
+          _onOtherLineFinished();
+        }
       }
     });
   }
 
+  final _dlog = DebugLogService.instance;
+
   Future<void> _initAudio() async {
+    _dlog.log(LogCategory.rehearsal, 'Rehearsal starting');
+    _dlog.startMemoryMonitoring();
     await _tts.init();
+
+    // Use the script dialect locale for STT
+    final dialect = ref.read(scriptDialectProvider);
+    await _stt.init(locale: dialect.locale);
 
     // Assign voices to characters using production voice config
     final script = ref.read(currentScriptProvider);
@@ -136,8 +153,12 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
       }
     }
 
-    // Jump to a few lines before the actor's first line
-    if (script != null && myCharacter != null) {
+    // In Cue Practice mode, jump to a few lines before the actor's first line.
+    // In Scene Readthrough mode, start from the beginning of the scene.
+    final mode = ref.read(rehearsalModeProvider);
+    if (mode == RehearsalMode.cuePractice &&
+        script != null &&
+        myCharacter != null) {
       final scene = ref.read(selectedSceneProvider);
       if (scene != null) {
         final dialogueLines = _getRehearsalLines(script, scene, myCharacter);
@@ -160,6 +181,9 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
   @override
   void dispose() {
+    _dlog.stopMemoryMonitoring();
+    _dlog.log(LogCategory.rehearsal, 'Rehearsal ended');
+    _silenceTimer?.cancel();
     _scrollController.dispose();
     _player.dispose();
     _tts.stop();
@@ -381,6 +405,9 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      // Large cacheExtent so items are built before they're visible.
+      // This ensures _currentLineKey is always available for scrolling.
+      cacheExtent: 10000,
       itemCount: dialogueLines.length,
       itemBuilder: (context, index) {
         final line = dialogueLines[index];
@@ -797,11 +824,12 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
       case RehearsalState.playingOther:
         // Skip to next
         _tts.stop();
-        _player.stop();
+        try { _player.stop(); } catch (_) {}
         _advanceLine(totalLines);
       case RehearsalState.listeningForMe:
         // Accept whatever was said and advance (manual skip)
-        _stt.stop();
+        // Discard pending transcription to avoid delayed callbacks
+        _stt.stop(discard: true);
         _recordCurrentLineAttempt(skipped: _matchScore < (ref.read(matchThresholdProvider) / 100.0));
         _advanceLine(totalLines);
       case RehearsalState.paused:
@@ -934,6 +962,9 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
       _recognizedText = '';
     });
 
+    _dlog.log(LogCategory.rehearsal,
+        'Playing: ${line.character} — "${line.text.length > 40 ? '${line.text.substring(0, 37)}...' : line.text}"');
+
     final speed = ref.read(playbackSpeedProvider);
 
     // 1. Check for a primary actor recording first
@@ -1003,7 +1034,15 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   void _onOtherLineFinished() {
     if (!mounted) return;
     final rehearsalState = ref.read(rehearsalStateProvider);
-    if (rehearsalState == RehearsalState.paused) return;
+    // Only advance if we were actually playing another character's line.
+    // This prevents double-advance when _tts.stop() is called explicitly
+    // (e.g., during skip/advance) from triggering this handler.
+    if (rehearsalState != RehearsalState.playingOther) {
+      _dlog.log(LogCategory.rehearsal,
+          'onOtherLineFinished ignored (state=${rehearsalState.name})');
+      return;
+    }
+    _dlog.log(LogCategory.rehearsal, 'Other line finished, advancing');
 
     final script = ref.read(currentScriptProvider);
     final scene = ref.read(selectedSceneProvider);
@@ -1055,16 +1094,32 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
     _currentAttemptCount++;
 
-    // Build vocabulary hints from the expected line for MLX
-    final script = ref.read(currentScriptProvider);
+    // Build vocabulary hints: the current line as a phrase, its individual
+    // words, plus script-wide vocabulary (character names, archaic terms).
     final production = ref.read(currentProductionProvider);
     final myCharacter = ref.read(rehearsalCharacterProvider);
-    final vocabHints = line.text.split(RegExp(r'\s+')).toList();
+    final cleanLine = line.text.replaceAll(RegExp("[^\\w\\s']"), '');
+    final wordHints = cleanLine.split(RegExp(r'\s+'))
+        .where((w) => w.length > 1)
+        .toSet()
+        .toList();
+    // Full phrase + individual words + script vocabulary
+    final vocabHints = <String>[cleanLine, ...wordHints];
+    // Add script-wide important words (character names, recurring terms)
+    if (production != null) {
+      vocabHints.addAll(_sttVocab.getScriptHints(production.id));
+    }
+
+    // Start silence timer — if no new results for a while, auto-advance
+    _resetSilenceTimer(line);
 
     await _stt.listen(
       continuous: true,
       onResult: (recognized) {
         if (!mounted) return;
+
+        // Reset silence timer on each new result
+        _resetSilenceTimer(line);
 
         // Apply vocabulary correction before scoring
         final corrected = production != null
@@ -1087,6 +1142,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
         // Auto-advance if match exceeds threshold
         if (score >= threshold) {
+          _silenceTimer?.cancel();
           _stt.stop();
           HapticFeedback.lightImpact();
 
@@ -1128,10 +1184,37 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     );
   }
 
+  /// Reset the silence timer. When no new STT results arrive for
+  /// [_silenceTimeout], auto-advance with whatever score we have.
+  void _resetSilenceTimer(ScriptLine line) {
+    _silenceTimer?.cancel();
+    _silenceTimer = Timer(_silenceTimeout, () {
+      if (!mounted) return;
+      final state = ref.read(rehearsalStateProvider);
+      if (state != RehearsalState.listeningForMe) return;
+
+      debugPrint('Rehearsal: Silence timeout — auto-advancing');
+      _stt.stop();
+
+      // Record the attempt with whatever score was achieved
+      final threshold = ref.read(matchThresholdProvider) / 100.0;
+      _recordAttempt(line, skipped: _matchScore < threshold);
+
+      // Advance to next line
+      final script = ref.read(currentScriptProvider);
+      final scene = ref.read(selectedSceneProvider);
+      final mc = ref.read(rehearsalCharacterProvider);
+      if (script == null || scene == null) return;
+      final dialogueLines = _getRehearsalLines(script, scene, mc);
+      _advanceLine(dialogueLines.length);
+    });
+  }
+
   void _advanceLine(int totalLines) {
+    _silenceTimer?.cancel();
     _tts.stop();
-    _stt.stop();
-    _player.stop();
+    _stt.stop(discard: true);
+    try { _player.stop(); } catch (_) {}
 
     final current = ref.read(currentLineIndexProvider);
     if (current + 1 >= totalLines) {
@@ -1160,9 +1243,10 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   }
 
   void _jumpBack(int jumpCount, int totalLines) {
+    _silenceTimer?.cancel();
     _tts.stop();
-    _stt.stop();
-    _player.stop();
+    _stt.stop(discard: true);
+    try { _player.stop(); } catch (_) {}
 
     final current = ref.read(currentLineIndexProvider);
     final newIdx = (current - jumpCount).clamp(0, totalLines - 1);
@@ -1187,9 +1271,10 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   }
 
   void _restartScene() {
+    _silenceTimer?.cancel();
     _tts.stop();
-    _stt.stop();
-    _player.stop();
+    _stt.stop(discard: true);
+    try { _player.stop(); } catch (_) {}
 
     ref.read(currentLineIndexProvider.notifier).state = 0;
     ref.read(rehearsalStateProvider.notifier).state = RehearsalState.ready;
@@ -1219,14 +1304,15 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   }
 
   void _togglePause(int totalLines) {
+    _silenceTimer?.cancel();
     final current = ref.read(rehearsalStateProvider);
     if (current == RehearsalState.paused) {
       ref.read(rehearsalStateProvider.notifier).state = RehearsalState.ready;
       if (_autoPlay) _processCurrentLine();
     } else {
       _tts.stop();
-      _stt.stop();
-      _player.pause();
+      _stt.stop(discard: true);
+      try { _player.pause(); } catch (_) {}
       ref.read(rehearsalStateProvider.notifier).state = RehearsalState.paused;
     }
   }
@@ -1297,36 +1383,33 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   }
 
   void _scrollToCurrentLine() {
-    // Wait for the current frame to complete layout so maxScrollExtent
-    // and the scroll controller are valid.
+    // Wait for the current frame to complete layout so the widget tree
+    // has been rebuilt with the new currentLineIndexProvider value.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scrollController.hasClients) return;
 
-      final currentIdx = ref.read(currentLineIndexProvider);
-
-      // Estimate item height for the initial jump. Each line card is
-      // ~80-120px with margins; use 100px as a reasonable average.
-      const estimatedItemHeight = 100.0;
-      final targetOffset = currentIdx * estimatedItemHeight;
-      final maxScroll = _scrollController.position.maxScrollExtent;
-
-      // Jump near the target so ListView.builder materialises the widget.
-      _scrollController.jumpTo(targetOffset.clamp(0.0, maxScroll));
-
-      // After the jump, wait one more frame for the target item to build,
-      // then use ensureVisible for pixel-perfect positioning.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        final ctx = _currentLineKey.currentContext;
-        if (ctx != null) {
-          Scrollable.ensureVisible(
-            ctx,
-            alignment: 0.3, // position current line ~30% from top
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
+      // With cacheExtent: 10000 the target widget should be built.
+      // Use ensureVisible on the GlobalKey for pixel-perfect scroll.
+      final ctx = _currentLineKey.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          alignment: 0.3, // position current line ~30% from top
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      } else {
+        // Fallback: estimate scroll position if widget not yet built
+        final currentIdx = ref.read(currentLineIndexProvider);
+        const estimatedItemHeight = 140.0;
+        final targetOffset = currentIdx * estimatedItemHeight;
+        final maxScroll = _scrollController.position.maxScrollExtent;
+        _scrollController.animateTo(
+          targetOffset.clamp(0.0, maxScroll),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
     });
   }
 }
