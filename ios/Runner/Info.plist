@@ -51,6 +51,10 @@
 	<string>CastCircle needs microphone access to record your lines.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>CastCircle uses speech recognition to check your line accuracy during rehearsal.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>CastCircle needs photo library access to import script images for OCR processing.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>CastCircle can use the camera to photograph script pages for OCR import.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

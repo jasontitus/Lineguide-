@@ -44,7 +44,9 @@ platform :ios do
       skip_binary_upload: true,
       skip_screenshots: true,
       force: true,
-      precheck_include_in_app_purchases: false
+      precheck_include_in_app_purchases: false,
+      # Auto-detect the version from the latest editable version on ASC
+      skip_app_version_update: true
     )
   end
 
