@@ -230,6 +230,94 @@ Is it known who did this?
       expect(directions, isNotEmpty);
     });
 
+    test('Alarum\'d in dialogue is NOT treated as stage direction', () {
+      const text = '''
+MACBETH.
+And wither'd murder,
+Alarum'd by his sentinel, the wolf,
+Whose howl's his watch, thus with his stealthy pace,
+Moves like a ghost.
+
+LADY MACBETH.
+That which hath made them drunk hath made me bold.
+''';
+      final script = parser.parse(text, title: 'Macbeth Alarmd');
+      final dialogue =
+          script.lines.where((l) => l.lineType == LineType.dialogue).toList();
+      final macbethLines =
+          dialogue.where((l) => l.character == 'MACBETH').toList();
+      expect(macbethLines.length, 1);
+      // "Alarum'd" should be part of dialogue, not split out
+      expect(macbethLines[0].text, contains("Alarum'd"));
+      expect(macbethLines[0].text, contains('ghost'));
+    });
+
+    test('dialogue continues after stage direction (Is this a dagger)', () {
+      const text = '''
+MACBETH.
+Go bid thy mistress, when my drink is ready,
+She strike upon the bell. Get thee to bed.
+
+[_Exit Servant._]
+
+Is this a dagger which I see before me,
+The handle toward my hand? Come, let me clutch thee.
+
+[_A bell rings._]
+
+I go, and it is done. The bell invites me.
+
+LADY MACBETH.
+That which hath made them drunk hath made me bold.
+''';
+      final script = parser.parse(text, title: 'Macbeth Dagger');
+      final dialogue =
+          script.lines.where((l) => l.lineType == LineType.dialogue).toList();
+
+      // MACBETH should have 3 speeches (split by stage directions)
+      // 1. "Go bid thy mistress..."
+      // 2. "Is this a dagger..."
+      // 3. "I go, and it is done..."
+      final macbethLines =
+          dialogue.where((l) => l.character == 'MACBETH').toList();
+      expect(macbethLines.length, 3,
+          reason: 'Macbeth speaks 3 times, split by stage directions');
+
+      expect(macbethLines[0].text, contains('Go bid thy mistress'));
+      expect(macbethLines[1].text, contains('dagger'));
+      expect(macbethLines[2].text, contains('bell invites me'));
+
+      // LADY MACBETH gets her own line
+      final ladyLines =
+          dialogue.where((l) => l.character == 'LADY MACBETH').toList();
+      expect(ladyLines.length, 1);
+    });
+
+    test('dialogue continues after Enter in Hamlet (Horatio sees Ghost)', () {
+      const text = '''
+  Hor. In what particular thought to work, I know not:
+But in the grosse and scope of my Opinion,
+This boades some strange erruption to our State.
+
+Enter Ghost againe.
+
+But soft, behold: Loe, where it comes againe.
+
+  Mar. Shall I strike at it with my Partizan?
+''';
+      final script = parser.parse(text, title: 'Hamlet Ghost');
+      final dialogue =
+          script.lines.where((l) => l.lineType == LineType.dialogue).toList();
+
+      // HOR(ATIO) should have 2 speeches (split by stage direction)
+      final horLines =
+          dialogue.where((l) => l.character.startsWith('HOR')).toList();
+      expect(horLines.length, 2,
+          reason: 'Horatio speaks before and after the Ghost enters');
+      expect(horLines[0].text, contains('particular thought'));
+      expect(horLines[1].text, contains('behold'));
+    });
+
     test('detects ACT and SCENE headers', () {
       const text = '''
 ACT I
@@ -257,6 +345,88 @@ Is this a dagger which I see before me?
       expect(headers.length, 2);
       expect(headers[0].text, contains('ACT I'));
       expect(headers[1].text, contains('ACT II'));
+    });
+
+    test('Tomorrow and tomorrow speech attributed to MACBETH', () {
+      const text = '''
+SEYTON.
+The Queen, my lord, is dead.
+
+MACBETH.
+She should have died hereafter.
+There would have been a time for such a word.
+Tomorrow, and tomorrow, and tomorrow,
+Creeps in this petty pace from day to day,
+To the last syllable of recorded time;
+And all our yesterdays have lighted fools
+The way to dusty death. Out, out, brief candle!
+Life's but a walking shadow; a poor player,
+That struts and frets his hour upon the stage,
+And then is heard no more: it is a tale
+Told by an idiot, full of sound and fury,
+Signifying nothing.
+
+ Enter a Messenger.
+
+Thou com'st to use thy tongue; thy story quickly.
+
+MESSENGER.
+Gracious my lord,
+I should report that which I say I saw.
+''';
+      final script = parser.parse(text, title: 'Macbeth Tomorrow');
+      final dialogue =
+          script.lines.where((l) => l.lineType == LineType.dialogue).toList();
+      final macbethLines =
+          dialogue.where((l) => l.character == 'MACBETH').toList();
+
+      // MACBETH has 2 speeches: the soliloquy, then addressing the Messenger
+      expect(macbethLines.length, 2);
+      expect(macbethLines[0].text, contains('Tomorrow'));
+      expect(macbethLines[0].text, contains('Signifying nothing'));
+      expect(macbethLines[1].text, contains('thy tongue'));
+
+      // SEYTON and MESSENGER each have 1 line
+      expect(dialogue.where((l) => l.character == 'SEYTON').length, 1);
+      expect(dialogue.where((l) => l.character == 'MESSENGER').length, 1);
+    });
+
+    test('Out damned spot scene with correct character attributions', () {
+      const text = '''
+LADY MACBETH.
+Yet here's a spot.
+
+DOCTOR.
+Hark, she speaks. I will set down what comes from her.
+
+LADY MACBETH.
+Out, damned spot! out, I say! One; two. Why, then 'tis time to do't.
+Hell is murky! Fie, my lord, fie! a soldier, and afeard?
+
+DOCTOR.
+Do you mark that?
+
+GENTLEWOMAN.
+She has spoke what she should not.
+''';
+      final script = parser.parse(text, title: 'Macbeth Spot');
+      final dialogue =
+          script.lines.where((l) => l.lineType == LineType.dialogue).toList();
+      expect(dialogue.length, 5);
+
+      final ladyLines =
+          dialogue.where((l) => l.character == 'LADY MACBETH').toList();
+      expect(ladyLines.length, 2);
+      expect(ladyLines[1].text, contains('Out, damned spot'));
+
+      expect(
+        dialogue.where((l) => l.character == 'DOCTOR').length,
+        2,
+      );
+      expect(
+        dialogue.where((l) => l.character == 'GENTLEWOMAN').length,
+        1,
+      );
     });
 
     test('finds all major Macbeth characters', () {
@@ -327,6 +497,67 @@ Is the King stirring?
 
     setUp(() {
       parser = ScriptParser();
+    });
+
+    test('To be or not to be soliloquy (First Folio format)', () {
+      const text = '''
+  Pol. I heare him comming, let's withdraw my Lord.
+
+Exeunt.
+
+Enter Hamlet.
+
+  Ham. To be, or not to be, that is the Question:
+Whether 'tis Nobler in the minde to suffer
+The Slings and Arrowes of outragious Fortune,
+Or to take Armes against a Sea of troubles,
+And by opposing end them: to dye, to sleepe
+No more; and by a sleepe, to say we end
+The Heart-ake, and the thousand Naturall shockes
+That Flesh is heyre too? 'Tis a consummation
+Deuoutly to be wish'd. To dye to sleepe,
+To sleepe, perchance to Dreame; I, there's the rub,
+For in that sleepe of death, what dreames may come,
+When we haue shuffel'd off this mortall coile,
+Must giue vs pawse.
+Thus Conscience does make Cowards of vs all,
+And thus the Natiue hew of Resolution
+Is sicklied o're, with the pale cast of Thought,
+And enterprizes of great pith and moment,
+With this regard their Currants turne away,
+And loose the name of Action. Soft you now,
+The faire Ophelia? Nimph, in thy Orizons
+Be all my sinnes remembred
+
+  Ophe. Good my Lord,
+How does your Honor for this many a day?
+''';
+      final script = parser.parse(text, title: 'Hamlet Soliloquy');
+      final dialogue =
+          script.lines.where((l) => l.lineType == LineType.dialogue).toList();
+
+      // POL(ONIUS), HAM(LET), OPHE(LIA) should all have dialogue
+      expect(dialogue.length, greaterThanOrEqualTo(3));
+
+      // The "To be" speech should be a single long dialogue line for HAM(LET)
+      final hamLines =
+          dialogue.where((l) => l.character.startsWith('HAM')).toList();
+      expect(hamLines, isNotEmpty);
+      expect(hamLines.first.text, contains('To be, or not to be'));
+      expect(hamLines.first.text, contains('lose the name of Action'),
+          reason: 'Full soliloquy should be captured as one speech');
+
+      // Ophelia's response should be captured
+      final opheLines =
+          dialogue.where((l) => l.character.startsWith('OPHE')).toList();
+      expect(opheLines, isNotEmpty);
+      expect(opheLines.first.text, contains('Good my Lord'));
+
+      // Stage directions (Exeunt, Enter Hamlet) should be detected
+      final directions = script.lines
+          .where((l) => l.lineType == LineType.stageDirection)
+          .toList();
+      expect(directions.length, greaterThanOrEqualTo(1));
     });
 
     test('parses title-case character names with dialogue on same line', () {

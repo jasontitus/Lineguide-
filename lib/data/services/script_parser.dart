@@ -649,10 +649,13 @@ class ScriptParser {
     return (direction: '', text: text);
   }
 
-  /// Check if a line is an Enter/Exit/Exeunt stage direction.
+  /// Check if a line is an Enter/Exit/Exeunt or other common stage direction.
+  /// Covers Shakespeare conventions: entrances, exits, sound/music cues.
+  /// Requires keyword followed by whitespace/punctuation/EOL — avoids matching
+  /// words like "Alarum'd" (conjugated form in dialogue).
   static bool _isEnterExitLine(String line) {
     return RegExp(
-      r'^(?:Enter|Exit|Exeunt|Re-enter|Manet|Manent)\b',
+      r"^(?:Enter|Exit|Exeunt|Re-enter|Manet|Manent|Thunder|Alarum|Flourish|Sennet|Retreat|Hautboys|Trumpets|Cornets)(?:\s|[.,;:!]|$)",
       caseSensitive: false,
     ).hasMatch(line);
   }
@@ -814,8 +817,15 @@ class ScriptParser {
       // Bracketed stage direction: [_Exeunt._] or [Exit.]
       if (cleaned.startsWith('[') && cleaned.endsWith(']')) {
         flushDialogue();
-        currentCharacter = '';
-        dialogueParts = [];
+        // In Shakespeare formats, dialogue often continues after stage
+        // directions (e.g., Macbeth's "Is this a dagger" after [_Exit Servant._]).
+        // Preserve currentCharacter so continuation lines are still attributed.
+        if (_format == ScriptFormat.standard) {
+          currentCharacter = '';
+          dialogueParts = [];
+        } else {
+          dialogueParts = [''];
+        }
         addStageDirection(cleaned);
         continue;
       }
@@ -823,8 +833,12 @@ class ScriptParser {
       // Enter/Exit/Exeunt stage directions (common in Shakespeare texts)
       if (_isEnterExitLine(cleaned)) {
         flushDialogue();
-        currentCharacter = '';
-        dialogueParts = [];
+        if (_format == ScriptFormat.standard) {
+          currentCharacter = '';
+          dialogueParts = [];
+        } else {
+          dialogueParts = [''];
+        }
         addStageDirection(cleaned);
         continue;
       }
