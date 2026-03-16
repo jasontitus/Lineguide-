@@ -4,6 +4,18 @@ import '../models/script_models.dart';
 
 const _uuid = Uuid();
 
+/// Detected script formatting convention.
+enum ScriptFormat {
+  /// "CHARACTER. Dialogue on same line" (e.g., Pride & Prejudice adaptation)
+  standard,
+
+  /// "CHARACTER.\nDialogue on next line" (e.g., Project Gutenberg Macbeth)
+  nameOnOwnLine,
+
+  /// "Name. Dialogue" with Title Case names (e.g., First Folio Hamlet)
+  titleCase,
+}
+
 /// Parses raw OCR text from a play script into structured [ScriptLine] records
 /// with automatic scene detection.
 ///
@@ -21,6 +33,9 @@ class ScriptParser {
 
   /// Character alias normalization map.
   final Map<String, String> characterAliases = {};
+
+  /// Detected script format (set during parse).
+  ScriptFormat _format = ScriptFormat.standard;
 
   // Noise patterns (page headers, footers, OCR artifacts)
   static final List<RegExp> _noisePatterns = [
@@ -61,14 +76,25 @@ class ScriptParser {
 
   /// Parse raw text into a [ParsedScript] with scenes.
   ParsedScript parse(String rawText, {String title = 'Untitled'}) {
+    // Strip Project Gutenberg preamble/postamble if present
+    rawText = _stripGutenbergWrapper(rawText);
+
     // Pre-process: dehyphenate OCR line breaks ("dan-\ngerous" → "dangerous")
     rawText = _dehyphenate(rawText);
+
+    // Auto-detect the script format
+    _format = _detectFormat(rawText);
 
     // First pass: detect character names from the text
     _detectCharacters(rawText);
 
     // Merge OCR-garbled character names into correct ones
     _mergeOcrCharacterNames(rawText);
+
+    // For title-case format, resolve abbreviated names using stage directions
+    if (_format == ScriptFormat.titleCase) {
+      _resolveTitleCaseAbbreviations(rawText);
+    }
 
     // Second pass: parse lines
     final lines = _parseLines(rawText);
@@ -219,28 +245,134 @@ class ScriptParser {
     'MR', 'MRS', 'MS', 'DR', 'MISS', 'REV', 'PROF',
   };
 
-  /// Detect character names from the raw text using the
-  /// "ALL CAPS WORD(S). " pattern.
+  /// Detect character names from the raw text.
+  /// Pattern varies by detected [_format].
   void _detectCharacters(String rawText) {
-    // Use literal space (not \s) in character classes to prevent matching
-    // across newlines, which would combine ACT headers with character names.
+    switch (_format) {
+      case ScriptFormat.standard:
+        _detectCharactersStandard(rawText);
+        break;
+      case ScriptFormat.nameOnOwnLine:
+        _detectCharactersOwnLine(rawText);
+        break;
+      case ScriptFormat.titleCase:
+        _detectCharactersTitleCase(rawText);
+        break;
+    }
+  }
+
+  /// Standard format: "ALL CAPS NAME. dialogue" on one line.
+  void _detectCharactersStandard(String rawText) {
     final pattern = RegExp(
       r'^([A-Z][A-Z. ,]+(?:, *[A-Z][A-Z. ]+)*)\. ',
       multiLine: true,
     );
-
-    final matches = pattern.allMatches(rawText);
-    for (final match in matches) {
-      var name = match.group(1)!.trim();
-      if (name.length < 2 || name.length > 50) continue;
-      if (RegExp(r'^(ACT|SCENE|SETTING|NOTE|PRODUCTION)\b').hasMatch(name)) {
-        continue;
-      }
-      // Skip bare titles like "MR", "MRS" — these are regex backtrack
-      // artifacts from cast list entries like "MR. BENNET"
-      if (_titlePrefixes.contains(name)) continue;
-      knownCharacters.add(name);
+    for (final match in pattern.allMatches(rawText)) {
+      _addCharacterCandidate(match.group(1)!);
     }
+  }
+
+  /// Name-on-own-line format: "ALL CAPS NAME." alone on a line.
+  void _detectCharactersOwnLine(String rawText) {
+    // Also pick up any that have dialogue on the same line (fallback)
+    final ownLine = RegExp(
+      r'^([A-Z][A-Z. ]+)\.\s*$',
+      multiLine: true,
+    );
+    for (final match in ownLine.allMatches(rawText)) {
+      _addCharacterCandidate(match.group(1)!);
+    }
+    final sameLine = RegExp(
+      r'^([A-Z][A-Z. ,]+(?:, *[A-Z][A-Z. ]+)*)\. \S',
+      multiLine: true,
+    );
+    for (final match in sameLine.allMatches(rawText)) {
+      _addCharacterCandidate(match.group(1)!);
+    }
+  }
+
+  /// Title-case format: "Name. dialogue" (e.g., First Folio Shakespeare).
+  /// Stores names as UPPERCASE; requires 2+ occurrences to filter noise.
+  void _detectCharactersTitleCase(String rawText) {
+    final pattern = RegExp(
+      r'^\s*([A-Z][a-z]+)\.\s',
+      multiLine: true,
+    );
+    final counts = <String, int>{};
+    for (final match in pattern.allMatches(rawText)) {
+      final name = match.group(1)!.toUpperCase();
+      counts[name] = (counts[name] ?? 0) + 1;
+    }
+    for (final entry in counts.entries) {
+      if (entry.value >= 2) {
+        final name = entry.key;
+        if (name.length < 2 || name.length > 50) continue;
+        if (RegExp(r'^(ACT|SCENE|SETTING|NOTE|PRODUCTION|ACTUS|SCENA|SCOENA)\b')
+            .hasMatch(name)) continue;
+        knownCharacters.add(name);
+      }
+    }
+  }
+
+  /// Validate and add a character name candidate.
+  void _addCharacterCandidate(String rawName) {
+    var name = rawName.trim();
+    if (name.length < 2 || name.length > 50) return;
+    if (RegExp(r'^(ACT|SCENE|SETTING|NOTE|PRODUCTION)\b').hasMatch(name)) {
+      return;
+    }
+    if (_titlePrefixes.contains(name)) return;
+    knownCharacters.add(name);
+  }
+
+  /// Strip Project Gutenberg preamble (before "*** START OF") and
+  /// postamble (after "*** END OF") if present.
+  static String _stripGutenbergWrapper(String text) {
+    final startMatch =
+        RegExp(r'\*\*\* ?START OF .+\*\*\*.*\n').firstMatch(text);
+    if (startMatch != null) {
+      text = text.substring(startMatch.end);
+    }
+    final endMatch = RegExp(r'\*\*\* ?END OF ').firstMatch(text);
+    if (endMatch != null) {
+      text = text.substring(0, endMatch.start);
+    }
+    return text;
+  }
+
+  /// Auto-detect the script formatting convention.
+  static ScriptFormat _detectFormat(String rawText) {
+    // Count lines matching each pattern
+    final standardCount = RegExp(
+      r'^[A-Z][A-Z. ,]+\. \S',
+      multiLine: true,
+    ).allMatches(rawText).length;
+
+    final ownLineCount = RegExp(
+      r'^[A-Z][A-Z. ]+\.\s*$',
+      multiLine: true,
+    ).allMatches(rawText).length;
+
+    // Title case: optionally indented capitalized word + period + space + text
+    final titleCaseCount = RegExp(
+      r'^\s*[A-Z][a-z]+\. \S',
+      multiLine: true,
+    ).allMatches(rawText).length;
+
+    // Standard format takes priority when it has clear matches
+    if (standardCount >= 5 &&
+        standardCount >= ownLineCount &&
+        standardCount >= titleCaseCount) {
+      return ScriptFormat.standard;
+    }
+    if (ownLineCount >= 5 && ownLineCount >= titleCaseCount) {
+      return ScriptFormat.nameOnOwnLine;
+    }
+    if (titleCaseCount >= 5) {
+      return ScriptFormat.titleCase;
+    }
+    // Default to standard
+    return ScriptFormat.standard;
   }
 
   /// Dehyphenate OCR line breaks: "dan-\ngerous" → "dangerous".
@@ -345,6 +477,65 @@ class ScriptParser {
     knownCharacters.removeAll(garbageOnly);
   }
 
+  /// For title-case scripts (e.g. First Folio), resolve abbreviated character
+  /// names like HAM→HAMLET, HOR→HORATIO using:
+  /// 1. Prefix merging among known character names (POL→POLON, BAR→BARN)
+  /// 2. Full names extracted from Enter/Exit stage directions
+  void _resolveTitleCaseAbbreviations(String rawText) {
+    // 1. Prefix merging: merge shorter names into longer ones
+    final byLength = knownCharacters.toList()
+      ..sort((a, b) => b.length.compareTo(a.length));
+    for (var i = 0; i < byLength.length; i++) {
+      final longer = byLength[i];
+      if (characterAliases.containsKey(longer)) continue;
+      for (var j = i + 1; j < byLength.length; j++) {
+        final shorter = byLength[j];
+        if (characterAliases.containsKey(shorter)) continue;
+        if (longer.startsWith(shorter) && shorter.length >= 2) {
+          characterAliases[shorter] = longer;
+        }
+      }
+    }
+
+    // 2. Extract full names from Enter/Exit/Exeunt stage directions
+    final enterPattern = RegExp(
+      r'(?:Enter|Exit|Exeunt|Re-enter)\s+(.+?)(?:\.\s*$|\n)',
+      multiLine: true,
+    );
+    final fullNames = <String>{};
+    for (final match in enterPattern.allMatches(rawText)) {
+      final text = match.group(1)!;
+      for (final word
+          in RegExp(r'\b([A-Z][a-z]{2,})\b').allMatches(text)) {
+        fullNames.add(word.group(1)!.toUpperCase());
+      }
+    }
+
+    // Map abbreviated character names → full names from stage directions
+    for (final abbrev in knownCharacters.toList()) {
+      if (characterAliases.containsKey(abbrev)) {
+        // Already aliased by prefix merging — check if the alias target
+        // itself can be resolved further
+        final current = characterAliases[abbrev]!;
+        for (final full in fullNames) {
+          if (full.startsWith(current) && full.length > current.length) {
+            characterAliases[current] = full;
+            knownCharacters.add(full);
+            break;
+          }
+        }
+      } else {
+        for (final full in fullNames) {
+          if (full.startsWith(abbrev) && full.length > abbrev.length) {
+            characterAliases[abbrev] = full;
+            knownCharacters.add(full);
+            break;
+          }
+        }
+      }
+    }
+  }
+
   /// Strip title prefix from a name, returning null if no title found.
   static String? _stripTitle(String name) {
     final prefixes = [
@@ -388,9 +579,15 @@ class ScriptParser {
     return prev[lb];
   }
 
-  /// Normalize a character name using aliases.
+  /// Normalize a character name using aliases (follows chains).
   String _normalizeCharacter(String name) {
-    return characterAliases[name] ?? name;
+    var result = name;
+    for (var i = 0; i < 5; i++) {
+      final alias = characterAliases[result];
+      if (alias == null || alias == result) break;
+      result = alias;
+    }
+    return result;
   }
 
   /// Check if a line is noise.
@@ -418,12 +615,26 @@ class ScriptParser {
     final sorted = knownCharacters.toList()
       ..sort((a, b) => b.length.compareTo(a.length));
 
+    final caseSensitive = _format != ScriptFormat.titleCase;
+
     for (final char in sorted) {
       final escaped = RegExp.escape(char);
-      final pattern = RegExp('^$escaped\\.\\s+(.*)');
+      // Standard match: "NAME. dialogue..."
+      final pattern = RegExp(
+        '^$escaped\\.\\s+(.*)',
+        caseSensitive: caseSensitive,
+      );
       final match = pattern.firstMatch(line);
       if (match != null) {
         return (character: char, dialogue: match.group(1)!);
+      }
+
+      // Name-on-own-line: "NAME." with nothing after
+      if (_format == ScriptFormat.nameOnOwnLine) {
+        final ownLine = RegExp('^$escaped\\.\$');
+        if (ownLine.hasMatch(line)) {
+          return (character: char, dialogue: '');
+        }
       }
     }
     return null;
@@ -436,6 +647,17 @@ class ScriptParser {
       return (direction: match.group(1)!, text: match.group(2)!);
     }
     return (direction: '', text: text);
+  }
+
+  /// Check if a line is an Enter/Exit/Exeunt or other common stage direction.
+  /// Covers Shakespeare conventions: entrances, exits, sound/music cues.
+  /// Requires keyword followed by whitespace/punctuation/EOL — avoids matching
+  /// words like "Alarum'd" (conjugated form in dialogue).
+  static bool _isEnterExitLine(String line) {
+    return RegExp(
+      r"^(?:Enter|Exit|Exeunt|Re-enter|Manet|Manent|Thunder|Alarum|Flourish|Sennet|Retreat|Hautboys|Trumpets|Cornets)(?:\s|[.,;:!]|$)",
+      caseSensitive: false,
+    ).hasMatch(line);
   }
 
   /// Check if a stage direction text indicates a scene transition.
@@ -531,8 +753,10 @@ class ScriptParser {
 
       if (_isNoise(line)) continue;
 
-      // ACT headers
-      final actMatch = RegExp(r'^ACT\s+([IV]+|\d+)').firstMatch(line);
+      // ACT headers (includes Latin "Actus Primus" etc.)
+      final actMatch = RegExp(
+        r'^(?:ACT\s+([IV]+|\d+)|Actus\s+\w+)',
+      ).firstMatch(line);
       if (actMatch != null) {
         flushDialogue();
         currentAct = line.trim();
@@ -554,10 +778,12 @@ class ScriptParser {
         continue;
       }
 
-      // Explicit SCENE headers (supports "SCENE 1", "SCENE IV", "SCENE 1.2")
-      final sceneMatch =
-          RegExp(r'^SCENE\s+[\d.IV]+', caseSensitive: false)
-              .firstMatch(line);
+      // Explicit SCENE headers (supports "SCENE 1", "SCENE IV", "SCENE 1.2",
+      // and Latin "Scena Secunda", "Scoena Prima")
+      final sceneMatch = RegExp(
+        r'^(?:SCENE\s+[\d.IVXiv]+|Sc[oe]na\s+\w+)',
+        caseSensitive: false,
+      ).firstMatch(line);
       if (sceneMatch != null) {
         flushDialogue();
         currentScene = line.trim();
@@ -579,11 +805,40 @@ class ScriptParser {
         continue;
       }
 
-      // Standalone stage direction
+      // Standalone stage direction (parenthesized)
       if (cleaned.startsWith('(') && cleaned.endsWith(')')) {
         flushDialogue();
         currentCharacter = '';
         dialogueParts = [];
+        addStageDirection(cleaned);
+        continue;
+      }
+
+      // Bracketed stage direction: [_Exeunt._] or [Exit.]
+      if (cleaned.startsWith('[') && cleaned.endsWith(']')) {
+        flushDialogue();
+        // In Shakespeare formats, dialogue often continues after stage
+        // directions (e.g., Macbeth's "Is this a dagger" after [_Exit Servant._]).
+        // Preserve currentCharacter so continuation lines are still attributed.
+        if (_format == ScriptFormat.standard) {
+          currentCharacter = '';
+          dialogueParts = [];
+        } else {
+          dialogueParts = [''];
+        }
+        addStageDirection(cleaned);
+        continue;
+      }
+
+      // Enter/Exit/Exeunt stage directions (common in Shakespeare texts)
+      if (_isEnterExitLine(cleaned)) {
+        flushDialogue();
+        if (_format == ScriptFormat.standard) {
+          currentCharacter = '';
+          dialogueParts = [];
+        } else {
+          dialogueParts = [''];
+        }
         addStageDirection(cleaned);
         continue;
       }
