@@ -17,7 +17,7 @@ void main() {
 
     test('SttEngine enum has expected values', () {
       expect(SttEngine.values,
-          containsAll([SttEngine.mlx, SttEngine.system]));
+          containsAll([SttEngine.mlx, SttEngine.apple]));
       expect(SttEngine.values.length, 2);
     });
   });

@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'dart:io';
+
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+
 import '../../core/theme/app_theme.dart';
 import '../../data/models/production_models.dart';
 import '../../data/models/script_models.dart';
 import '../../data/services/model_manager.dart';
+import '../../data/services/script_export.dart';
 import '../../data/services/supabase_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -840,12 +847,49 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
   }
 
   Future<void> _export(BuildContext context, String format) async {
-    // Delegate to script editor export logic
-    if (context.mounted) {
+    final script = ref.read(currentScriptProvider);
+    final production = ref.read(currentProductionProvider);
+    if (script == null || production == null) return;
+
+    try {
+      String content;
+      String fileName;
+      final safeName = production.title
+          .replaceAll(RegExp(r'[^\w\s-]'), '')
+          .replaceAll(RegExp(r'\s+'), '_')
+          .toLowerCase();
+
+      switch (format) {
+        case 'markdown':
+          content = ScriptExporter.toMarkdown(script);
+          fileName = '$safeName.md';
+        default:
+          content = ScriptExporter.toPlainText(script);
+          fileName = '$safeName.txt';
+      }
+
+      final dir = await getApplicationDocumentsDirectory();
+      final exportDir = Directory(p.join(dir.path, 'exports'));
+      if (!exportDir.existsSync()) {
+        exportDir.createSync(recursive: true);
+      }
+      final filePath = p.join(exportDir.path, fileName);
+      await File(filePath).writeAsString(content);
+
+      if (!context.mounted) return;
+
+      final box = context.findRenderObject() as RenderBox?;
+      await Share.shareXFiles(
+        [XFile(filePath)],
+        text: 'CastCircle export: ${production.title}',
+        sharePositionOrigin: box != null
+            ? box.localToGlobal(Offset.zero) & box.size
+            : Rect.zero,
+      );
+    } catch (e) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Open Edit Script to export'),
-            duration: Duration(seconds: 2)),
+        SnackBar(content: Text('Export failed: $e')),
       );
     }
   }

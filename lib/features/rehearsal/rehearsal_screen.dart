@@ -64,6 +64,11 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   Timer? _silenceTimer;
   static const _silenceTimeout = Duration(seconds: 5);
 
+  // Match confirmation timer — don't advance while actor is still speaking.
+  // When match score exceeds threshold, wait for a brief silence before advancing
+  // to ensure the actor has finished reading a long multi-sentence line.
+  Timer? _matchConfirmTimer;
+
   // Session tracking
   late DateTime _sessionStartedAt;
   final List<LineAttempt> _lineAttempts = [];
@@ -183,6 +188,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     _dlog.stopMemoryMonitoring();
     _dlog.log(LogCategory.rehearsal, 'Rehearsal ended');
     _silenceTimer?.cancel();
+    _matchConfirmTimer?.cancel();
     _scrollController.dispose();
     _player.dispose();
     _tts.stop(reason: 'dispose');
@@ -1178,8 +1184,9 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
     _currentAttemptCount++;
 
-    // Build vocabulary hints: the current line as a phrase, its individual
-    // words, plus script-wide vocabulary (character names, archaic terms).
+    // Build vocabulary hints: the expected line as a phrase + its individual
+    // words. Keep hints focused — flooding with script-wide vocabulary
+    // (character names, etc.) dilutes the signal and confuses the recognizer.
     final production = ref.read(currentProductionProvider);
     final myCharacter = ref.read(rehearsalCharacterProvider);
     final cleanLine = line.text.replaceAll(RegExp("[^\\w\\s']"), '');
@@ -1187,12 +1194,8 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
         .where((w) => w.length > 1)
         .toSet()
         .toList();
-    // Full phrase + individual words + script vocabulary
+    // Full expected phrase + its individual words only
     final vocabHints = <String>[cleanLine, ...wordHints];
-    // Add script-wide important words (character names, recurring terms)
-    if (production != null) {
-      vocabHints.addAll(_sttVocab.getScriptHints(production.id));
-    }
 
     // Start silence timer — if no new results for a while, auto-advance
     _resetSilenceTimer(line);
@@ -1226,36 +1229,46 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
         if (score > _currentBestScore) _currentBestScore = score;
 
-        // Auto-advance if match exceeds threshold
+        // Auto-advance if match exceeds threshold — but wait for actor
+        // to stop speaking first. For long multi-sentence lines, the score
+        // can cross the threshold while the actor is still reading. We use
+        // a confirmation timer: only advance if no new STT results arrive
+        // for 1.2 seconds after the score crosses the threshold.
         if (score >= threshold) {
-          _silenceTimer?.cancel();
-          _stt.stop();
-          HapticFeedback.lightImpact();
+          _matchConfirmTimer?.cancel();
+          _matchConfirmTimer = Timer(const Duration(milliseconds: 1200), () {
+            if (!mounted) return;
+            if (ref.read(rehearsalStateProvider) != RehearsalState.listeningForMe) return;
 
-          // Learn from this successful attempt
-          if (production != null && myCharacter != null) {
-            _sttVocab.learnFromAttempt(
-              productionId: production.id,
-              actorId: myCharacter,
-              recognized: recognized,
-              expected: line.text,
-            );
-          }
+            _silenceTimer?.cancel();
+            _stt.stop();
+            HapticFeedback.lightImpact();
 
-          // Record the attempt
-          _recordAttempt(line, skipped: false);
-
-          // Brief delay so user sees the "Match!" feedback
-          Future.delayed(const Duration(milliseconds: 600), () {
-            if (mounted) {
-              final s = ref.read(currentScriptProvider);
-              final scene = ref.read(selectedSceneProvider);
-              final mc = ref.read(rehearsalCharacterProvider);
-              if (s == null || scene == null) return;
-              final dialogueLines = _getRehearsalLines(s, scene, mc);
-              _advanceLine(dialogueLines.length);
+            // Learn from this successful attempt
+            if (production != null && myCharacter != null) {
+              _sttVocab.learnFromAttempt(
+                productionId: production.id,
+                actorId: myCharacter,
+                recognized: recognized,
+                expected: line.text,
+              );
             }
+
+            // Record the attempt
+            _recordAttempt(line, skipped: false);
+
+            // Advance
+            final s = ref.read(currentScriptProvider);
+            final scene = ref.read(selectedSceneProvider);
+            final mc = ref.read(rehearsalCharacterProvider);
+            if (s == null || scene == null) return;
+            final dialogueLines = _getRehearsalLines(s, scene, mc);
+            _advanceLine(dialogueLines.length);
           });
+        } else {
+          // Score dropped below threshold (e.g., new words recognized that
+          // don't match) — cancel pending advance
+          _matchConfirmTimer?.cancel();
         }
       },
       onDone: () {
@@ -1298,6 +1311,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
   void _advanceLine(int totalLines) {
     _silenceTimer?.cancel();
+    _matchConfirmTimer?.cancel();
     _tts.stop(reason: 'advanceLine');
     _stt.stop(discard: true);
     try { _player.stop(); } catch (_) {}
@@ -1320,9 +1334,9 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
       _recognizedText = '';
     });
 
-    // Auto-play next line after short delay
+    // Auto-play next line after minimal delay
     if (_autoPlay) {
-      Future.delayed(const Duration(milliseconds: 400), () {
+      Future.delayed(const Duration(milliseconds: 100), () {
         if (mounted) _processCurrentLine();
       });
     }
@@ -1330,6 +1344,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
   void _jumpBack(int jumpCount, int totalLines) {
     _silenceTimer?.cancel();
+    _matchConfirmTimer?.cancel();
     _tts.stop(reason: 'jumpBack');
     _stt.stop(discard: true);
     try { _player.stop(); } catch (_) {}
@@ -1358,6 +1373,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
   void _restartScene() {
     _silenceTimer?.cancel();
+    _matchConfirmTimer?.cancel();
     _tts.stop(reason: 'restartScene');
     _stt.stop(discard: true);
     try { _player.stop(); } catch (_) {}

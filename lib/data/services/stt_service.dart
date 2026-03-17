@@ -175,7 +175,11 @@ class SttService {
 
   // ── Match Score ───────────────────────────────────────
 
-  /// Simple fuzzy match: what percentage of expected words were spoken.
+  /// Match score using Longest Common Subsequence (LCS) of words.
+  ///
+  /// Unlike simple set overlap, this respects word order — the user
+  /// must say the words in roughly the right sequence to score well.
+  /// Handles insertions, deletions, and STT adding extra words gracefully.
   static double matchScore(String expected, String spoken) {
     final normalizedExpected = _normalize(expected);
     if (normalizedExpected.isEmpty) return 1.0;
@@ -183,12 +187,58 @@ class SttService {
     final expectedWords = normalizedExpected.split(RegExp(r'\s+'));
     final spokenWords = _normalize(spoken).split(RegExp(r'\s+'));
 
-    int matched = 0;
-    for (final word in expectedWords) {
-      if (spokenWords.contains(word)) matched++;
+    if (spokenWords.isEmpty || (spokenWords.length == 1 && spokenWords[0].isEmpty)) {
+      return 0.0;
     }
 
-    return matched / expectedWords.length;
+    // LCS with fuzzy word matching (edit distance ≤ 1 counts as match)
+    final m = expectedWords.length;
+    final n = spokenWords.length;
+    final dp = List.generate(m + 1, (_) => List.filled(n + 1, 0));
+
+    for (var i = 1; i <= m; i++) {
+      for (var j = 1; j <= n; j++) {
+        if (_wordsMatch(expectedWords[i - 1], spokenWords[j - 1])) {
+          dp[i][j] = dp[i - 1][j - 1] + 1;
+        } else {
+          dp[i][j] = dp[i - 1][j] > dp[i][j - 1]
+              ? dp[i - 1][j]
+              : dp[i][j - 1];
+        }
+      }
+    }
+
+    return dp[m][n] / m;
+  }
+
+  /// Check if two words match — exact or within edit distance 1.
+  static bool _wordsMatch(String a, String b) {
+    if (a == b) return true;
+    if ((a.length - b.length).abs() > 1) return false;
+
+    // Quick single-char edit distance check
+    int diffs = 0;
+    if (a.length == b.length) {
+      for (var i = 0; i < a.length; i++) {
+        if (a[i] != b[i]) diffs++;
+        if (diffs > 1) return false;
+      }
+      return true;
+    }
+
+    // Handle insertion/deletion (lengths differ by 1)
+    final shorter = a.length < b.length ? a : b;
+    final longer = a.length < b.length ? b : a;
+    var si = 0;
+    for (var li = 0; li < longer.length && si < shorter.length; li++) {
+      if (shorter[si] == longer[li]) {
+        si++;
+      } else {
+        diffs++;
+        if (diffs > 1) return false;
+      }
+    }
+    return true;
   }
 
   static String _normalize(String text) {

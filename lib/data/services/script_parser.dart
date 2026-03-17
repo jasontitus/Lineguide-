@@ -292,7 +292,9 @@ class ScriptParser {
   }
 
   /// Title-case format: "Name. dialogue" (e.g., First Folio Shakespeare).
-  /// Stores names as UPPERCASE; requires 2+ occurrences to filter noise.
+  /// Stores names as UPPERCASE. For large inputs, requires 2+ occurrences
+  /// to filter noise; for small inputs, 1 occurrence is enough since
+  /// format detection already confirmed title-case style.
   void _detectCharactersTitleCase(String rawText) {
     final pattern = RegExp(
       r'^\s*([A-Z][a-z]+)\.\s',
@@ -303,8 +305,12 @@ class ScriptParser {
       final name = match.group(1)!.toUpperCase();
       counts[name] = (counts[name] ?? 0) + 1;
     }
+    // For small inputs (< 10 total matches), accept names with 1 occurrence
+    // since format detection already confirmed title-case style.
+    final totalMatches = counts.values.fold<int>(0, (a, b) => a + b);
+    final minOccurrences = totalMatches >= 10 ? 2 : 1;
     for (final entry in counts.entries) {
-      if (entry.value >= 2) {
+      if (entry.value >= minOccurrences) {
         final name = entry.key;
         if (name.length < 2 || name.length > 50) continue;
         if (RegExp(r'^(ACT|SCENE|SETTING|NOTE|PRODUCTION|ACTUS|SCENA|SCOENA)\b')
@@ -337,6 +343,42 @@ class ScriptParser {
     if (endMatch != null) {
       text = text.substring(0, endMatch.start);
     }
+    // Strip table of contents + Dramatis Personæ preamble.
+    // If "ACT I" (or "Actus") appears more than once, the first is in
+    // the TOC and the last is where the actual play starts.
+    text = _stripPreamble(text);
+    return text;
+  }
+
+  /// Strip TOC and cast list that precede the actual play text.
+  ///
+  /// Detects two patterns:
+  /// 1. Duplicate "ACT I" — first is TOC, last is the real start
+  /// 2. "Dramatis Personæ" / "Cast of Characters" section
+  static String _stripPreamble(String text) {
+    // Find all occurrences of the first act header
+    final actOnePattern = RegExp(
+      r'^(?:ACT\s+I(?:\b|$)|Actus\s+Primus)',
+      multiLine: true,
+    );
+    final matches = actOnePattern.allMatches(text).toList();
+    if (matches.length >= 2) {
+      // Skip to the last "ACT I" — that's where the real play starts
+      text = text.substring(matches.last.start);
+    } else if (matches.length == 1) {
+      // Only one ACT I, but check for a Dramatis Personæ section before it.
+      // Strip everything from "Dramatis" or "Cast of Characters" up to
+      // the first ACT header.
+      final dramatisMatch = RegExp(
+        r'(?:Dramatis\s+Person|Cast\s+of\s+Characters|CHARACTERS)',
+        caseSensitive: false,
+      ).firstMatch(text);
+      if (dramatisMatch != null && dramatisMatch.start < matches[0].start) {
+        // Dramatis section is before ACT I — strip from start of text
+        // to the ACT I header
+        text = text.substring(matches[0].start);
+      }
+    }
     return text;
   }
 
@@ -365,10 +407,19 @@ class ScriptParser {
         standardCount >= titleCaseCount) {
       return ScriptFormat.standard;
     }
-    if (ownLineCount >= 5 && ownLineCount >= titleCaseCount) {
+    // Name-on-own-line: 2+ matches is enough if it leads
+    if (ownLineCount >= 2 && ownLineCount >= titleCaseCount) {
       return ScriptFormat.nameOnOwnLine;
     }
-    if (titleCaseCount >= 5) {
+    // Title-case: 2+ matches is enough if it leads
+    if (titleCaseCount >= 2 && titleCaseCount > standardCount) {
+      return ScriptFormat.titleCase;
+    }
+    // For very small inputs: if only one format matches, use it
+    if (ownLineCount > 0 && standardCount == 0) {
+      return ScriptFormat.nameOnOwnLine;
+    }
+    if (titleCaseCount > 0 && standardCount == 0) {
       return ScriptFormat.titleCase;
     }
     // Default to standard
@@ -452,10 +503,13 @@ class ScriptParser {
       }
     }
 
-    // 4. Title variant: "MR. DARCY" when "DARCY" exists and is more common
+    // 4. Title variant: "MR. DARCY" when "DARCY" exists and is more common.
+    // Only merge rare titled variants (≤ 3 occurrences) — a character like
+    // LADY MACBETH (60 lines) is distinct from MACBETH, not a title variant.
     for (final name in nameList) {
       if (toRemove.contains(name)) continue;
       final nameCount = counts[name] ?? 0;
+      if (nameCount > 3) continue; // Not a rare variant — keep as distinct
       final withoutTitle = _stripTitle(name);
       if (withoutTitle != null && knownCharacters.contains(withoutTitle)) {
         final baseCount = counts[withoutTitle] ?? 0;
@@ -640,13 +694,53 @@ class ScriptParser {
     return null;
   }
 
-  /// Extract inline stage direction from dialogue.
+  /// Extract inline stage directions from dialogue.
+  ///
+  /// Handles three common patterns in play scripts:
+  /// 1. Leading: "(Glancing at JANE;) And the prettiest of all."
+  /// 2. Trailing: "...now. (The ball begins. ELIZABETH sits to one side.)"
+  /// 3. Colon-style: "(To audience:) Mrs. Bennet, to be sure."
   ({String direction, String text}) _extractInlineDirection(String text) {
-    final match = RegExp(r'^\(([^)]+?):\)\s*(.*)').firstMatch(text);
-    if (match != null) {
-      return (direction: match.group(1)!, text: match.group(2)!);
+    var direction = '';
+    var dialogue = text;
+
+    // 1. Leading parenthetical: "(Direction) Dialogue..."
+    final leadMatch = RegExp(r'^\(([^)]+)\)\s*(.+)').firstMatch(dialogue);
+    if (leadMatch != null) {
+      direction = leadMatch.group(1)!.replaceAll(RegExp(r':$'), '').trim();
+      dialogue = leadMatch.group(2)!;
     }
-    return (direction: '', text: text);
+
+    // 2. Trailing parenthetical: "...dialogue. (Direction)"
+    // Match only after sentence-ending punctuation to avoid stripping
+    // dialogue that happens to end with a parenthetical aside.
+    final trailMatch =
+        RegExp(r'^(.*[.!?])\s+\(([^)]+)\)\s*$').firstMatch(dialogue);
+    if (trailMatch != null) {
+      dialogue = trailMatch.group(1)!;
+      final trailDir = trailMatch.group(2)!;
+      direction = direction.isEmpty ? trailDir : '$direction; $trailDir';
+    }
+
+    // 3. Legacy colon-style: "(To audience:) dialogue" — already caught
+    // by the leading pattern above, but handle the colon variant specifically
+    // in case the leading match didn't fire (e.g., no space after paren).
+    if (direction.isEmpty) {
+      final colonMatch =
+          RegExp(r'^\(([^)]+?):\)\s*(.*)').firstMatch(dialogue);
+      if (colonMatch != null) {
+        direction = colonMatch.group(1)!;
+        dialogue = colonMatch.group(2)!;
+      }
+    }
+
+    // Don't return empty dialogue — if extraction consumed everything,
+    // keep the original text as dialogue.
+    if (dialogue.trim().isEmpty) {
+      return (direction: '', text: text);
+    }
+
+    return (direction: direction.trim(), text: dialogue.trim());
   }
 
   /// Check if a line is an Enter/Exit/Exeunt or other common stage direction.

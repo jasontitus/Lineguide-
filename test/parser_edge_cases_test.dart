@@ -154,14 +154,16 @@ DARCY. "Indeed," he said, "it's extraordinary."
       expect(score, 1.0);
     });
 
-    test('handles repeated words — bag-of-words contains check', () {
+    test('handles repeated words — LCS respects word count', () {
       final score = SttService.matchScore(
         'yes yes yes',
         'yes',
       );
-      // matchScore uses contains(), so "yes" in spoken matches all three "yes"
-      // in expected. All 3 expectedWords find "yes" in spokenWords → 3/3 = 1.0
-      expect(score, 1.0);
+      // LCS: spoken "yes" matches 1 of 3 expected "yes" words → 1/3
+      expect(score, closeTo(0.333, 0.01));
+
+      // Saying all three should score 1.0
+      expect(SttService.matchScore('yes yes yes', 'yes yes yes'), 1.0);
     });
 
     test('handles very long text', () {

@@ -196,11 +196,6 @@ Future<void> persistScript(WidgetRef ref) async {
   final repo = ref.read(productionRepositoryProvider);
   await repo.saveScriptLines(production.id, script.lines);
   await repo.saveScenes(production.id, script.scenes);
-
-  // Also push to cloud (non-blocking — don't fail local save if cloud fails)
-  pushScriptToCloud(ref).catchError((e) {
-    debugPrint('Auto cloud push after persist failed: $e');
-  });
 }
 
 /// Fetch cloud script lines for a production. Returns null if Supabase

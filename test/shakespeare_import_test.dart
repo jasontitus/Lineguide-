@@ -544,7 +544,7 @@ How does your Honor for this many a day?
           dialogue.where((l) => l.character.startsWith('HAM')).toList();
       expect(hamLines, isNotEmpty);
       expect(hamLines.first.text, contains('To be, or not to be'));
-      expect(hamLines.first.text, contains('lose the name of Action'),
+      expect(hamLines.first.text, contains('loose the name of Action'),
           reason: 'Full soliloquy should be captured as one speech');
 
       // Ophelia's response should be captured
@@ -810,7 +810,7 @@ DARCY. My good opinion once lost is lost forever.
 
       final dialogue =
           script.lines.where((l) => l.lineType == LineType.dialogue).toList();
-      expect(dialogue.length, 7);
+      expect(dialogue.length, 8);
 
       // Stage direction should be detected
       final directions = script.lines

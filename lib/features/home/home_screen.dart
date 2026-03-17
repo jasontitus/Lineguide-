@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../data/models/production_models.dart';
 import '../../data/models/script_models.dart';
 import '../../data/services/supabase_service.dart';
+import '../../features/rehearsal/scene_selector_screen.dart';
 import '../../features/script_editor/cloud_sync_dialog.dart';
 import '../../providers/production_providers.dart';
 
@@ -24,22 +25,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final productions = ref.watch(productionsProvider);
 
-    // One-time cloud sync on first build
-    if (!_hasSynced) {
-      _hasSynced = true;
-      Future.microtask(() => _syncCloudProductions(ref));
-    }
+    // Cloud sync disabled — productions are local-only to avoid conflicts
+    // between different users' scripts overwriting each other.
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('CastCircle'),
         actions: [
-          if (SupabaseService.instance.isSignedIn)
-            IconButton(
-              icon: const Icon(Icons.cloud_sync),
-              tooltip: 'Sync from Cloud',
-              onPressed: () => _syncCloudProductions(ref),
-            ),
+          // Cloud sync button removed — productions are independent per device
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () => _showAbout(context),
@@ -157,22 +150,43 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       itemCount: productions.length,
       itemBuilder: (context, index) {
         final production = productions[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            leading: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              child: Icon(
-                Icons.theater_comedy,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+        return Dismissible(
+          key: Key(production.id),
+          direction: DismissDirection.endToStart,
+          background: Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            color: Theme.of(context).colorScheme.errorContainer,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 24),
+                child: Icon(Icons.delete,
+                    color: Theme.of(context).colorScheme.onErrorContainer),
               ),
             ),
-            title: Text(production.title),
-            subtitle: Text(production.status.name.toUpperCase()),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => _openProduction(context, ref, production),
+          ),
+          confirmDismiss: (_) => _confirmDeleteProduction(context, production),
+          onDismissed: (_) {
+            ref.read(productionsProvider.notifier).remove(production.id);
+          },
+          child: Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: ListTile(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              leading: CircleAvatar(
+                backgroundColor:
+                    Theme.of(context).colorScheme.primaryContainer,
+                child: Icon(
+                  Icons.theater_comedy,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+              title: Text(production.title),
+              subtitle: Text(production.status.name.toUpperCase()),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _openProduction(context, ref, production),
+            ),
           ),
         );
       },
@@ -185,6 +199,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     Production production,
   ) async {
     ref.read(currentProductionProvider.notifier).state = production;
+    ref.read(rehearsalCharacterProvider.notifier).state = null; // Reset before loading per-production character
+    ref.read(selectedSceneProvider.notifier).state = null;
     ref.read(recordingsProvider.notifier).loadForProduction(production.id);
     ref.read(castMembersProvider.notifier).loadForProduction(production.id);
 
@@ -202,8 +218,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       );
       if (context.mounted) context.push('/production');
 
-      // Check cloud for updates in background (non-blocking)
-      _backgroundCloudSync(context, ref, production, savedScript);
+      // Cloud script sync disabled — productions are independent per device.
+      // Shared productions sync explicitly via invite code join flow.
       return;
     }
 
@@ -352,6 +368,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       Navigator.pop(context);
       context.push('/import');
     }
+  }
+
+  Future<bool?> _confirmDeleteProduction(
+    BuildContext context,
+    Production production,
+  ) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Production'),
+        content: Text(
+          'Delete "${production.title}"? This will remove the script, '
+          'recordings, and all rehearsal data. This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showAbout(BuildContext context) {

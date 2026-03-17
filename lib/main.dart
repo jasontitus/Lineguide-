@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
 import 'data/database/app_database.dart';
 import 'data/services/supabase_service.dart';
+import 'data/services/model_download_service.dart';
 import 'data/services/tts_service.dart';
 import 'data/services/stt_service.dart';
 import 'data/services/debug_log_service.dart';
@@ -45,6 +46,18 @@ void main() async {
   Future.microtask(() async {
     await TtsService.instance.init();
     await SttService.instance.init();
+
+    // Auto-download Kokoro TTS models if not already present
+    final modelService = ModelDownloadService.instance;
+    await modelService.refreshDownloadedStatus();
+    if (!await modelService.isKokoroReady()) {
+      debugPrint('Auto-downloading Kokoro TTS models...');
+      for (final model in ModelDownloadService.availableModels) {
+        if (model.subdir == 'kokoro_mlx') {
+          await modelService.download(model);
+        }
+      }
+    }
   });
 
   final prefs = await SharedPreferences.getInstance();

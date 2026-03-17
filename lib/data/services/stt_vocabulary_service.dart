@@ -263,28 +263,56 @@ class SttVocabularyService {
     return corrected.join(' ');
   }
 
-  /// Correct recognized text against expected text using word alignment.
+  /// Correct recognized text against expected text using LCS word alignment.
+  ///
+  /// Uses dynamic programming to align recognized words to expected words,
+  /// then replaces near-matches with the expected word. Works regardless
+  /// of whether word counts match.
   String _correctAgainstExpected(String recognized, String expected) {
     final recWords = recognized.split(RegExp(r'\s+'));
     final expWords = expected.split(RegExp(r'\s+'));
-    final corrected = <String>[];
+    if (recWords.isEmpty || expWords.isEmpty) return recognized;
 
-    // Simple word-by-word correction for same-length sequences
-    if (recWords.length == expWords.length) {
-      for (var i = 0; i < recWords.length; i++) {
-        final recLower = recWords[i].toLowerCase().replaceAll(RegExp(r'[^\w]'), '');
-        final expLower = expWords[i].toLowerCase().replaceAll(RegExp(r'[^\w]'), '');
-        if (_editDistance(recLower, expLower) <= 2 && recLower != expLower) {
-          corrected.add(expWords[i]);
+    // Build LCS alignment matrix
+    final m = recWords.length;
+    final n = expWords.length;
+    final dp = List.generate(m + 1, (_) => List.filled(n + 1, 0));
+
+    for (var i = 1; i <= m; i++) {
+      for (var j = 1; j <= n; j++) {
+        final recLower = recWords[i - 1].toLowerCase().replaceAll(RegExp(r'[^\w]'), '');
+        final expLower = expWords[j - 1].toLowerCase().replaceAll(RegExp(r'[^\w]'), '');
+        if (_editDistance(recLower, expLower) <= 2) {
+          dp[i][j] = dp[i - 1][j - 1] + 1;
         } else {
-          corrected.add(recWords[i]);
+          dp[i][j] = dp[i - 1][j] > dp[i][j - 1]
+              ? dp[i - 1][j]
+              : dp[i][j - 1];
         }
       }
-      return corrected.join(' ');
     }
 
-    // Different lengths — just return as-is, vocabulary correction handles it
-    return recognized;
+    // Backtrack to find aligned pairs and replace near-matches
+    final corrected = List<String>.from(recWords);
+    var i = m, j = n;
+    while (i > 0 && j > 0) {
+      final recLower = recWords[i - 1].toLowerCase().replaceAll(RegExp(r'[^\w]'), '');
+      final expLower = expWords[j - 1].toLowerCase().replaceAll(RegExp(r'[^\w]'), '');
+      if (_editDistance(recLower, expLower) <= 2) {
+        // Aligned pair — replace with expected word if close but not exact
+        if (recLower != expLower) {
+          corrected[i - 1] = expWords[j - 1];
+        }
+        i--;
+        j--;
+      } else if (dp[i - 1][j] > dp[i][j - 1]) {
+        i--; // recognized word not in expected — keep as-is
+      } else {
+        j--; // expected word not in recognized — skip
+      }
+    }
+
+    return corrected.join(' ');
   }
 
   /// Levenshtein edit distance.
@@ -315,8 +343,10 @@ class SttVocabularyService {
     return matrix[a.length][b.length];
   }
 
-  /// Match score (same algorithm as SttService.matchScore).
+  /// Match score — delegates to SttService.matchScore (LCS-based).
   static double _matchScore(String expected, String spoken) {
+    // Import would create a circular dependency, so inline the call
+    // via the same static method. Keep in sync with SttService.matchScore.
     final normalizedExpected = expected
         .toLowerCase()
         .replaceAll(RegExp(r'[^\w\s]'), '')
@@ -330,12 +360,30 @@ class SttVocabularyService {
         .trim()
         .split(RegExp(r'\s+'));
 
-    int matched = 0;
-    for (final word in expectedWords) {
-      if (spokenWords.contains(word)) matched++;
+    if (spokenWords.isEmpty || (spokenWords.length == 1 && spokenWords[0].isEmpty)) {
+      return 0.0;
     }
 
-    return matched / expectedWords.length;
+    // LCS with fuzzy word matching (edit distance ≤ 1)
+    final m = expectedWords.length;
+    final n = spokenWords.length;
+    final dp = List.generate(m + 1, (_) => List.filled(n + 1, 0));
+
+    for (var i = 1; i <= m; i++) {
+      for (var j = 1; j <= n; j++) {
+        final ew = expectedWords[i - 1];
+        final sw = spokenWords[j - 1];
+        if (ew == sw || ((ew.length - sw.length).abs() <= 1 && _editDistance(ew, sw) <= 1)) {
+          dp[i][j] = dp[i - 1][j - 1] + 1;
+        } else {
+          dp[i][j] = dp[i - 1][j] > dp[i][j - 1]
+              ? dp[i - 1][j]
+              : dp[i][j - 1];
+        }
+      }
+    }
+
+    return dp[m][n] / m;
   }
 
   List<String> _tokenize(String text) {

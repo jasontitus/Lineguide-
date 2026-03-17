@@ -286,7 +286,30 @@ class TtsService {
         if (sub.isNotEmpty) result.add(sub);
       }
     }
-    return result;
+
+    // Final safety: force-split any chunk still over 300 chars at word boundaries.
+    // This catches text with no punctuation at all (monologues, run-on sentences).
+    final safe = <String>[];
+    for (final chunk in result) {
+      if (chunk.length <= 300) {
+        safe.add(chunk);
+      } else {
+        final words = chunk.split(' ');
+        var sub = '';
+        for (final word in words) {
+          if (sub.isEmpty) {
+            sub = word;
+          } else if (sub.length + word.length + 1 <= 300) {
+            sub = '$sub $word';
+          } else {
+            if (sub.isNotEmpty) safe.add(sub);
+            sub = word;
+          }
+        }
+        if (sub.isNotEmpty) safe.add(sub);
+      }
+    }
+    return safe.isEmpty ? [text] : safe;
   }
 
   /// Synthesize and play audio using on-device Kokoro MLX.
@@ -323,9 +346,9 @@ class TtsService {
           'speed': speed,
         });
 
-        if (audioPath == null) {
+        if (audioPath == null || audioPath.isEmpty) {
           DebugLogService.instance.logError(LogCategory.tts,
-              'Kokoro returned null audio path for chunk $i');
+              'Kokoro returned null/empty audio path for chunk $i');
           return false;
         }
 
@@ -342,10 +365,35 @@ class TtsService {
           DebugLogService.instance.log(LogCategory.tts,
               'Kokoro playing audio (voice=$voice, chunks=${chunks.length})');
         }
+
+        // Set up completion listener BEFORE play() to avoid race condition.
+        // play() returns when playback STARTS, not when it finishes.
+        // Without this wait, multi-chunk lines overlap or fire completion
+        // while audio is still playing, causing crashes.
+        // Only wait for 'completed' — NOT 'idle', because stop() between
+        // chunks emits idle which would prematurely resolve this future
+        // and cut off long multi-sentence lines.
+        final chunkDone = _audioPlayer.processingStateStream
+            .firstWhere((s) => s == ProcessingState.completed);
+
         await _audioPlayer.play();
+
+        // Wait for this chunk to actually finish playing
+        try {
+          await chunkDone.timeout(const Duration(seconds: 60));
+        } catch (_) {
+          // Timeout — continue anyway (external stop will be caught by gen check)
+        }
+
+        // Check gen again after playback
+        if (gen != _speakGen) {
+          DebugLogService.instance.log(LogCategory.tts,
+              'Kokoro chunk $i finished but gen stale, bailing');
+          return true;
+        }
       }
 
-      // All chunks played — fire completion only if still active
+      // All chunks played and finished — fire completion only if still active
       if (gen == _speakGen) {
         _fireCompletion('kokoroPlay');
       } else {

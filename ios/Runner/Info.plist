@@ -55,6 +55,8 @@
 	<string>CastCircle needs photo library access to import script images for OCR processing.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>CastCircle can use the camera to photograph script pages for OCR import.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>CastCircle does not use your location. This key is required by a third-party library.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

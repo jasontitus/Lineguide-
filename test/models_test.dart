@@ -253,13 +253,15 @@ void main() {
       expect(sceneLines.length, 4);
     });
 
-    test('linesInScene returns empty for out-of-range scene', () {
+    test('linesInScene clamps out-of-range indices safely', () {
       const badScene = ScriptScene(
         id: 'bad', act: '', sceneName: '', location: '',
         description: '', startLineIndex: -1, endLineIndex: 100,
         characters: [],
       );
-      expect(script.linesInScene(badScene), isEmpty);
+      // Indices are clamped to valid range (0..length) to prevent crashes
+      // from stale scene data — returns all lines rather than crashing
+      expect(script.linesInScene(badScene), isNotEmpty);
     });
 
     test('linesInAct filters by act', () {
