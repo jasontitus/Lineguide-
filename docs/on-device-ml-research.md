@@ -96,6 +96,14 @@ Date: 2026-03-14
 - **No sherpa-onnx integration**
 - **Verdict:** Too large for mobile, no easy integration path. Replaced by ZipVoice.
 
+### Speaklone (Reference Implementation)
+- **What:** iOS/macOS app running a 0.6B voice model on-device using MLX-Swift
+- **Key techniques:**
+  - Strict memory ceiling (~3.5 GB) enforced during inference
+  - Aggressive MLX cache clearing between generations (`GPU.clearCache()`)
+  - Chunked decoding to stream audio while model is still generating (hides latency)
+- **Relevance:** Proves 0.6B-class models can run on iPhones with careful memory management. The chunked-decode streaming pattern is directly applicable to our KokoClone MLX pipeline.
+
 ### Other Voice Cloning Models (Not Recommended for Mobile)
 - **CosyVoice2-0.5B** — 500M params, too large
 - **OpenVoice** — No ONNX mobile pipeline
