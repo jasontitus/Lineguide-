@@ -66,20 +66,55 @@ cd ..  # back to KokoCloneMLX/
 swift build -c release
 ```
 
-### Step 3: Test Voice Conversion
+### Step 3: Test Voice Conversion (Instrumented)
 
 ```bash
 # You need two WAV files:
 # 1. source.wav — speech to convert (e.g., from Kokoro TTS)
 # 2. reference.wav — 3-10 seconds of the target speaker
 
-swift run -c release kokoclone-test ./models source.wav reference.wav output.wav
+swift run -c release kokoclone-test ./models source.wav reference.wav output.wav --json metrics.json
 ```
 
-### Step 4: Validate Output
+The test app reports per-phase metrics:
+- MLX GPU active/peak memory
+- Process RSS (resident set size)
+- Wall-clock time and real-time factor (RTF)
+- JSON export for automated comparison
 
-Listen to `output.wav`. Check:
-- ✅ **Words** match the source audio (content preserved)
+### Step 4: Compare with Qwen3-TTS
+
+Run the head-to-head comparison:
+
+```bash
+cd scripts
+pip install mlx-audio soundfile
+
+# Run both engines and produce a side-by-side report:
+./compare.sh source.wav reference.wav "transcript of reference" "Text to synthesize"
+```
+
+This produces:
+- `results/kokoclone_output.wav` — KokoClone voice-converted audio
+- `results/qwen3_*_output.wav` — Qwen3-TTS voice-cloned audio
+- `results/comparison.txt` — Side-by-side metrics table
+
+Or run Qwen3-TTS alone:
+
+```bash
+python qwen3_tts_bench.py \
+  --text "Hello world" \
+  --ref-audio reference.wav \
+  --ref-text "What the reference says" \
+  --output qwen3_output.wav \
+  --model mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit \
+  --json qwen3_metrics.json
+```
+
+### Step 5: Validate Output
+
+Listen to the WAV files. Check:
+- ✅ **Words** match the source/text (content preserved)
 - ✅ **Voice** sounds like the reference speaker (timbre transferred)
 - ✅ **Quality** is clear without major artifacts
 - ✅ **Speed** is near real-time (RTF < 1.0 on M1+)
