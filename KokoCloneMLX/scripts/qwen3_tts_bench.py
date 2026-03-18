@@ -5,6 +5,7 @@ Qwen3-TTS voice cloning benchmark — instrumented for comparison with KokoClone
 Usage:
     pip install mlx-audio soundfile
     python qwen3_tts_bench.py --text "Hello world" --ref-audio ref.wav --ref-text "..." --output output.wav
+    python qwen3_tts_bench.py --text "Hello world" --ref-audio ref.wav --stream  # chunked decoding
 
 Metrics reported (matching KokoClone test app):
     • MLX GPU active/peak memory per phase
@@ -98,6 +99,13 @@ def format_report(model_name, metrics_list, audio_duration_s):
     lines.append(f"║  Real-time factor: {rtf:8.2f}x                               ║")
     lines.append(f"║  Peak GPU memory:  {peak_gpu:8.1f} MB                             ║")
     lines.append(f"║  Peak RSS memory:  {peak_rss:8.1f} MB                             ║")
+
+    # Show first-chunk latency if any phase used streaming
+    for m in metrics_list:
+        if m.get("streaming") and m.get("first_chunk_s") is not None:
+            lines.append(f"║  First chunk:      {m['first_chunk_s']:8.2f}s  ({m['num_chunks']} chunks)              ║")
+            break
+
     lines.append("║                                                             ║")
     lines.append("╚══════════════════════════════════════════════════════════════╝")
     return "\n".join(lines)
@@ -111,6 +119,8 @@ def main():
     parser.add_argument("--output", default="qwen3_output.wav", help="Output WAV path")
     parser.add_argument("--model", default="mlx-community/Qwen3-TTS-12Hz-0.6B-Base-4bit",
                         help="HuggingFace model ID")
+    parser.add_argument("--stream", action="store_true",
+                        help="Chunked decoding: process and report chunks as they arrive")
     parser.add_argument("--json", default=None, help="Export metrics as JSON")
     args = parser.parse_args()
 
@@ -137,49 +147,121 @@ def main():
     print(f"  Text: \"{args.text[:60]}{'...' if len(args.text) > 60 else ''}\"")
     print(f"  Reference: {args.ref_audio}")
 
-    audio_result = None
-    def generate_fn():
-        nonlocal audio_result
-        results = list(model.generate(
+    import soundfile as sf
+
+    if args.stream:
+        # Chunked decoding: process and save chunks as they arrive
+        mx.reset_peak_memory()
+        mem_before = get_memory_snapshot()
+        gen_start = time.time()
+
+        sample_rate = 24000
+        audio_arrays = []
+        chunk_metrics = []
+        first_chunk_time = None
+
+        for i, result in enumerate(model.generate(
             text=args.text,
             ref_audio=args.ref_audio,
             ref_text=args.ref_text if args.ref_text else None,
-        ))
-        audio_result = results
-        return results
-
-    _, gen_metrics = instrument("Voice clone generation", generate_fn)
-    all_metrics.append(gen_metrics)
-    print(f"  ✓ {gen_metrics['duration_s']:.2f}s | GPU peak: {gen_metrics['gpu_peak_mb']:.1f} MB\n")
-
-    # 3. Save output
-    print(f"[3/3] Saving output...")
-    import soundfile as sf
-
-    if audio_result and len(audio_result) > 0:
-        # Concatenate all chunks if streaming
-        audio_arrays = []
-        for r in audio_result:
-            audio_data = r.audio
+        )):
+            chunk_time = time.time() - gen_start
+            audio_data = result.audio
             if hasattr(audio_data, 'tolist'):
-                audio_arrays.append(np.array(audio_data.tolist(), dtype=np.float32))
+                chunk_np = np.array(audio_data.tolist(), dtype=np.float32).flatten()
             else:
-                audio_arrays.append(np.array(audio_data, dtype=np.float32))
+                chunk_np = np.array(audio_data, dtype=np.float32).flatten()
 
-        audio_np = np.concatenate(audio_arrays) if len(audio_arrays) > 1 else audio_arrays[0]
-        audio_np = audio_np.flatten()
+            audio_arrays.append(chunk_np)
+            chunk_dur = len(chunk_np) / sample_rate
 
-        # Qwen3-TTS outputs at 24000 Hz (12Hz tokens * 2000 samples/token = 24000)
-        sample_rate = 24000
-        sf.write(args.output, audio_np, sample_rate)
+            if first_chunk_time is None:
+                first_chunk_time = chunk_time
+                print(f"  ▸ First chunk: {first_chunk_time:.2f}s ({chunk_dur:.2f}s audio)")
+            else:
+                print(f"  ▸ Chunk {i+1}: +{chunk_time:.2f}s ({chunk_dur:.2f}s audio)")
 
-        audio_duration = len(audio_np) / sample_rate
-        print(f"  Saved: {args.output}")
-        print(f"  Duration: {audio_duration:.1f}s")
-        print(f"  Size: {os.path.getsize(args.output) // 1024} KB")
+            chunk_metrics.append({
+                "chunk": i + 1,
+                "wall_time_s": chunk_time,
+                "audio_duration_s": chunk_dur,
+                "samples": len(chunk_np),
+            })
+
+        mx.eval(mx.array(0))
+        gen_elapsed = time.time() - gen_start
+        mem_after = get_memory_snapshot()
+
+        gen_metrics = {
+            "name": "Voice clone generation",
+            "duration_s": gen_elapsed,
+            "gpu_peak_mb": mem_after["gpu_peak_mb"],
+            "gpu_delta_mb": mem_after["gpu_active_mb"] - mem_before["gpu_active_mb"],
+            "rss_after_mb": mem_after["rss_mb"],
+            "rss_delta_mb": mem_after["rss_mb"] - mem_before["rss_mb"],
+            "streaming": True,
+            "first_chunk_s": first_chunk_time,
+            "num_chunks": len(chunk_metrics),
+            "chunks": chunk_metrics,
+        }
+        all_metrics.append(gen_metrics)
+        print(f"  ✓ {gen_elapsed:.2f}s total | first chunk: {first_chunk_time:.2f}s | "
+              f"{len(chunk_metrics)} chunks | GPU peak: {gen_metrics['gpu_peak_mb']:.1f} MB\n")
+
+        # Save concatenated output
+        print(f"[3/3] Saving output...")
+        if audio_arrays:
+            audio_np = np.concatenate(audio_arrays)
+            sf.write(args.output, audio_np, sample_rate)
+            audio_duration = len(audio_np) / sample_rate
+            print(f"  Saved: {args.output}")
+            print(f"  Duration: {audio_duration:.1f}s")
+            print(f"  Size: {os.path.getsize(args.output) // 1024} KB")
+        else:
+            audio_duration = 0
+            print("  WARNING: No audio generated!")
     else:
-        audio_duration = 0
-        print("  WARNING: No audio generated!")
+        # Batch mode: collect all chunks, then save
+        audio_result = None
+        def generate_fn():
+            nonlocal audio_result
+            results = list(model.generate(
+                text=args.text,
+                ref_audio=args.ref_audio,
+                ref_text=args.ref_text if args.ref_text else None,
+            ))
+            audio_result = results
+            return results
+
+        _, gen_metrics = instrument("Voice clone generation", generate_fn)
+        all_metrics.append(gen_metrics)
+        print(f"  ✓ {gen_metrics['duration_s']:.2f}s | GPU peak: {gen_metrics['gpu_peak_mb']:.1f} MB\n")
+
+        # 3. Save output
+        print(f"[3/3] Saving output...")
+
+        if audio_result and len(audio_result) > 0:
+            audio_arrays = []
+            for r in audio_result:
+                audio_data = r.audio
+                if hasattr(audio_data, 'tolist'):
+                    audio_arrays.append(np.array(audio_data.tolist(), dtype=np.float32))
+                else:
+                    audio_arrays.append(np.array(audio_data, dtype=np.float32))
+
+            audio_np = np.concatenate(audio_arrays) if len(audio_arrays) > 1 else audio_arrays[0]
+            audio_np = audio_np.flatten()
+
+            sample_rate = 24000
+            sf.write(args.output, audio_np, sample_rate)
+
+            audio_duration = len(audio_np) / sample_rate
+            print(f"  Saved: {args.output}")
+            print(f"  Duration: {audio_duration:.1f}s")
+            print(f"  Size: {os.path.getsize(args.output) // 1024} KB")
+        else:
+            audio_duration = 0
+            print("  WARNING: No audio generated!")
 
     # Model storage
     print(f"\nModel storage:")
@@ -211,6 +293,18 @@ def main():
         peak_gpu = max(m["gpu_peak_mb"] for m in all_metrics)
         peak_rss = max(m["rss_after_mb"] for m in all_metrics)
 
+        # Find streaming metrics if present
+        stream_info = {}
+        for m in all_metrics:
+            if m.get("streaming"):
+                stream_info = {
+                    "streaming": True,
+                    "first_chunk_s": m["first_chunk_s"],
+                    "num_chunks": m["num_chunks"],
+                    "chunks": m["chunks"],
+                }
+                break
+
         export = {
             "model": "qwen3_tts_" + args.model.split("/")[-1].replace("-", "_"),
             "audio_duration_s": audio_duration,
@@ -218,6 +312,7 @@ def main():
             "rtf": total_time / inference_duration,
             "peak_gpu_mb": peak_gpu,
             "peak_rss_mb": peak_rss,
+            **stream_info,
             "phases": all_metrics,
         }
         with open(args.json, "w") as f:
