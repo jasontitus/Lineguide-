@@ -676,9 +676,16 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
                   }
                 }
 
-                if (dialogContext.mounted) Navigator.pop(dialogContext);
+                if (dialogContext.mounted) {
+                  Navigator.pop(dialogContext);
+                  // Dismiss keyboard before sharing
+                  FocusScope.of(context).unfocus();
+                }
 
-                // Immediately open share sheet with the invite
+                // Delay to let dialog and keyboard fully dismiss
+                await Future.delayed(const Duration(milliseconds: 400));
+
+                // Open share sheet with the invite
                 if (mounted) {
                   _inviteActor(characterName);
                 }
@@ -695,33 +702,35 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
     ref.read(castMembersProvider.notifier).remove(member.id);
   }
 
-  /// Build a smart invite link and share it.
+  /// Build a smart invite link and share it directly.
   void _inviteActor(String characterName) {
     final production = ref.read(currentProductionProvider);
     final productionTitle = production?.title ?? 'a production';
     final joinCode = production?.joinCode;
 
-    if (joinCode == null) {
-      Share.share(
-        'You\'ve been invited to join "$productionTitle" as $characterName '
-        'on CastCircle! Download the app to get started.',
+    final deepLink = joinCode != null
+        ? PendingJoin.buildUri(code: joinCode, characterName: characterName)
+        : null;
+
+    final shareText = joinCode != null
+        ? 'You\'re invited to play $characterName in "$productionTitle" '
+            'on CastCircle!\n\n'
+            'Tap to join: $deepLink\n\n'
+            'Or open CastCircle and enter code: $joinCode'
+        : 'You\'ve been invited to join "$productionTitle" as $characterName '
+            'on CastCircle! Download the app to get started.';
+
+    // Get position for iPad share popover
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null
+        ? Rect.fromCenter(
+            center: box.localToGlobal(box.size.center(Offset.zero)),
+            width: 100, height: 50)
+        : null;
+
+    Share.share(shareText,
         subject: 'CastCircle Invitation',
-      );
-      return;
-    }
-
-    final deepLink = PendingJoin.buildUri(
-      code: joinCode,
-      characterName: characterName,
-    );
-
-    // Show invite options: text or visual card
-    _showInviteOptions(
-      productionTitle: productionTitle,
-      characterName: characterName,
-      joinCode: joinCode,
-      deepLink: deepLink,
-    );
+        sharePositionOrigin: origin);
   }
 
   void _showInviteOptions({
@@ -752,8 +761,10 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
               leading: const Icon(Icons.message),
               title: const Text('Send text invite'),
               subtitle: const Text('Share via Messages, WhatsApp, etc.'),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(ctx);
+                await Future.delayed(const Duration(milliseconds: 400));
+                if (!mounted) return;
                 _shareTextInvite(
                   productionTitle: productionTitle,
                   characterName: characterName,
@@ -766,8 +777,10 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
               leading: const Icon(Icons.image),
               title: const Text('Send invite card'),
               subtitle: const Text('Visual card with QR code'),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(ctx);
+                await Future.delayed(const Duration(milliseconds: 400));
+                if (!mounted) return;
                 _shareInviteCard(
                   productionTitle: productionTitle,
                   characterName: characterName,
@@ -809,7 +822,18 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
         'Tap to join: $deepLink\n\n'
         'Or open CastCircle and enter code: $joinCode';
 
-    Share.share(shareText, subject: 'CastCircle Invitation');
+    _shareWithOrigin(shareText, 'CastCircle Invitation');
+  }
+
+  /// Share text with a position origin (required for iOS share sheet).
+  void _shareWithOrigin(String text, String subject) {
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null
+        ? Rect.fromCenter(
+            center: box.localToGlobal(box.size.center(Offset.zero)),
+            width: 100, height: 50)
+        : null;
+    Share.share(text, subject: subject, sharePositionOrigin: origin);
   }
 
   Future<void> _shareInviteCard({
@@ -879,11 +903,11 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
 
     final deepLink = PendingJoin.buildUri(code: code);
 
-    Share.share(
+    _shareWithOrigin(
       'Join "$title" on CastCircle!\n\n'
       'Tap to join: $deepLink\n\n'
       'Or open CastCircle and enter code: $code',
-      subject: 'CastCircle Join Code',
+      'CastCircle Join Code',
     );
   }
 
@@ -901,7 +925,7 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
         'Reminder: You\'re invited to play ${member.characterName} in "$title" '
         'on CastCircle.\n\nTap to join: $deepLink\n\nOr enter code: $code';
 
-    Share.share(text, subject: 'CastCircle Reminder');
+    _shareWithOrigin(text, 'CastCircle Reminder');
   }
 
   void _shareCastList(ParsedScript script, List<CastMemberModel> members) {
@@ -938,7 +962,7 @@ class _CastManagerScreenState extends ConsumerState<CastManagerScreen> {
       buffer.writeln();
     }
 
-    Share.share(buffer.toString(), subject: 'Cast List');
+    _shareWithOrigin(buffer.toString(), 'Cast List');
   }
 
   // -- Gender helpers --
