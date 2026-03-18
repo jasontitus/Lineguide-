@@ -141,7 +141,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     });
 
     // In Cue Practice mode, jump to a few lines before the actor's first line.
-    // In Scene Readthrough mode, start from the beginning of the scene.
+    // In Scene Readthrough and Readthrough modes, start from the beginning.
     final mode = ref.read(rehearsalModeProvider);
     if (mode == RehearsalMode.cuePractice &&
         script != null &&
@@ -167,7 +167,10 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
     // Defer STT init to background — it's only needed when it's the user's
     // turn to speak, not for TTS playback of other characters' lines.
-    _initSttDeferred(production, myCharacter, script, locale);
+    // Skip entirely in readthrough mode (no character, no STT needed).
+    if (mode != RehearsalMode.readthrough) {
+      _initSttDeferred(production, myCharacter, script, locale);
+    }
   }
 
   Future<void> _initSttDeferred(
@@ -273,7 +276,8 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
     final isComplete = currentIdx >= dialogueLines.length;
     final currentLine = isComplete ? null : dialogueLines[currentIdx];
-    final isMyLine = currentLine?.character == myCharacter;
+    final isMyLine = mode != RehearsalMode.readthrough &&
+        currentLine?.character == myCharacter;
     final progress = dialogueLines.isEmpty
         ? 0.0
         : currentIdx / dialogueLines.length;
@@ -346,7 +350,39 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
               ],
             ),
           ),
+          // Fast mode badge
+          if (ref.watch(fastModeEnabledProvider))
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              margin: const EdgeInsets.only(right: 4),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.bolt, color: Colors.amber, size: 10),
+                  SizedBox(width: 2),
+                  Text('FAST',
+                      style: TextStyle(color: Colors.amber, fontSize: 9,
+                          fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
           // Mode badge
+          if (mode == RehearsalMode.readthrough)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              margin: const EdgeInsets.only(right: 4),
+              decoration: BoxDecoration(
+                color: Colors.teal.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text('READ',
+                  style: TextStyle(color: Colors.teal, fontSize: 9,
+                      fontWeight: FontWeight.bold)),
+            ),
           if (mode == RehearsalMode.cuePractice)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -474,7 +510,8 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
         final line = dialogueLines[index];
         final isCurrent = index == currentIdx;
         final isPast = index < currentIdx;
-        final isMe = line.character == myCharacter;
+        final isMe = ref.read(rehearsalModeProvider) != RehearsalMode.readthrough &&
+            line.character == myCharacter;
 
         final charIdx =
             script.characters.indexWhere((c) => c.name == line.character);
@@ -1006,7 +1043,10 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     }
 
     final line = dialogueLines[currentIdx];
-    final isMyLine = line.character == myCharacter;
+    final mode = ref.read(rehearsalModeProvider);
+    // In readthrough mode, no line is "mine" — all lines are played via TTS.
+    final isMyLine = mode != RehearsalMode.readthrough &&
+        line.character == myCharacter;
 
     // Update lock screen / AirPods now-playing info
     final production = ref.read(currentProductionProvider);
@@ -1047,7 +1087,10 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     _dlog.log(LogCategory.rehearsal,
         'Playing: ${line.character} — "${line.text.length > 40 ? '${line.text.substring(0, 37)}...' : line.text}"');
 
-    final speed = ref.read(playbackSpeedProvider);
+    final fastMode = ref.read(fastModeEnabledProvider);
+    final speed = fastMode
+        ? ref.read(fastModeSpeedProvider)
+        : ref.read(playbackSpeedProvider);
 
     // 1. Check for a primary actor recording first
     final recordings = ref.read(recordingsProvider);
@@ -1150,14 +1193,20 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     // Check if next line is the actor's — if so, start listening immediately
     // so there's no awkward pause. Only add pacing delay between other lines.
     final nextLine = dialogueLines[currentIdx + 1];
-    final isNextMine = nextLine.character == myCharacter;
+    final mode = ref.read(rehearsalModeProvider);
+    final isNextMine = mode != RehearsalMode.readthrough &&
+        nextLine.character == myCharacter;
 
     if (isNextMine) {
       // Actor's turn — start listening right away
       if (mounted) _processCurrentLine();
     } else {
-      // Another character's line — brief pacing delay for natural feel
-      Future.delayed(const Duration(milliseconds: 300), () {
+      // Another character's line — pacing delay for natural feel
+      final fastMode = ref.read(fastModeEnabledProvider);
+      final delayMs = fastMode
+          ? ref.read(fastModeLineDelayProvider)
+          : ref.read(lineDelayProvider);
+      Future.delayed(Duration(milliseconds: delayMs), () {
         if (mounted) _processCurrentLine();
       });
     }

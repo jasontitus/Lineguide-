@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/script_models.dart';
 import '../../providers/production_providers.dart';
+import '../settings/settings_screen.dart';
 
 /// Provider for the character the user is rehearsing as.
 final rehearsalCharacterProvider = StateProvider<String?>((ref) => null);
@@ -12,8 +13,9 @@ final rehearsalCharacterProvider = StateProvider<String?>((ref) => null);
 /// Provider for the selected scene to rehearse.
 final selectedSceneProvider = StateProvider<ScriptScene?>((ref) => null);
 
-/// Rehearsal mode: full scene readthrough vs cue-response practice.
-enum RehearsalMode { sceneReadthrough, cuePractice }
+/// Rehearsal mode: full scene readthrough, cue-response practice, or
+/// passive readthrough (no character — all lines played via TTS).
+enum RehearsalMode { sceneReadthrough, cuePractice, readthrough }
 
 final rehearsalModeProvider =
     StateProvider<RehearsalMode>((ref) => RehearsalMode.sceneReadthrough);
@@ -45,6 +47,9 @@ class _SceneSelectorScreenState extends ConsumerState<SceneSelectorScreen> {
       );
     }
 
+    final mode = ref.watch(rehearsalModeProvider);
+    final isReadthrough = mode == RehearsalMode.readthrough;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Choose a Scene'),
@@ -55,11 +60,12 @@ class _SceneSelectorScreenState extends ConsumerState<SceneSelectorScreen> {
       ),
       body: Column(
         children: [
-          // Character selector
-          _buildCharacterSelector(context, script, myCharacter),
+          // Character selector (hidden in readthrough mode)
+          if (!isReadthrough)
+            _buildCharacterSelector(context, script, myCharacter),
           const Divider(height: 1),
-          // Rehearsal mode toggle
-          if (myCharacter != null) _buildModeToggle(context),
+          // Rehearsal mode toggle — always shown
+          _buildModeToggle(context),
           // Act filter
           if (script.acts.length > 1) _buildActFilter(context, script),
           // Scene list
@@ -128,6 +134,7 @@ class _SceneSelectorScreenState extends ConsumerState<SceneSelectorScreen> {
   Widget _buildModeToggle(BuildContext context) {
     final mode = ref.watch(rehearsalModeProvider);
     final hideLines = ref.watch(hideMyLinesProvider);
+    final myCharacter = ref.watch(rehearsalCharacterProvider);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -139,8 +146,13 @@ class _SceneSelectorScreenState extends ConsumerState<SceneSelectorScreen> {
                 child: SegmentedButton<RehearsalMode>(
                   segments: const [
                     ButtonSegment(
+                      value: RehearsalMode.readthrough,
+                      label: Text('Readthrough'),
+                      icon: Icon(Icons.auto_stories),
+                    ),
+                    ButtonSegment(
                       value: RehearsalMode.sceneReadthrough,
-                      label: Text('Scene Readthrough'),
+                      label: Text('Rehearse'),
                       icon: Icon(Icons.playlist_play),
                     ),
                     ButtonSegment(
@@ -153,19 +165,43 @@ class _SceneSelectorScreenState extends ConsumerState<SceneSelectorScreen> {
                   onSelectionChanged: (selected) {
                     ref.read(rehearsalModeProvider.notifier).state =
                         selected.first;
+                    // Clear character when entering readthrough mode
+                    if (selected.first == RehearsalMode.readthrough) {
+                      ref.read(rehearsalCharacterProvider.notifier).state = null;
+                    }
                   },
                 ),
               ),
             ],
           ),
+          // Only show blind rehearsal when rehearsing as a character
+          if (mode != RehearsalMode.readthrough && myCharacter != null)
+            SwitchListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Hide my lines (blind rehearsal)'),
+              subtitle: const Text('Test your memorization'),
+              value: hideLines,
+              onChanged: (v) =>
+                  ref.read(hideMyLinesProvider.notifier).state = v,
+            ),
+          // Fast mode toggle
           SwitchListTile(
             dense: true,
             contentPadding: EdgeInsets.zero,
-            title: const Text('Hide my lines (blind rehearsal)'),
-            subtitle: const Text('Test your memorization'),
-            value: hideLines,
+            secondary: Icon(
+              Icons.bolt,
+              color: ref.watch(fastModeEnabledProvider)
+                  ? Colors.amber
+                  : null,
+            ),
+            title: const Text('Fast mode'),
+            subtitle: Text(ref.watch(fastModeEnabledProvider)
+                ? '${ref.watch(fastModeSpeedProvider)}x speed, ${ref.watch(fastModeLineDelayProvider)}ms delay'
+                : 'Speed through lines quickly'),
+            value: ref.watch(fastModeEnabledProvider),
             onChanged: (v) =>
-                ref.read(hideMyLinesProvider.notifier).state = v,
+                ref.read(fastModeEnabledProvider.notifier).state = v,
           ),
         ],
       ),

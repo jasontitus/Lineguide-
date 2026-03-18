@@ -23,6 +23,21 @@ enum JumpBackTrigger { shake, doubleTap, swipeLeft, keyword }
 final jumpBackTriggerProvider = StateProvider<JumpBackTrigger>(
     (ref) => JumpBackTrigger.doubleTap);
 
+/// Speed multiplier used when fast mode is active.
+final fastModeSpeedProvider = StateProvider<double>(
+    (ref) => AppConstants.defaultFastModeSpeed);
+
+/// Delay between lines in normal mode (milliseconds).
+final lineDelayProvider = StateProvider<int>(
+    (ref) => AppConstants.defaultLineDelay);
+
+/// Delay between lines in fast mode (milliseconds).
+final fastModeLineDelayProvider = StateProvider<int>(
+    (ref) => AppConstants.defaultFastModeLineDelay);
+
+/// When true, fast mode is active — TTS plays faster with shorter gaps.
+final fastModeEnabledProvider = StateProvider<bool>((ref) => false);
+
 /// When true, voice cloning is disabled — the app will use real recordings
 /// or system TTS only. Actors can opt out of having their voice cloned.
 final voiceCloningEnabledProvider = StateProvider<bool>((ref) => true);
@@ -42,6 +57,9 @@ class SettingsScreen extends ConsumerWidget {
     final jumpBackTrigger = ref.watch(jumpBackTriggerProvider);
     final voiceCloningEnabled = ref.watch(voiceCloningEnabledProvider);
     final understudyFallback = ref.watch(understudyFallbackProvider);
+    final fastModeSpeed = ref.watch(fastModeSpeedProvider);
+    final lineDelay = ref.watch(lineDelayProvider);
+    final fastModeLineDelay = ref.watch(fastModeLineDelayProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -103,6 +121,47 @@ class SettingsScreen extends ConsumerWidget {
                   ref.read(playbackSpeedProvider.notifier).state = v,
             ),
             trailing: Text('${playbackSpeed}x'),
+          ),
+          ListTile(
+            title: const Text('Line delay'),
+            subtitle: Slider(
+              value: lineDelay.toDouble(),
+              min: 0,
+              max: 2000,
+              divisions: 20,
+              label: '${lineDelay}ms',
+              onChanged: (v) =>
+                  ref.read(lineDelayProvider.notifier).state = v.round(),
+            ),
+            trailing: Text('${lineDelay}ms'),
+          ),
+          _sectionHeader(context, 'Fast Mode'),
+          ListTile(
+            title: const Text('Fast mode speed'),
+            subtitle: Slider(
+              value: fastModeSpeed,
+              min: 1.0,
+              max: 3.0,
+              divisions: 8,
+              label: '${fastModeSpeed}x',
+              onChanged: (v) =>
+                  ref.read(fastModeSpeedProvider.notifier).state = v,
+            ),
+            trailing: Text('${fastModeSpeed}x'),
+          ),
+          ListTile(
+            title: const Text('Fast mode line delay'),
+            subtitle: Slider(
+              value: fastModeLineDelay.toDouble(),
+              min: 0,
+              max: 500,
+              divisions: 10,
+              label: '${fastModeLineDelay}ms',
+              onChanged: (v) =>
+                  ref.read(fastModeLineDelayProvider.notifier).state =
+                      v.round(),
+            ),
+            trailing: Text('${fastModeLineDelay}ms'),
           ),
           _sectionHeader(context, 'Speech Recognition'),
           ListTile(
