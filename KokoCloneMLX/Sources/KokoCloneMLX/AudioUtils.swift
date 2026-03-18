@@ -142,10 +142,12 @@ public func melSpectrogram(
     sampleRate: Int = 24000,
     melFilterbank: MLXArray  // shape (n_freqs, n_mels) = (513, 100)
 ) -> MLXArray {
-    // Pad for center mode: nFFT/2 on each side
+    // Pad for center mode: nFFT/2 on each side using concatenation
+    // (MLX Swift may not have a `pad` function — use concat with zeros)
     let padAmount = nFFT / 2
-    let padded = MLX.padded(audio.reshaped([1, -1]), widths: [.init(0, 0), .init(padAmount, padAmount)])
-        .squeezed(axis: 0)
+    let padLeft = MLXArray.zeros([padAmount])
+    let padRight = MLXArray.zeros([padAmount])
+    let padded = MLX.concatenated([padLeft, audio.reshaped([-1]), padRight], axis: 0)
 
     // STFT using rfft on windowed frames
     let signal: [Float] = padded.asArray(Float.self)
@@ -172,8 +174,8 @@ public func melSpectrogram(
     let spectrum = MLX.FFT.rfft(framesArray, axis: -1)  // (numFrames, nFreqs) complex
 
     // Power spectrogram (magnitude)
-    let real = spectrum.realPart
-    let imag = spectrum.imaginaryPart
+    let real = spectrum.realPart()
+    let imag = spectrum.imaginaryPart()
     let magnitudes = MLX.sqrt(real * real + imag * imag)  // (numFrames, nFreqs)
 
     // Apply mel filterbank: (numFrames, nFreqs) @ (nFreqs, nMels) -> (numFrames, nMels)

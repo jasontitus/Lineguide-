@@ -77,7 +77,7 @@ public class VoiceConverter {
         kanade = nil
         vocos = nil
         melFilterbank = nil
-        MLX.GPU.clearCache()
+        GPU.clearCache()
     }
 
     // MARK: - Voice Conversion
@@ -144,7 +144,7 @@ public class VoiceConverter {
         let rtf = elapsed / (Float(sourceLength) / 24000.0)
         print("  Voice conversion complete: \(String(format: "%.2f", elapsed))s (RTF: \(String(format: "%.2f", rtf)))")
 
-        MLX.GPU.clearCache()
+        GPU.clearCache()
 
         return waveform.squeezed(axis: 0)  // (T,)
     }
@@ -187,7 +187,7 @@ public class VoiceConverter {
         )
 
         let waveform = vocos.decode(mel: mel)
-        MLX.GPU.clearCache()
+        GPU.clearCache()
 
         return waveform.squeezed(axis: 0)
     }
@@ -196,7 +196,7 @@ public class VoiceConverter {
 
     private func loadSafetensors(url: URL) throws -> [String: MLXArray] {
         // MLX Swift's built-in safetensors loader
-        let weights = try MLX.loadArrays(url: url)
+        let weights = try loadArrays(url: url)
         return weights
     }
 }
