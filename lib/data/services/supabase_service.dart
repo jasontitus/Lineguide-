@@ -237,11 +237,25 @@ class SupabaseService {
         'lookup_production_by_join_code',
         params: {'lookup_code': code.toUpperCase()},
       );
-      if (rpcResult != null && rpcResult is Map) {
+      debugPrint('RPC result type: ${rpcResult.runtimeType}, value: $rpcResult');
+
+      if (rpcResult is Map) {
         return Map<String, dynamic>.from(rpcResult);
       }
+      // Some Supabase versions return the JSON as a Map<String, dynamic> directly
+      if (rpcResult != null) {
+        try {
+          return Map<String, dynamic>.from(rpcResult as dynamic);
+        } catch (_) {
+          debugPrint('Could not cast RPC result to Map');
+        }
+      }
+    } catch (e) {
+      debugPrint('RPC lookup failed: $e');
+    }
 
-      // Fallback: direct query (requires RLS policy)
+    // Fallback: direct query
+    try {
       final rows = await _client
           .from('productions')
           .select()
@@ -250,7 +264,7 @@ class SupabaseService {
       if (rows.isEmpty) return null;
       return rows.first;
     } catch (e) {
-      debugPrint('Join code lookup failed: $e');
+      debugPrint('Direct lookup also failed: $e');
       return null;
     }
   }
