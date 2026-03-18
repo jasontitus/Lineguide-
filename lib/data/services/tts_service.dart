@@ -210,6 +210,12 @@ class TtsService {
     }
   }
 
+  /// Override the playback speed for a specific character.
+  /// Used by fast mode to temporarily speed up/slow down TTS.
+  void setCharacterSpeed(String character, double speed) {
+    _characterSpeeds[character] = speed;
+  }
+
   /// Speak text for a character using Kokoro MLX on-device TTS.
   ///
   /// Falls back to system TTS only if Kokoro is not available on this device.

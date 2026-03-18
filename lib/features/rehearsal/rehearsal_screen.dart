@@ -365,26 +365,41 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
               ],
             ),
           ),
-          // Fast mode badge
-          if (ref.watch(fastModeEnabledProvider))
-            Container(
+          // Fast mode toggle
+          GestureDetector(
+            onTap: () {
+              ref.read(fastModeEnabledProvider.notifier).state =
+                  !ref.read(fastModeEnabledProvider);
+            },
+            child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               margin: const EdgeInsets.only(right: 4),
               decoration: BoxDecoration(
-                color: Colors.amber.withValues(alpha: 0.2),
+                color: ref.watch(fastModeEnabledProvider)
+                    ? Colors.amber.withValues(alpha: 0.2)
+                    : Colors.white.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.bolt, color: Colors.amber, size: 10),
-                  SizedBox(width: 2),
+                  Icon(Icons.bolt,
+                      color: ref.watch(fastModeEnabledProvider)
+                          ? Colors.amber
+                          : Colors.white30,
+                      size: 14),
+                  const SizedBox(width: 2),
                   Text('FAST',
-                      style: TextStyle(color: Colors.amber, fontSize: 9,
+                      style: TextStyle(
+                          color: ref.watch(fastModeEnabledProvider)
+                              ? Colors.amber
+                              : Colors.white30,
+                          fontSize: 9,
                           fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
+          ),
           // Mode badge
           if (mode == RehearsalMode.readthrough)
             Container(
@@ -1188,7 +1203,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     }
 
     // 4. Kokoro TTS fallback (never uses system TTS)
-    await _tts.setRate(speed * 0.5);
+    _tts.setCharacterSpeed(line.character, speed);
     await _tts.speak(line.text, character: line.character);
     // Completion handled by TTS completion handler
   }
