@@ -1,17 +1,24 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../data/models/cast_member_model.dart';
 import '../data/models/production_models.dart';
 import '../data/models/script_models.dart';
 import '../data/repositories/production_repository.dart';
+import '../data/services/debug_log_service.dart';
 import '../data/services/deep_link_service.dart';
 import '../data/services/script_import_service.dart';
 import '../data/services/script_parser.dart';
 import '../data/services/voice_config_service.dart';
 import '../data/services/supabase_service.dart';
 import '../main.dart';
+
+/// Maximum size (in bytes) for a SharedPreferences script backup.
+const _maxBackupBytes = 5 * 1024 * 1024; // 5 MB
 
 /// Pending join data from a deep link. Consumed by the join screen.
 final pendingJoinProvider = StateProvider<PendingJoin?>((ref) => null);
@@ -205,7 +212,8 @@ class CastMembersNotifier extends StateNotifier<List<CastMemberModel>> {
   }
 }
 
-/// Persist the current script to the local database and push to cloud.
+/// Persist the current script to the local database, SharedPreferences backup,
+/// and push to cloud. Three layers: Drift DB -> SharedPreferences -> Supabase.
 /// Call after updating currentScriptProvider when you want changes saved.
 Future<void> persistScript(WidgetRef ref) async {
   final script = ref.read(currentScriptProvider);
@@ -215,6 +223,34 @@ Future<void> persistScript(WidgetRef ref) async {
   final repo = ref.read(productionRepositoryProvider);
   await repo.saveScriptLines(production.id, script.lines);
   await repo.saveScenes(production.id, script.scenes);
+
+  // Save a JSON backup to SharedPreferences as a second local copy
+  try {
+    final jsonList = script.lines.map((l) => l.toJson()).toList();
+    final jsonString = jsonEncode(jsonList);
+    if (jsonString.length <= _maxBackupBytes) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('script_backup_${production.id}', jsonString);
+      DebugLogService.instance.log(
+        LogCategory.general,
+        'Script backup saved to SharedPreferences for ${production.id} '
+        '(${script.lines.length} lines, ${jsonString.length} bytes)',
+      );
+    } else {
+      DebugLogService.instance.log(
+        LogCategory.general,
+        'Script backup skipped — JSON too large '
+        '(${jsonString.length} bytes > $_maxBackupBytes)',
+      );
+    }
+  } catch (e) {
+    DebugLogService.instance.logError(
+      LogCategory.error,
+      'SharedPreferences script backup failed',
+      e,
+    );
+    // Non-fatal — Drift save already succeeded
+  }
 
   // Also push to cloud so other cast members can download it
   try {
@@ -371,10 +407,47 @@ List<ScriptScene> _buildScenesFromLines(List<ScriptLine> lines) {
 }
 
 /// Load a saved script from the database for the given production.
+/// Falls back to SharedPreferences backup if the Drift DB returns empty.
+/// (Cloud fallback is handled by the join flow, not here.)
 Future<ParsedScript?> loadPersistedScript(WidgetRef ref, String productionId) async {
   final repo = ref.read(productionRepositoryProvider);
-  final lines = await repo.getScriptLines(productionId);
+  var lines = await repo.getScriptLines(productionId);
   final scenes = await repo.getScenes(productionId);
+
+  // If Drift DB returned no lines, try recovering from SharedPreferences backup
+  if (lines.isEmpty) {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final backupJson = prefs.getString('script_backup_$productionId');
+      if (backupJson != null && backupJson.isNotEmpty) {
+        final jsonList = jsonDecode(backupJson) as List<dynamic>;
+        lines = jsonList
+            .map((e) => ScriptLine.fromJson(e as Map<String, dynamic>))
+            .toList();
+
+        DebugLogService.instance.log(
+          LogCategory.error,
+          'WARNING: Drift DB empty for $productionId — '
+          'recovered ${lines.length} lines from SharedPreferences backup',
+        );
+
+        // Re-persist recovered lines back to Drift so future loads are normal
+        if (lines.isNotEmpty) {
+          await repo.saveScriptLines(productionId, lines);
+          DebugLogService.instance.log(
+            LogCategory.general,
+            'Re-persisted ${lines.length} recovered lines back to Drift DB',
+          );
+        }
+      }
+    } catch (e) {
+      DebugLogService.instance.logError(
+        LogCategory.error,
+        'SharedPreferences backup recovery failed for $productionId',
+        e,
+      );
+    }
+  }
 
   if (lines.isEmpty) return null;
 
