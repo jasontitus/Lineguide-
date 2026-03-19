@@ -39,7 +39,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Crashlytics: catch all Flutter errors
+  // Crashlytics: enable collection and catch all errors
+  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
   // Crashlytics: catch async errors not caught by Flutter
