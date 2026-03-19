@@ -69,14 +69,23 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
             },
           ),
           IconButton(
-            icon: Icon(_showDirections
-                ? Icons.visibility
-                : Icons.visibility_off),
+            icon: Icon(
+              _showDirections ? Icons.speaker_notes : Icons.speaker_notes_off,
+              color: _showDirections ? null : Colors.grey,
+            ),
             tooltip: _showDirections
                 ? 'Hide stage directions'
                 : 'Show stage directions',
             onPressed: () =>
                 setState(() => _showDirections = !_showDirections),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.swap_vert,
+              color: _reorderMode ? Theme.of(context).colorScheme.primary : null,
+            ),
+            tooltip: _reorderMode ? 'Done reordering' : 'Reorder lines',
+            onPressed: () => setState(() => _reorderMode = !_reorderMode),
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
@@ -85,8 +94,6 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
               switch (action) {
                 case 'validate':
                   showValidationPanel(context, script);
-                case 'reorder':
-                  setState(() => _reorderMode = !_reorderMode);
                 case 'export_text':
                   _export(context, script, 'plain');
                 case 'export_md':
@@ -99,14 +106,6 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
                 child: ListTile(
                   leading: Icon(Icons.checklist),
                   title: Text('Validate Script'),
-                  dense: true,
-                ),
-              ),
-              PopupMenuItem(
-                value: 'reorder',
-                child: ListTile(
-                  leading: Icon(_reorderMode ? Icons.check : Icons.swap_vert),
-                  title: Text(_reorderMode ? 'Done Reordering' : 'Reorder Lines'),
                   dense: true,
                 ),
               ),
