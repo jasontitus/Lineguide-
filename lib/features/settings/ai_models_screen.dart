@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../data/services/model_download_service.dart';
 import '../../data/services/model_manager.dart';
-import '../../data/services/sherpa_tts_service.dart';
 import '../../data/services/tts_service.dart';
 
 /// Screen for managing on-device AI model downloads.
@@ -76,10 +75,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
       );
 
       // Try to initialize TTS after download
-      await SherpaTtsService.instance.init();
-      if (SherpaTtsService.instance.isInitialized) {
-        await TtsService.instance.tryLoadKokoro();
-      }
+      await TtsService.instance.tryLoadKokoro();
 
       if (mounted) {
         setState(() {
@@ -108,7 +104,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
 
   Future<void> _deleteOnnxKokoro() async {
     await ModelManager.instance.clearCache();
-    SherpaTtsService.instance.dispose();
+    // TTS will fall back to system on next init
     if (mounted) {
       setState(() => _onnxReady = false);
       ScaffoldMessenger.of(context).showSnackBar(
