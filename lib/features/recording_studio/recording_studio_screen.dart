@@ -14,7 +14,6 @@ import '../../core/constants.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/script_models.dart';
 import '../../data/services/stt_adaptation_service.dart';
-import '../../data/services/voice_clone_service.dart';
 import '../../providers/production_providers.dart';
 import '../../features/settings/settings_screen.dart';
 
@@ -191,11 +190,6 @@ class _RecordingStudioScreenState extends ConsumerState<RecordingStudioScreen> {
                 ),
               ],
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.record_voice_over, color: Colors.white70),
-            tooltip: 'Voice Profile',
-            onPressed: () => context.push('/voice-profile'),
           ),
           Text(
             '${_currentLineIdx + 1} / ${_myLines.length}',
@@ -492,16 +486,6 @@ class _RecordingStudioScreenState extends ConsumerState<RecordingStudioScreen> {
           durationMs: _recordingDuration.inMilliseconds,
         );
 
-        // Voice cloning: auto-rebuild profile with new recording
-        final charRecordings = ref.read(recordingsProvider).values
-            .where((r) => r.character == _character)
-            .map((r) => r.localPath)
-            .toList()
-          ..add(path);
-        VoiceCloneService.instance.buildProfileFromRecordings(
-          character: _character!,
-          recordingPaths: charRecordings,
-        );
       }
 
       setState(() => _status = RecordingStatus.recorded);

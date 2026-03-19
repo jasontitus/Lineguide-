@@ -21,7 +21,6 @@ import 'features/join/join_production_screen.dart';
 import 'features/recording_studio/recording_character_screen.dart';
 import 'features/recording_studio/recording_studio_screen.dart';
 import 'features/recording_studio/recordings_browser_screen.dart';
-import 'features/recording_studio/voice_profile_screen.dart';
 import 'features/rehearsal/rehearsal_history_screen.dart';
 import 'features/rehearsal/rehearsal_screen.dart';
 import 'features/settings/ai_models_screen.dart';
@@ -56,7 +55,6 @@ const _screenNames = {
   '/record': 'Record Lines',
   '/recording-studio': 'Recording Studio',
   '/recordings': 'Recordings',
-  '/voice-profile': 'Voice Profile',
   '/rehearsal': 'Rehearsal',
   '/history': 'History',
   '/settings': 'Settings',
@@ -136,10 +134,6 @@ GoRouter _buildRouter(Ref ref) => GoRouter(
     GoRoute(
       path: '/recordings',
       builder: (context, state) => const RecordingsBrowserScreen(),
-    ),
-    GoRoute(
-      path: '/voice-profile',
-      builder: (context, state) => const VoiceProfileScreen(),
     ),
     GoRoute(
       path: '/rehearsal',

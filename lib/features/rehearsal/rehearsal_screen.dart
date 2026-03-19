@@ -18,7 +18,6 @@ import '../../data/services/debug_log_service.dart';
 import '../../data/services/stt_adaptation_service.dart';
 import '../../data/services/stt_vocabulary_service.dart';
 import '../../data/services/media_control_service.dart';
-import '../../data/services/voice_clone_service.dart';
 import '../../data/services/voice_config_service.dart';
 import '../../providers/production_providers.dart';
 import '../../features/settings/settings_screen.dart';
@@ -52,7 +51,6 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   final AudioPlayer _player = AudioPlayer();
   final TtsService _tts = TtsService.instance;
   final SttService _stt = SttService.instance;
-  final VoiceCloneService _voiceClone = VoiceCloneService.instance;
   final SttAdaptationService _sttAdapt = SttAdaptationService.instance;
   final SttVocabularyService _sttVocab = SttVocabularyService.instance;
   String? _activeAdapter; // per-actor or per-production LoRA adapter path
@@ -454,19 +452,6 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
               ),
               child: const Text('BLIND',
                   style: TextStyle(color: Colors.purple, fontSize: 9,
-                      fontWeight: FontWeight.bold)),
-            ),
-          // Voice clone opt-out badge
-          if (!ref.watch(voiceCloningEnabledProvider))
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              margin: const EdgeInsets.only(right: 4),
-              decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text('No Clone',
-                  style: TextStyle(color: Colors.orange, fontSize: 9,
                       fontWeight: FontWeight.bold)),
             ),
           // Adapted STT badge
@@ -1209,36 +1194,12 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
           await _player.play();
           return;
         } catch (_) {
-          // Fall through to voice clone
+          // Fall through to TTS
         }
       }
     }
 
-    // 3. Try voice clone if enabled and a profile exists for this character
-    final voiceCloningEnabled = ref.read(voiceCloningEnabledProvider);
-    final production = ref.read(currentProductionProvider);
-    if (voiceCloningEnabled &&
-        production != null &&
-        _voiceClone.canClone(line.character)) {
-      final clonedPath = await _voiceClone.generateLine(
-        productionId: production.id,
-        character: line.character,
-        lineId: line.id,
-        text: line.text,
-      );
-      if (clonedPath != null) {
-        try {
-          await _player.setFilePath(clonedPath);
-          await _player.setSpeed(speed);
-          await _player.play();
-          return;
-        } catch (_) {
-          // Fall through to Kokoro TTS
-        }
-      }
-    }
-
-    // 4. Kokoro TTS fallback (never uses system TTS)
+    // 3. Kokoro TTS fallback (never uses system TTS)
     _tts.setCharacterSpeed(line.character, speed);
     _dlog.log(LogCategory.tts,
         'Fast mode: ${ref.read(fastModeEnabledProvider)}, speed=$speed for ${line.character}');
