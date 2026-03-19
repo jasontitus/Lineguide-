@@ -70,14 +70,27 @@ class TtsService {
     if (_kokoroLoaded) return true;
     final dlog = DebugLogService.instance;
     dlog.log(LogCategory.tts, 'tryLoadKokoro: attempting post-download load');
+
+    // Try MLX first (iOS)
     _kokoroLoaded = await _initKokoroMlx();
     if (_kokoroLoaded) {
       _activeEngine = TtsEngine.kokoroMlx;
       dlog.log(LogCategory.tts, 'Kokoro MLX loaded successfully (post-download)');
-    } else {
-      dlog.log(LogCategory.tts, 'Kokoro MLX still not available after download');
+      return true;
     }
-    return _kokoroLoaded;
+
+    // Try ONNX (Android)
+    if (Platform.isAndroid) {
+      final sherpaOk = await SherpaTtsService.instance.init();
+      if (sherpaOk) {
+        _activeEngine = TtsEngine.kokoroOnnx;
+        dlog.log(LogCategory.tts, 'Kokoro ONNX loaded successfully (post-download)');
+        return true;
+      }
+    }
+
+    dlog.log(LogCategory.tts, 'Kokoro still not available after download');
+    return false;
   }
 
   /// Available Kokoro voices for character assignment.

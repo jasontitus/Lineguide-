@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import 'dart:io';
 
+import '../../core/responsive.dart';
+
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -158,7 +160,7 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
 
     final hasScript = script != null && script.lines.isNotEmpty;
 
-    return Scaffold(
+    return ResponsiveScaffold(
       appBar: AppBar(
         title: Text(production.title),
         actions: [

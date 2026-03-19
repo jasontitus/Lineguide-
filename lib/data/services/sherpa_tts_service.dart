@@ -51,6 +51,7 @@ class SherpaTtsService {
             tokens: paths.tokens,
             dataDir: paths.dataDir,
             lengthScale: 1.0,
+            lang: 'en',
           ),
           numThreads: 2,
           debug: false,

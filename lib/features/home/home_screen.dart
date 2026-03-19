@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../core/responsive.dart';
+
 import '../../core/theme/app_theme.dart';
 import '../../data/models/production_models.dart';
 import '../../data/models/script_models.dart';
@@ -83,7 +85,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Icon(
               Icons.theater_comedy,
               size: 80,
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+              color: Theme.of(context).colorScheme.primary.withOpacity( 0.5),
             ),
             const SizedBox(height: 24),
             Text(
@@ -98,7 +100,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withValues(alpha: 0.6),
+                        .withOpacity( 0.6),
                   ),
             ),
           ],
@@ -112,6 +114,54 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     WidgetRef ref,
     List<Production> productions,
   ) {
+    // On tablets, use a 2-column grid
+    if (Responsive.isWide(context)) {
+      return GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: Responsive.isExpanded(context) ? 3 : 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.6,
+        ),
+        itemCount: productions.length,
+        itemBuilder: (context, index) {
+          final production = productions[index];
+          final savedChar = ref.watch(savedCharacterProvider(production.id));
+          return _ProductionCard(
+            production: production,
+            savedCharacterName: savedChar.valueOrNull,
+            onRehearse: () => _openProduction(context, ref, production),
+            onSetUp: () => _openProductionForSetup(context, ref, production),
+            onMenuAction: (action) =>
+                _handleMenuAction(context, ref, production, action),
+            onDelete: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Delete Production?'),
+                  content: Text(
+                      'Delete "${production.title}" and all its data?'),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancel')),
+                    TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Delete',
+                            style: TextStyle(color: Colors.red))),
+                  ],
+                ),
+              );
+              if (confirmed == true) {
+                ref.read(productionsProvider.notifier).remove(production.id);
+              }
+            },
+          );
+        },
+      );
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: productions.length,
@@ -430,9 +480,9 @@ class _ProductionCard extends StatelessWidget {
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: hasCharacter
                               ? theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.7)
+                                  .withOpacity( 0.7)
                               : theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.4),
+                                  .withOpacity( 0.4),
                           fontStyle: hasCharacter
                               ? FontStyle.normal
                               : FontStyle.italic,

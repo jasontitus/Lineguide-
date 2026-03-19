@@ -10,6 +10,7 @@ import 'package:path/path.dart' as p;
 import 'package:pdfrx/pdfrx.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../core/responsive.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/script_models.dart';
 import '../../data/services/script_export.dart';
@@ -28,6 +29,7 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
   bool _showDirections = true;
   bool _reorderMode = false;
   bool _showLowConfidenceOnly = false;
+  ScriptLine? _selectedLine; // for tablet master-detail
 
   @override
   Widget build(BuildContext context) {
@@ -235,31 +237,183 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
                 ],
               ),
             ),
-          // Script lines
+          // Script lines (with optional detail panel on tablets)
           Expanded(
-            child: _reorderMode && _selectedCharacter == null
-                ? ReorderableListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: filteredLines.length,
-                    onReorder: (oldIndex, newIndex) {
-                      _reorderLines(script, filteredLines, oldIndex, newIndex);
-                    },
-                    itemBuilder: (context, index) {
-                      return _buildLineCard(
-                        context, filteredLines[index], charColors,
-                        key: ValueKey(filteredLines[index].id),
-                        showDragHandle: true,
-                      );
-                    },
+            child: Responsive.isWide(context)
+                ? Row(
+                    children: [
+                      // Line list (left side)
+                      Expanded(
+                        flex: 3,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: filteredLines.length,
+                          itemBuilder: (context, index) {
+                            final line = filteredLines[index];
+                            final isSelected = _selectedLine?.id == line.id;
+                            return Container(
+                              decoration: isSelected
+                                  ? BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primaryContainer
+                                          .withOpacity(0.3),
+                                      borderRadius: BorderRadius.circular(8),
+                                    )
+                                  : null,
+                              child: GestureDetector(
+                                onTap: () => setState(() => _selectedLine = line),
+                                child: AbsorbPointer(
+                                  child: _buildLineCard(
+                                      context, line, charColors),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const VerticalDivider(width: 1),
+                      // Detail panel (right side)
+                      Expanded(
+                        flex: 2,
+                        child: _selectedLine != null
+                            ? _buildDetailPanel(context, _selectedLine!, charColors)
+                            : Center(
+                                child: Text(
+                                  'Select a line to edit',
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withOpacity(0.4),
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ],
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: filteredLines.length,
-                    itemBuilder: (context, index) {
-                      return _buildLineCard(
-                          context, filteredLines[index], charColors);
-                    },
+                : _reorderMode && _selectedCharacter == null
+                    ? ReorderableListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: filteredLines.length,
+                        onReorder: (oldIndex, newIndex) {
+                          _reorderLines(
+                              script, filteredLines, oldIndex, newIndex);
+                        },
+                        itemBuilder: (context, index) {
+                          return _buildLineCard(
+                            context, filteredLines[index], charColors,
+                            key: ValueKey(filteredLines[index].id),
+                            showDragHandle: true,
+                          );
+                        },
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: filteredLines.length,
+                        itemBuilder: (context, index) {
+                          return _buildLineCard(
+                              context, filteredLines[index], charColors);
+                        },
+                      ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Tablet detail panel: shows PDF page + edit fields inline.
+  Widget _buildDetailPanel(
+    BuildContext context,
+    ScriptLine line,
+    Map<String, Color> charColors,
+  ) {
+    final production = ref.read(currentProductionProvider);
+    final pdfPath = production?.scriptPath;
+    final hasPdf = pdfPath != null && line.sourcePage != null && File(pdfPath).existsSync();
+    final textController = TextEditingController(text: line.text);
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Row(
+            children: [
+              if (line.character.isNotEmpty) ...[
+                CircleAvatar(
+                  backgroundColor: charColors[line.character] ?? Colors.grey,
+                  radius: 6,
+                ),
+                const SizedBox(width: 8),
+                Text(line.character,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: charColors[line.character],
+                    )),
+                const SizedBox(width: 8),
+              ],
+              Text('Line #${line.orderIndex}  ${line.pageLineRef}',
+                  style: Theme.of(context).textTheme.bodySmall),
+              if (line.ocrConfidence != null && line.ocrConfidence! < 0.85) ...[
+                const SizedBox(width: 8),
+                Icon(Icons.warning_amber_rounded,
+                    size: 16, color: Colors.amber.shade700),
+                Text(' ${(line.ocrConfidence! * 100).toInt()}%',
+                    style: TextStyle(
+                        fontSize: 12, color: Colors.amber.shade700)),
+              ],
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // PDF page viewer (if available)
+          if (hasPdf)
+            Expanded(
+              flex: 3,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                        color: Theme.of(context).colorScheme.outline, width: 0.5),
+                    borderRadius: BorderRadius.circular(8),
                   ),
+                  child: _PdfPageView(
+                    pdfPath: pdfPath,
+                    pageNumber: line.sourcePage!,
+                    lineOnPage: line.sourceLineOnPage,
+                  ),
+                ),
+              ),
+            ),
+          if (hasPdf) const SizedBox(height: 12),
+
+          // Text editor
+          Expanded(
+            flex: hasPdf ? 1 : 3,
+            child: TextField(
+              controller: textController,
+              maxLines: null,
+              expands: true,
+              textAlignVertical: TextAlignVertical.top,
+              decoration: const InputDecoration(
+                labelText: 'Line text',
+                border: OutlineInputBorder(),
+                alignLabelWithHint: true,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Save button
+          FilledButton(
+            onPressed: () {
+              _updateLine(line, line.character, textController.text.trim());
+              setState(() => _selectedLine = null);
+            },
+            child: const Text('Save'),
           ),
         ],
       ),

@@ -55,7 +55,7 @@ class ModelManager {
       model: p.join(modelDir, 'model.onnx'),
       voices: p.join(modelDir, 'voices.bin'),
       tokens: p.join(modelDir, 'tokens.txt'),
-      dataDir: modelDir,
+      dataDir: p.join(modelDir, 'espeak-ng-data'),
     );
   }
 
