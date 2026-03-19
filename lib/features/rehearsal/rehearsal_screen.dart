@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -60,7 +61,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   String _recognizedText = '';
   double _matchScore = 0.0;
   bool _showMatchFeedback = false;
-  bool _showJumpBackHint = true;
+  bool _showJumpBackHint = false; // Set in initState based on how many times shown
 
   // Silence timeout — auto-advance when no new STT results for a while
   Timer? _silenceTimer;
@@ -111,6 +112,14 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   Future<void> _initAudio() async {
     _dlog.log(LogCategory.rehearsal, 'Rehearsal starting');
     _dlog.startMemoryMonitoring();
+
+    // Show AirPods/Action Button hint for the first 5 sessions
+    final prefs = await SharedPreferences.getInstance();
+    final hintCount = prefs.getInt('jumpback_hint_shown') ?? 0;
+    if (hintCount < 5) {
+      setState(() => _showJumpBackHint = true);
+      prefs.setInt('jumpback_hint_shown', hintCount + 1);
+    }
 
     // Activate AirPods / lock screen remote controls
     _mediaControl.activate(
@@ -872,21 +881,32 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
   Widget _buildJumpBackHint(BuildContext context) {
     return Container(
-      color: Colors.grey[900]?.withValues(alpha: 0.8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      color: Colors.blueGrey[900],
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          Icon(Icons.headphones, size: 14, color: Colors.grey[500]),
+          Icon(Icons.headphones, size: 16, color: Colors.blueGrey[300]),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              'Double-tap AirPods or press Action Button to jump back',
-              style: TextStyle(color: Colors.grey[500], fontSize: 12),
+            child: Text.rich(
+              TextSpan(
+                style: TextStyle(color: Colors.blueGrey[300], fontSize: 12),
+                children: const [
+                  TextSpan(
+                    text: 'Tip: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: 'Use AirPods "previous track" or lock screen controls to jump back to your last cue',
+                  ),
+                ],
+              ),
             ),
           ),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: () => setState(() => _showJumpBackHint = false),
-            child: Icon(Icons.close, size: 16, color: Colors.grey[600]),
+            child: Icon(Icons.close, size: 16, color: Colors.blueGrey[500]),
           ),
         ],
       ),

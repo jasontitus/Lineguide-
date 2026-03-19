@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -39,8 +40,35 @@ final authGatePassedProvider = StateProvider<bool>((ref) {
   return false;
 });
 
+/// Human-readable screen names for analytics.
+const _screenNames = {
+  '/': 'Home',
+  '/auth': 'Sign In',
+  '/production': 'Production Hub',
+  '/import': 'Import Script',
+  '/editor': 'Script Editor',
+  '/characters': 'Characters',
+  '/scenes': 'Scenes',
+  '/cast': 'Cast Manager',
+  '/cast-setup': 'Cast Setup',
+  '/join': 'Join Production',
+  '/voice-config': 'Voice Config',
+  '/record': 'Record Lines',
+  '/recording-studio': 'Recording Studio',
+  '/recordings': 'Recordings',
+  '/voice-profile': 'Voice Profile',
+  '/rehearsal': 'Rehearsal',
+  '/history': 'History',
+  '/settings': 'Settings',
+  '/ai-models': 'AI Models',
+  '/debug-log': 'Debug Log',
+};
+
 GoRouter _buildRouter(Ref ref) => GoRouter(
   initialLocation: '/',
+  observers: [
+    _AnalyticsRouteObserver(),
+  ],
   redirect: (context, state) {
     final authed = ref.read(authGatePassedProvider);
     final onAuth = state.uri.toString() == '/auth';
@@ -204,5 +232,25 @@ class _CastCircleAppState extends ConsumerState<CastCircleApp> {
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );
+  }
+}
+
+/// Logs screen views to Firebase Analytics with human-readable names.
+class _AnalyticsRouteObserver extends NavigatorObserver {
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    _logScreen(route);
+  }
+
+  @override
+  void didReplace({Route? newRoute, Route? oldRoute}) {
+    if (newRoute != null) _logScreen(newRoute);
+  }
+
+  void _logScreen(Route route) {
+    final path = route.settings.name;
+    if (path == null) return;
+    final screenName = _screenNames[path] ?? path;
+    FirebaseAnalytics.instance.logScreenView(screenName: screenName);
   }
 }

@@ -54,14 +54,14 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.save_outlined),
-            tooltip: 'Save',
+            icon: const Icon(Icons.cloud_upload_outlined),
+            tooltip: 'Sync to cloud',
             onPressed: () async {
               await persistScript(ref);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Script saved'),
+                    content: Text('Script synced to cloud'),
                     duration: Duration(seconds: 1),
                   ),
                 );
@@ -87,8 +87,6 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
                   showValidationPanel(context, script);
                 case 'reorder':
                   setState(() => _reorderMode = !_reorderMode);
-                case 'sync_cloud':
-                  _syncToCloud(context);
                 case 'export_text':
                   _export(context, script, 'plain');
                 case 'export_md':
@@ -109,14 +107,6 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
                 child: ListTile(
                   leading: Icon(_reorderMode ? Icons.check : Icons.swap_vert),
                   title: Text(_reorderMode ? 'Done Reordering' : 'Reorder Lines'),
-                  dense: true,
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'sync_cloud',
-                child: ListTile(
-                  leading: Icon(Icons.cloud_upload),
-                  title: Text('Push to Cloud'),
                   dense: true,
                 ),
               ),
