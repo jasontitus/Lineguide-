@@ -166,7 +166,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
       if (scene != null) {
         final dialogueLines = _getRehearsalLines(script, scene, myCharacter);
         final firstMyIdx = dialogueLines
-            .indexWhere((l) => l.character == myCharacter);
+            .indexWhere((l) => l.isForCharacter(myCharacter));
         if (firstMyIdx > 0) {
           // Start 3 lines before actor's first line (minimum 0)
           final startIdx = (firstMyIdx - 3).clamp(0, dialogueLines.length - 1);
@@ -305,7 +305,8 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     final isComplete = currentIdx >= dialogueLines.length;
     final currentLine = isComplete ? null : dialogueLines[currentIdx];
     final isMyLine = mode != RehearsalMode.readthrough &&
-        currentLine?.character == myCharacter;
+        myCharacter != null &&
+        (currentLine?.isForCharacter(myCharacter) ?? false);
     final progress = dialogueLines.isEmpty
         ? 0.0
         : currentIdx / dialogueLines.length;
@@ -544,10 +545,15 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
         final isCurrent = index == currentIdx;
         final isPast = index < currentIdx;
         final isMe = ref.read(rehearsalModeProvider) != RehearsalMode.readthrough &&
-            line.character == myCharacter;
+            myCharacter != null &&
+            line.isForCharacter(myCharacter);
 
+        // For multi-character lines, use first individual for color lookup
+        final colorLookupName = line.multiCharacters.isNotEmpty
+            ? line.multiCharacters.first
+            : line.character;
         final charIdx =
-            script.characters.indexWhere((c) => c.name == line.character);
+            script.characters.indexWhere((c) => c.name == colorLookupName);
         final color = charIdx >= 0
             ? AppTheme.colorForCharacter(charIdx)
             : Colors.grey;
@@ -1064,7 +1070,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     // the immediately preceding line (the cue) plus the actor's line.
     final filtered = <ScriptLine>[];
     for (var i = 0; i < allDialogue.length; i++) {
-      if (allDialogue[i].character == myCharacter) {
+      if (allDialogue[i].isForCharacter(myCharacter)) {
         // Add cue line (the one before) if not already added
         if (i > 0 && !filtered.contains(allDialogue[i - 1])) {
           filtered.add(allDialogue[i - 1]);
@@ -1120,7 +1126,8 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     final mode = ref.read(rehearsalModeProvider);
     // In readthrough mode, no line is "mine" — all lines are played via TTS.
     final isMyLine = mode != RehearsalMode.readthrough &&
-        line.character == myCharacter;
+        myCharacter != null &&
+        line.isForCharacter(myCharacter);
 
     // Update lock screen / AirPods now-playing info
     final production = ref.read(currentProductionProvider);
@@ -1200,10 +1207,14 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     }
 
     // 3. Kokoro TTS fallback (never uses system TTS)
-    _tts.setCharacterSpeed(line.character, speed);
+    // For multi-character lines, use the first individual character's voice
+    final voiceCharacter = line.multiCharacters.isNotEmpty
+        ? line.multiCharacters.first
+        : line.character;
+    _tts.setCharacterSpeed(voiceCharacter, speed);
     _dlog.log(LogCategory.tts,
-        'Fast mode: ${ref.read(fastModeEnabledProvider)}, speed=$speed for ${line.character}');
-    await _tts.speak(line.text, character: line.character);
+        'Fast mode: ${ref.read(fastModeEnabledProvider)}, speed=$speed for $voiceCharacter');
+    await _tts.speak(line.text, character: voiceCharacter);
     // Completion handled by TTS completion handler
   }
 
@@ -1247,7 +1258,8 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     final nextLine = dialogueLines[currentIdx + 1];
     final mode = ref.read(rehearsalModeProvider);
     final isNextMine = mode != RehearsalMode.readthrough &&
-        nextLine.character == myCharacter;
+        myCharacter != null &&
+        nextLine.isForCharacter(myCharacter);
 
     if (isNextMine) {
       // Actor's turn — start listening right away
@@ -1563,17 +1575,17 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
       // Step 1: Walk back to find the actor's current/most recent line
       var myLine = current.clamp(0, maxIdx);
-      while (myLine > 0 && dialogueLines[myLine].character != mc) {
+      while (myLine > 0 && !dialogueLines[myLine].isForCharacter(mc)) {
         myLine--;
       }
 
       // Step 2: Walk back past it to find the PREVIOUS actor line
       var prevMyLine = (myLine - 1).clamp(0, maxIdx);
-      while (prevMyLine > 0 && dialogueLines[prevMyLine].character != mc) {
+      while (prevMyLine > 0 && !dialogueLines[prevMyLine].isForCharacter(mc)) {
         prevMyLine--;
       }
       // If we couldn't find a previous line, use the current one
-      if (dialogueLines[prevMyLine].character != mc) {
+      if (!dialogueLines[prevMyLine].isForCharacter(mc)) {
         prevMyLine = myLine;
       }
 
@@ -1582,7 +1594,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
       // NEVER land on the actor's own line — always land on a cue line
       // so TTS plays and the actor hears the setup
-      while (target < maxIdx && dialogueLines[target].character == mc) {
+      while (target < maxIdx && dialogueLines[target].isForCharacter(mc)) {
         target = (target - 1).clamp(0, maxIdx);
         if (target == 0) break; // can't go further back
       }
@@ -1645,7 +1657,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     final dialogueLines = _getRehearsalLines(script, scene, myCharacter);
     if (currentIdx < dialogueLines.length) {
       final line = dialogueLines[currentIdx];
-      if (line.character == myCharacter) {
+      if (myCharacter != null && line.isForCharacter(myCharacter)) {
         _recordAttempt(line, skipped: skipped);
       }
     }
@@ -1660,7 +1672,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     if (scene == null || myCharacter == null) return;
 
     final myLines = dialogueLines
-        .where((l) => l.character == myCharacter)
+        .where((l) => myCharacter != null && l.isForCharacter(myCharacter))
         .length;
     final completedLines = _lineAttempts.where((a) => !a.skipped).length;
     final avgScore = _lineAttempts.isEmpty

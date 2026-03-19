@@ -34,6 +34,10 @@ class ScriptParser {
   /// Character alias normalization map.
   final Map<String, String> characterAliases = {};
 
+  /// Multi-character name map: combined name → individual character names.
+  /// e.g., "ELIZABETH AND JANE" → ["ELIZABETH", "JANE"]
+  final Map<String, List<String>> multiCharacterMap = {};
+
   /// Detected script format (set during parse).
   ScriptFormat _format = ScriptFormat.standard;
 
@@ -98,18 +102,29 @@ class ScriptParser {
       _resolveTitleCaseAbbreviations(rawText);
     }
 
+    // Detect multi-character names (e.g., "ELIZABETH AND JANE") and split
+    // them into individual characters
+    _detectMultiCharacterNames();
+
     // Second pass: parse lines
     final lines = _parseLines(rawText);
 
     // Third pass: detect scenes from parsed lines
     final scenes = _detectScenes(lines);
 
-    // Build character list with line counts
+    // Build character list with line counts.
+    // Multi-character lines credit each individual character.
     final charCounts = <String, int>{};
     for (final line in lines) {
       if (line.lineType == LineType.dialogue && line.character.isNotEmpty) {
-        charCounts[line.character] =
-            (charCounts[line.character] ?? 0) + 1;
+        if (line.multiCharacters.isNotEmpty) {
+          for (final char in line.multiCharacters) {
+            charCounts[char] = (charCounts[char] ?? 0) + 1;
+          }
+        } else {
+          charCounts[line.character] =
+              (charCounts[line.character] ?? 0) + 1;
+        }
       }
     }
 
@@ -641,6 +656,49 @@ class ScriptParser {
     }
   }
 
+  /// Detect multi-character names in [knownCharacters] and populate
+  /// [multiCharacterMap] with the split. Also adds the individual names
+  /// to [knownCharacters] so they get proper voice/color assignments.
+  void _detectMultiCharacterNames() {
+    for (final name in knownCharacters.toList()) {
+      final parts = _tryMultiCharacterSplit(name);
+      if (parts != null && parts.length >= 2) {
+        multiCharacterMap[name] = parts;
+        // Ensure individual characters are in the known set
+        for (final part in parts) {
+          knownCharacters.add(part);
+        }
+      }
+    }
+  }
+
+  /// Try to split a character name into multiple individual characters.
+  /// Returns null if this is a single-character name.
+  ///
+  /// Recognized separators: " AND ", " & ", "/", ", " (between valid names).
+  static List<String>? _tryMultiCharacterSplit(String name) {
+    // Try each separator in priority order
+    for (final separator in [' AND ', ' & ', '/', ', ']) {
+      if (!name.contains(separator)) continue;
+      final parts = name
+          .split(separator)
+          .map((p) => p.trim())
+          .where((p) => p.isNotEmpty)
+          .toList();
+      if (parts.length >= 2 &&
+          parts.every((p) => _looksLikeCharacterName(p))) {
+        return parts;
+      }
+    }
+    return null;
+  }
+
+  /// Check if a string looks like a character name (ALL CAPS, 2+ chars).
+  static bool _looksLikeCharacterName(String s) {
+    if (s.length < 2) return false;
+    return RegExp(r'^[A-Z][A-Z. ]+$').hasMatch(s);
+  }
+
   /// Strip title prefix from a name, returning null if no title found.
   static String? _stripTitle(String name) {
     final prefixes = [
@@ -859,6 +917,7 @@ class ScriptParser {
 
         final extracted = _extractInlineDirection(fullText);
         final charName = _normalizeCharacter(currentCharacter);
+        final multiChars = multiCharacterMap[charName] ?? const [];
 
         sceneLineNum++;
         orderIndex++;
@@ -872,6 +931,7 @@ class ScriptParser {
           text: extracted.text.isNotEmpty ? extracted.text : fullText,
           lineType: LineType.dialogue,
           stageDirection: extracted.direction,
+          multiCharacters: multiChars,
         ));
       }
     }
@@ -1059,10 +1119,15 @@ class ScriptParser {
 
       sceneCounter++;
 
-      // Gather characters in this scene
+      // Gather characters in this scene. For multi-character lines,
+      // add each individual character rather than the combined name.
       final chars = <String>{};
       for (final l in dialogueLines) {
-        if (l.character.isNotEmpty) chars.add(l.character);
+        if (l.multiCharacters.isNotEmpty) {
+          chars.addAll(l.multiCharacters);
+        } else if (l.character.isNotEmpty) {
+          chars.add(l.character);
+        }
       }
 
       // Find the transition stage direction for a description

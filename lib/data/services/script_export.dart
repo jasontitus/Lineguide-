@@ -193,7 +193,7 @@ class ScriptExporter {
 
     final charLines = script.lines
         .where((l) =>
-            l.lineType == LineType.dialogue && l.character == characterName)
+            l.lineType == LineType.dialogue && l.isForCharacter(characterName))
         .toList();
 
     buf.writeln('Total lines: ${charLines.length}');
@@ -211,7 +211,7 @@ class ScriptExporter {
 
       // Show cue lines (the line before yours) and your lines
       if (line.lineType == LineType.dialogue) {
-        if (line.character == characterName) {
+        if (line.isForCharacter(characterName)) {
           final direction = line.stageDirection.isNotEmpty
               ? ' (${line.stageDirection})'
               : '';
@@ -247,7 +247,7 @@ class ScriptExporter {
     for (var i = 0; i < dialogueLines.length; i++) {
       final line = dialogueLines[i];
 
-      if (line.character == characterName) {
+      if (line.isForCharacter(characterName)) {
         // Show the cue line (previous line)
         if (i > 0) {
           final cue = dialogueLines[i - 1];

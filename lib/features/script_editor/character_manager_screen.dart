@@ -477,6 +477,18 @@ class _CharacterManagerScreenState
       if (l.character == oldName) {
         return l.copyWith(character: newName);
       }
+      // Also rename within multiCharacters
+      if (l.multiCharacters.contains(oldName)) {
+        final updated = l.multiCharacters
+            .map((c) => c == oldName ? newName : c)
+            .toList();
+        // Update the combined display name too
+        final newDisplayName = updated.join(', ');
+        return l.copyWith(
+          character: newDisplayName,
+          multiCharacters: updated,
+        );
+      }
       return l;
     }).toList();
 
@@ -486,7 +498,8 @@ class _CharacterManagerScreenState
   void _applyDelete(WidgetRef ref, ParsedScript script, String charName) {
     final updatedLines = script.lines
         .where((l) =>
-            !(l.lineType == LineType.dialogue && l.character == charName))
+            !(l.lineType == LineType.dialogue && l.character == charName) &&
+            !(l.lineType == LineType.dialogue && l.multiCharacters.contains(charName)))
         .toList();
 
     _rebuildScript(ref, script, updatedLines);

@@ -21,6 +21,10 @@ class ScriptLine {
   final int? sourcePage; // 1-based page from original PDF
   final int? sourceLineOnPage; // 1-based line within that page
 
+  /// Individual characters for multi-character lines (e.g., "JOHN AND MARY"
+  /// → ["JOHN", "MARY"]). Empty for single-character lines.
+  final List<String> multiCharacters;
+
   const ScriptLine({
     required this.id,
     required this.act,
@@ -31,10 +35,19 @@ class ScriptLine {
     required this.text,
     required this.lineType,
     this.stageDirection = '',
+    this.multiCharacters = const [],
     this.ocrConfidence,
     this.sourcePage,
     this.sourceLineOnPage,
   });
+
+  /// Whether this line is spoken by (or includes) the given character.
+  /// For multi-character lines, returns true if the character is one of
+  /// the individuals.
+  bool isForCharacter(String name) {
+    if (character == name) return true;
+    return multiCharacters.contains(name);
+  }
 
   /// Page:line reference string (e.g., "p12:5"). Uses source page if
   /// available, otherwise computes from orderIndex.
@@ -58,6 +71,7 @@ class ScriptLine {
     String? text,
     LineType? lineType,
     String? stageDirection,
+    List<String>? multiCharacters,
     double? Function()? ocrConfidence,
     int? Function()? sourcePage,
     int? Function()? sourceLineOnPage,
@@ -72,6 +86,7 @@ class ScriptLine {
       text: text ?? this.text,
       lineType: lineType ?? this.lineType,
       stageDirection: stageDirection ?? this.stageDirection,
+      multiCharacters: multiCharacters ?? this.multiCharacters,
       ocrConfidence: ocrConfidence != null ? ocrConfidence() : this.ocrConfidence,
       sourcePage: sourcePage != null ? sourcePage() : this.sourcePage,
       sourceLineOnPage: sourceLineOnPage != null ? sourceLineOnPage() : this.sourceLineOnPage,
@@ -88,6 +103,7 @@ class ScriptLine {
         'text': text,
         'line_type': lineType.name,
         'stage_direction': stageDirection,
+        if (multiCharacters.isNotEmpty) 'multi_characters': multiCharacters,
         if (ocrConfidence != null) 'ocr_confidence': ocrConfidence,
         if (sourcePage != null) 'source_page': sourcePage,
         if (sourceLineOnPage != null) 'source_line_on_page': sourceLineOnPage,
@@ -103,6 +119,7 @@ class ScriptLine {
         text: json['text'] as String,
         lineType: LineType.values.byName(json['line_type'] as String),
         stageDirection: json['stage_direction'] as String? ?? '',
+        multiCharacters: (json['multi_characters'] as List?)?.cast<String>() ?? const [],
         ocrConfidence: (json['ocr_confidence'] as num?)?.toDouble(),
         sourcePage: json['source_page'] as int?,
         sourceLineOnPage: json['source_line_on_page'] as int?,
@@ -274,11 +291,12 @@ class ParsedScript {
     required this.rawText,
   });
 
-  /// Get all lines for a specific character.
+  /// Get all lines for a specific character, including multi-character lines
+  /// where this character is one of the speakers.
   List<ScriptLine> linesForCharacter(String characterName) {
     return lines
         .where((l) =>
-            l.lineType == LineType.dialogue && l.character == characterName)
+            l.lineType == LineType.dialogue && l.isForCharacter(characterName))
         .toList();
   }
 

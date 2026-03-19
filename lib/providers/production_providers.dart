@@ -325,7 +325,13 @@ ParsedScript buildParsedScript(String title, List<ScriptLine> lines) {
   final charCounts = <String, int>{};
   for (final line in lines) {
     if (line.lineType == LineType.dialogue && line.character.isNotEmpty) {
-      charCounts[line.character] = (charCounts[line.character] ?? 0) + 1;
+      if (line.multiCharacters.isNotEmpty) {
+        for (final char in line.multiCharacters) {
+          charCounts[char] = (charCounts[char] ?? 0) + 1;
+        }
+      } else {
+        charCounts[line.character] = (charCounts[line.character] ?? 0) + 1;
+      }
     }
   }
   final characters = charCounts.entries.toList()
@@ -371,7 +377,11 @@ List<ScriptScene> _buildScenesFromLines(List<ScriptLine> lines) {
     sceneCounter++;
     final chars = <String>{};
     for (final l in dialogueLines) {
-      if (l.character.isNotEmpty) chars.add(l.character);
+      if (l.multiCharacters.isNotEmpty) {
+        chars.addAll(l.multiCharacters);
+      } else if (l.character.isNotEmpty) {
+        chars.add(l.character);
+      }
     }
 
     final act = sceneLines.first.act;
@@ -451,11 +461,18 @@ Future<ParsedScript?> loadPersistedScript(WidgetRef ref, String productionId) as
 
   if (lines.isEmpty) return null;
 
-  // Rebuild characters from dialogue lines
+  // Rebuild characters from dialogue lines.
+  // Multi-character lines credit each individual character.
   final charCounts = <String, int>{};
   for (final line in lines) {
     if (line.lineType == LineType.dialogue && line.character.isNotEmpty) {
-      charCounts[line.character] = (charCounts[line.character] ?? 0) + 1;
+      if (line.multiCharacters.isNotEmpty) {
+        for (final char in line.multiCharacters) {
+          charCounts[char] = (charCounts[char] ?? 0) + 1;
+        }
+      } else {
+        charCounts[line.character] = (charCounts[line.character] ?? 0) + 1;
+      }
     }
   }
   final characters = charCounts.entries.toList()

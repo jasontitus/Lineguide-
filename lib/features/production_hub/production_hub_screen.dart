@@ -393,7 +393,7 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
                 .linesInScene(scene)
                 .where((l) =>
                     l.lineType == LineType.dialogue &&
-                    l.character == myCharacter)
+                    l.isForCharacter(myCharacter))
                 .length
             : 0;
         final totalDialogue = script

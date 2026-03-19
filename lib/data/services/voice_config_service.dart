@@ -118,22 +118,32 @@ class VoiceConfigService {
   }) {
     if (characters.isEmpty) return {};
 
-    // 1. Build adjacency: which characters speak near each other
+    // 1. Build adjacency: which characters speak near each other.
+    // For multi-character lines, use individual characters for adjacency.
     final adjacency = <String, Set<String>>{};
     final dialogueLines = lines
         .where((l) => l.lineType == LineType.dialogue && l.character.isNotEmpty)
         .toList();
 
+    List<String> _charsForLine(ScriptLine l) =>
+        l.multiCharacters.isNotEmpty ? l.multiCharacters : [l.character];
+
     for (var i = 0; i < dialogueLines.length; i++) {
-      final a = dialogueLines[i].character;
-      adjacency.putIfAbsent(a, () => {});
+      final aChars = _charsForLine(dialogueLines[i]);
+      for (final a in aChars) {
+        adjacency.putIfAbsent(a, () => {});
+      }
       // Look at the next [window] speakers
       for (var j = i + 1; j < dialogueLines.length && j <= i + window; j++) {
-        final b = dialogueLines[j].character;
-        if (a != b) {
-          adjacency.putIfAbsent(b, () => {});
-          adjacency[a]!.add(b);
-          adjacency[b]!.add(a);
+        final bChars = _charsForLine(dialogueLines[j]);
+        for (final a in aChars) {
+          for (final b in bChars) {
+            if (a != b) {
+              adjacency.putIfAbsent(b, () => {});
+              adjacency[a]!.add(b);
+              adjacency[b]!.add(a);
+            }
+          }
         }
       }
     }
