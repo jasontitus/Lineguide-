@@ -63,6 +63,10 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   bool _showMatchFeedback = false;
   bool _showJumpBackHint = false; // Set in initState based on how many times shown
 
+  // Debounce rapid taps to prevent stack overflow from reentrancy
+  bool _jumpBackInProgress = false;
+  bool _processingLine = false;
+
   // Silence timeout — auto-advance when no new STT results for a while
   Timer? _silenceTimer;
   static const _silenceTimeout = Duration(seconds: 5);
@@ -1085,6 +1089,12 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
 
   /// Process the current line: play audio/TTS for others, or start listening for me.
   void _processCurrentLine() {
+    if (_processingLine) return;
+    _processingLine = true;
+    Future.delayed(const Duration(milliseconds: 50), () {
+      _processingLine = false;
+    });
+
     final script = ref.read(currentScriptProvider);
     final scene = ref.read(selectedSceneProvider);
     final myCharacter = ref.read(rehearsalCharacterProvider);
@@ -1564,7 +1574,12 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   // ── Remote media control handlers (AirPods / lock screen) ──
 
   void _handleRemoteJumpBack() {
-    if (!mounted) return;
+    if (!mounted || _jumpBackInProgress) return;
+    _jumpBackInProgress = true;
+    // Release the lock after a short delay so rapid taps are coalesced
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _jumpBackInProgress = false;
+    });
     final script = ref.read(currentScriptProvider);
     final scene = ref.read(selectedSceneProvider);
     final mc = ref.read(rehearsalCharacterProvider);
