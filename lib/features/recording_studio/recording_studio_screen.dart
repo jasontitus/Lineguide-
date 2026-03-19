@@ -257,9 +257,9 @@ class _RecordingStudioScreenState extends ConsumerState<RecordingStudioScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: charColor.withValues(alpha: 0.1),
+        color: charColor.withOpacity( 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: charColor.withValues(alpha: 0.3), width: 1),
+        border: Border.all(color: charColor.withOpacity( 0.3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,7 +398,7 @@ class _RecordingStudioScreenState extends ConsumerState<RecordingStudioScreen> {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: filled ? color.withValues(alpha: 0.2) : Colors.grey[900],
+          color: filled ? color.withOpacity( 0.2) : Colors.grey[900],
           shape: BoxShape.circle,
           border: Border.all(color: color, width: filled ? 3 : 1),
         ),

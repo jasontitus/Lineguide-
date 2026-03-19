@@ -87,7 +87,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                         color: Theme.of(context)
                                             .colorScheme
                                             .onPrimaryContainer
-                                            .withValues(alpha: 0.8),
+                                            .withOpacity( 0.8),
                                       ),
                                 ),
                               ],

@@ -152,8 +152,8 @@ class RehearsalHistoryScreen extends ConsumerWidget {
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: session.rehearsalMode == 'cuePractice'
-                        ? Colors.blue.withValues(alpha: 0.1)
-                        : Colors.teal.withValues(alpha: 0.1),
+                        ? Colors.blue.withOpacity( 0.1)
+                        : Colors.teal.withOpacity( 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(

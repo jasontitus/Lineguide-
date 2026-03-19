@@ -382,6 +382,31 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
               ],
             ),
           ),
+          // Text size +/- (useful on iPad)
+          IconButton(
+            icon: const Icon(Icons.text_decrease, color: Colors.white54, size: 18),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            tooltip: 'Smaller text',
+            onPressed: () {
+              final current = ref.read(rehearsalFontSizeProvider);
+              if (current > 12) {
+                ref.read(rehearsalFontSizeProvider.notifier).state = current - 2;
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.text_increase, color: Colors.white54, size: 18),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            tooltip: 'Larger text',
+            onPressed: () {
+              final current = ref.read(rehearsalFontSizeProvider);
+              if (current < 36) {
+                ref.read(rehearsalFontSizeProvider.notifier).state = current + 2;
+              }
+            },
+          ),
           // Fast mode toggle
           GestureDetector(
             onTap: () {
@@ -393,8 +418,8 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
               margin: const EdgeInsets.only(right: 4),
               decoration: BoxDecoration(
                 color: ref.watch(fastModeEnabledProvider)
-                    ? Colors.amber.withValues(alpha: 0.2)
-                    : Colors.white.withValues(alpha: 0.05),
+                    ? Colors.amber.withOpacity( 0.2)
+                    : Colors.white.withOpacity( 0.05),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -423,7 +448,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               margin: const EdgeInsets.only(right: 4),
               decoration: BoxDecoration(
-                color: Colors.teal.withValues(alpha: 0.2),
+                color: Colors.teal.withOpacity( 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text('READ',
@@ -435,7 +460,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               margin: const EdgeInsets.only(right: 4),
               decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.2),
+                color: Colors.blue.withOpacity( 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text('CUE',
@@ -448,7 +473,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               margin: const EdgeInsets.only(right: 4),
               decoration: BoxDecoration(
-                color: Colors.purple.withValues(alpha: 0.2),
+                color: Colors.purple.withOpacity( 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text('BLIND',
@@ -461,7 +486,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               margin: const EdgeInsets.only(right: 4),
               decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.2),
+                color: Colors.green.withOpacity( 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text('AI',
@@ -511,7 +536,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
+        color: color.withOpacity( 0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -547,6 +572,8 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
         final isMe = ref.read(rehearsalModeProvider) != RehearsalMode.readthrough &&
             myCharacter != null &&
             line.isForCharacter(myCharacter);
+        final baseFontSize = ref.watch(rehearsalFontSizeProvider);
+        final fontSize = isCurrent ? baseFontSize : baseFontSize - 3;
 
         // For multi-character lines, use first individual for color lookup
         final colorLookupName = line.multiCharacters.isNotEmpty
@@ -579,7 +606,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
                       ? Theme.of(context)
                           .colorScheme
                           .primary
-                          .withValues(alpha: 0.15)
+                          .withOpacity( 0.15)
                       : Colors.grey[900])
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
@@ -657,7 +684,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
                     'Say your line...',
                     style: TextStyle(
                       color: Colors.grey[600],
-                      fontSize: isCurrent ? 18 : 15,
+                      fontSize: fontSize,
                       height: 1.4,
                       fontStyle: FontStyle.italic,
                     ),
@@ -667,7 +694,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
                     line.text,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: isCurrent ? 18 : 15,
+                      fontSize: fontSize,
                       height: 1.4,
                     ),
                   ),
@@ -727,8 +754,8 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: matched
-          ? Colors.green.withValues(alpha: 0.2)
-          : Colors.orange.withValues(alpha: 0.2),
+          ? Colors.green.withOpacity( 0.2)
+          : Colors.orange.withOpacity( 0.2),
       child: Row(
         children: [
           Icon(
@@ -808,9 +835,9 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
+                  color: Colors.orange.withOpacity( 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                  border: Border.all(color: Colors.orange.withOpacity( 0.3)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -993,7 +1020,9 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
       case RehearsalState.ready:
         _processCurrentLine();
       case RehearsalState.playingOther:
-        // Skip to next
+        // Mark state as ready BEFORE stopping TTS so the completion handler
+        // sees we're no longer in playingOther and won't double-advance.
+        ref.read(rehearsalStateProvider.notifier).state = RehearsalState.ready;
         _tts.stop(reason: 'skipOtherLine');
         try { _player.stop(); } catch (_) {}
         _advanceLine(totalLines);
@@ -1035,7 +1064,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
                   ? Theme.of(context)
                       .colorScheme
                       .primary
-                      .withValues(alpha: 0.2)
+                      .withOpacity( 0.2)
                   : Colors.grey[850],
               shape: BoxShape.circle,
               border: primary

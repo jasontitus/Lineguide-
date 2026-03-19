@@ -6,6 +6,7 @@ import '../../data/models/cast_member_model.dart';
 import '../../data/models/production_models.dart';
 import '../../data/services/deep_link_service.dart';
 import '../../data/services/supabase_service.dart';
+import '../../data/services/voice_config_service.dart';
 import '../../providers/production_providers.dart';
 
 class JoinProductionScreen extends ConsumerStatefulWidget {
@@ -108,7 +109,7 @@ class _JoinProductionScreenState extends ConsumerState<JoinProductionScreen> {
                               color: Theme.of(context)
                                   .colorScheme
                                   .onErrorContainer
-                                  .withValues(alpha: 0.7),
+                                  .withOpacity( 0.7),
                             ),
                       ),
                       const SizedBox(height: 16),
@@ -132,7 +133,7 @@ class _JoinProductionScreenState extends ConsumerState<JoinProductionScreen> {
                 color: Theme.of(context)
                     .colorScheme
                     .primary
-                    .withValues(alpha: 0.5),
+                    .withOpacity( 0.5),
               ),
               const SizedBox(height: 16),
               Text(
@@ -159,7 +160,7 @@ class _JoinProductionScreenState extends ConsumerState<JoinProductionScreen> {
                         color: Theme.of(context)
                             .colorScheme
                             .onSurface
-                            .withValues(alpha: 0.2),
+                            .withOpacity( 0.2),
                       ),
                   errorText: _error,
                 ),
@@ -457,7 +458,7 @@ class _JoinProductionScreenState extends ConsumerState<JoinProductionScreen> {
         );
       }
 
-      // Save production locally
+      // Save production locally (including organizer's locale)
       final production = Production(
         id: productionId,
         title: _foundProduction!['title'] as String? ?? 'Untitled',
@@ -467,6 +468,7 @@ class _JoinProductionScreenState extends ConsumerState<JoinProductionScreen> {
             DateTime.now(),
         status: ProductionStatus.draft,
         joinCode: _foundProduction!['join_code'] as String?,
+        locale: _foundProduction!['locale'] as String? ?? 'en-US',
       );
 
       await ref.read(productionsProvider.notifier).add(production);
@@ -481,6 +483,12 @@ class _JoinProductionScreenState extends ConsumerState<JoinProductionScreen> {
         await persistScript(ref);
       } else {
         ref.read(currentProductionProvider.notifier).state = production;
+      }
+
+      // Sync organizer's voice preset (from production row or lookup data)
+      final voicePreset = _foundProduction!['voice_preset'] as String?;
+      if (voicePreset != null) {
+        await VoiceConfigService.instance.setPreset(productionId, voicePreset);
       }
 
       // Navigate to production hub

@@ -43,6 +43,9 @@ final fastModeEnabledProvider = StateProvider<bool>((ref) => false);
 /// hasn't recorded a line.
 final understudyFallbackProvider = StateProvider<bool>((ref) => true);
 
+/// Rehearsal script font size (adjustable via +/- in rehearsal top bar).
+final rehearsalFontSizeProvider = StateProvider<double>((ref) => 18.0);
+
 Future<String> _getVersionString() async {
   try {
     final info = await PackageInfo.fromPlatform();

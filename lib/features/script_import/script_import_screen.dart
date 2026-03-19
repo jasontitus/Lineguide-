@@ -8,6 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../../data/models/script_models.dart';
+import '../../data/services/supabase_service.dart';
 import '../../data/services/voice_config_service.dart';
 import '../../providers/production_providers.dart';
 
@@ -64,7 +65,7 @@ class _ScriptImportScreenState extends ConsumerState<ScriptImportScreen> {
             Icon(
               Icons.description_outlined,
               size: 80,
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+              color: Theme.of(context).colorScheme.primary.withOpacity( 0.5),
             ),
             const SizedBox(height: 24),
             Text(
@@ -80,7 +81,7 @@ class _ScriptImportScreenState extends ConsumerState<ScriptImportScreen> {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withValues(alpha: 0.6),
+                        .withOpacity( 0.6),
                   ),
             ),
             const SizedBox(height: 32),
@@ -261,7 +262,7 @@ class _ScriptImportScreenState extends ConsumerState<ScriptImportScreen> {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).dividerColor.withValues(alpha: 0.3),
+            color: Theme.of(context).dividerColor.withOpacity( 0.3),
           ),
         ),
       ),
@@ -293,6 +294,12 @@ class _ScriptImportScreenState extends ConsumerState<ScriptImportScreen> {
                     ? 'victorian_english'
                     : 'modern_american';
                 VoiceConfigService.instance.setPreset(production.id, presetId);
+                // Sync locale and voice preset to cloud
+                final supa = SupabaseService.instance;
+                if (supa.isSignedIn) {
+                  supa.saveLocale(productionId: production.id, locale: locale);
+                  supa.saveVoicePreset(productionId: production.id, presetId: presetId);
+                }
               },
             ),
           ),

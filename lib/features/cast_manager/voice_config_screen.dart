@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/models/production_models.dart';
 import '../../data/models/script_models.dart';
 import '../../data/models/voice_preset.dart';
+import '../../data/services/supabase_service.dart';
 import '../../data/services/tts_service.dart';
 import '../../data/services/voice_config_service.dart';
 import '../../providers/production_providers.dart';
@@ -61,6 +63,11 @@ class _VoiceConfigScreenState extends ConsumerState<VoiceConfigScreen> {
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               children: [
+                // Dialect selector
+                _sectionHeader(context, 'Script Dialect'),
+                _buildDialectSelector(context, production),
+                const Divider(height: 32),
+
                 // Production preset section
                 _sectionHeader(context, 'Production Style'),
                 Padding(
@@ -109,6 +116,11 @@ class _VoiceConfigScreenState extends ConsumerState<VoiceConfigScreen> {
         if (value == null) return;
         await _voiceConfig.setPreset(productionId, value);
         setState(() => _currentPreset = VoicePresets.byId(value));
+        // Sync to cloud so cast members get this preset when they join
+        final supa = SupabaseService.instance;
+        if (supa.isSignedIn) {
+          supa.saveVoicePreset(productionId: productionId, presetId: value);
+        }
       },
     );
   }
@@ -326,6 +338,59 @@ class _VoiceConfigScreenState extends ConsumerState<VoiceConfigScreen> {
         );
       }
     }
+  }
+
+  static const _localeLabels = {
+    'en-US': 'American English',
+    'en-GB': 'British English',
+  };
+
+  Widget _buildDialectSelector(BuildContext context, Production production) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Changing the dialect also updates the default voice preset '
+            'and syncs to all cast members.',
+            style: TextStyle(color: Colors.grey[500], fontSize: 13),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<String>(
+              segments: _localeLabels.entries
+                  .map((e) =>
+                      ButtonSegment(value: e.key, label: Text(e.value)))
+                  .toList(),
+              selected: {production.locale},
+              onSelectionChanged: (selected) async {
+                final locale = selected.first;
+                final updated = production.copyWith(locale: locale);
+                ref.read(productionsProvider.notifier).update(updated);
+                ref.read(currentProductionProvider.notifier).state = updated;
+
+                final presetId = locale == 'en-GB'
+                    ? 'victorian_english'
+                    : 'modern_american';
+                await _voiceConfig.setPreset(production.id, presetId);
+                setState(() => _currentPreset = VoicePresets.byId(presetId));
+
+                // Sync to cloud
+                final supa = SupabaseService.instance;
+                if (supa.isSignedIn) {
+                  supa.saveLocale(
+                      productionId: production.id, locale: locale);
+                  supa.saveVoicePreset(
+                      productionId: production.id, presetId: presetId);
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _sectionHeader(BuildContext context, String title) {
