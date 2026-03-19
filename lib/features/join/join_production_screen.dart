@@ -217,6 +217,7 @@ class _JoinProductionScreenState extends ConsumerState<JoinProductionScreen> {
                   border: OutlineInputBorder(),
                   hintText: 'How should others see you?',
                 ),
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
               // Show available characters (those without a joined primary)
