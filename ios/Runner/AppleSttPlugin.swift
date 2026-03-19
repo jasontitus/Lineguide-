@@ -174,14 +174,31 @@ class AppleSttPlugin: NSObject {
         // Install audio tap and start engine
         let inputNode = audioEngine.inputNode
 
-        // Remove any existing tap first to prevent "tap already installed" crash
-        // when rapidly jumping back during rehearsal
+        // Fully stop and remove any existing tap — belt and suspenders
+        if audioEngine.isRunning {
+            audioEngine.stop()
+        }
         inputNode.removeTap(onBus: 0)
 
         let recordingFormat = inputNode.outputFormat(forBus: 0)
 
-        inputNode.installTap(onBus: 0, bufferSize: 4096, format: recordingFormat) { [weak self] buffer, _ in
-            self?.recognitionRequest?.append(buffer)
+        // installTap throws an ObjC NSException (not a Swift error) if a tap
+        // is already installed. Wrap in ObjC exception catcher.
+        var tapInstalled = false
+        ObjCExceptionCatcher.try({
+            inputNode.installTap(onBus: 0, bufferSize: 4096, format: recordingFormat) { [weak self] buffer, _ in
+                self?.recognitionRequest?.append(buffer)
+            }
+            tapInstalled = true
+        }, catch: { exception in
+            NSLog("AppleStt: installTap exception: \(String(describing: exception))")
+        })
+
+        guard tapInstalled else {
+            NSLog("AppleStt: Failed to install tap, aborting listen")
+            stopCurrentSession()
+            result(FlutterError(code: "TAP_FAILED", message: "Could not install audio tap", details: nil))
+            return
         }
 
         do {
