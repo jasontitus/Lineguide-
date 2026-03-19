@@ -111,22 +111,30 @@ class AppDatabase extends _$AppDatabase {
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onUpgrade: (migrator, from, to) async {
+          // Each migration is wrapped in try/catch so a partial failure
+          // (e.g. column already exists) doesn't wipe the database.
           if (from < 2) {
-            // Add locale column to productions table
-            await migrator.addColumn(productions, productions.locale);
+            try {
+              await migrator.addColumn(productions, productions.locale);
+            } catch (_) {}
           }
           if (from < 3) {
-            // Add joinCode column to productions table
-            await migrator.addColumn(productions, productions.joinCode);
+            try {
+              await migrator.addColumn(productions, productions.joinCode);
+            } catch (_) {}
           }
           if (from < 4) {
-            // Add OCR confidence column to script lines table
-            await migrator.addColumn(scriptLines, scriptLines.ocrConfidence);
+            try {
+              await migrator.addColumn(scriptLines, scriptLines.ocrConfidence);
+            } catch (_) {}
           }
           if (from < 5) {
-            // Add source page/line columns for page:line references
-            await migrator.addColumn(scriptLines, scriptLines.sourcePage);
-            await migrator.addColumn(scriptLines, scriptLines.sourceLineOnPage);
+            try {
+              await migrator.addColumn(scriptLines, scriptLines.sourcePage);
+            } catch (_) {}
+            try {
+              await migrator.addColumn(scriptLines, scriptLines.sourceLineOnPage);
+            } catch (_) {}
           }
         },
       );
