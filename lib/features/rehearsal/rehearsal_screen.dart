@@ -1746,7 +1746,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   Future<void> _startCaptureForLine(ScriptLine line) async {
     try {
       final dir = await getTemporaryDirectory();
-      final path = p.join(dir.path, 'rehearsal_${line.id}.m4a');
+      final path = p.join(dir.path, 'rehearsal_${line.id}.wav');
       final ok = await _stt.startRecording(path);
       if (ok) {
         _isCapturingAudio = true;
@@ -1840,7 +1840,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
       if (!tempFile.existsSync()) continue;
 
       // Move from temp to permanent recordings directory
-      final destPath = p.join(recordingsDir.path, '$lineId.m4a');
+      final destPath = p.join(recordingsDir.path, '$lineId.wav');
       try {
         await tempFile.copy(destPath);
         await tempFile.delete();

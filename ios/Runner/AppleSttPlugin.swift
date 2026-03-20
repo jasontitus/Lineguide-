@@ -236,22 +236,31 @@ class AppleSttPlugin: NSObject {
     /// Start recording audio to a file alongside STT.
     /// The audio is captured from the same AVAudioEngine tap.
     private func startRecording(path: String, result: @escaping FlutterResult) {
-        // Write PCM to a temp CAF file first, convert to AAC after stop
-        let pcmPath = path + ".caf"
         recordingPath = path
         recordingStartTime = Date()
 
+        // Write directly as WAV — universally playable, no conversion needed.
+        // The tap format is whatever the hardware provides (typically 48kHz float32).
         let inputNode = audioEngine.inputNode
         let format = inputNode.outputFormat(forBus: 0)
 
+        // Create WAV file settings (PCM in a WAV container)
+        let wavSettings: [String: Any] = [
+            AVFormatIDKey: Int(kAudioFormatLinearPCM),
+            AVSampleRateKey: format.sampleRate,
+            AVNumberOfChannelsKey: format.channelCount,
+            AVLinearPCMBitDepthKey: 16,
+            AVLinearPCMIsFloatKey: false,
+            AVLinearPCMIsBigEndianKey: false,
+            AVLinearPCMIsNonInterleaved: false,
+        ]
+
         do {
             audioFile = try AVAudioFile(
-                forWriting: URL(fileURLWithPath: pcmPath),
-                settings: format.settings,
-                commonFormat: format.commonFormat,
-                interleaved: format.isInterleaved
+                forWriting: URL(fileURLWithPath: path),
+                settings: wavSettings
             )
-            NSLog("AppleStt: Recording started → \(pcmPath)")
+            NSLog("AppleStt: Recording started → \(path) (WAV \(format.sampleRate)Hz)")
             result(true)
         } catch {
             NSLog("AppleStt: Failed to create audio file: \(error)")
@@ -262,61 +271,23 @@ class AppleSttPlugin: NSObject {
         }
     }
 
-    /// Stop recording and convert PCM → AAC .m4a.
-    /// Returns {path, durationMs}.
+    /// Stop recording. Returns {path, durationMs}.
     private func stopRecording(result: @escaping FlutterResult) {
-        guard let file = audioFile, let destPath = recordingPath else {
+        guard let _ = audioFile, let destPath = recordingPath else {
             result(nil)
             return
         }
 
         let durationMs = Int((Date().timeIntervalSince(recordingStartTime ?? Date())) * 1000)
-        let pcmPath = destPath + ".caf"
 
-        // Close the file
+        // Close the file by releasing the reference
         audioFile = nil
         recordingStartTime = nil
         recordingPath = nil
 
-        // Convert PCM CAF → AAC M4A in background
-        DispatchQueue.global(qos: .userInitiated).async {
-            let pcmUrl = URL(fileURLWithPath: pcmPath)
-            let destUrl = URL(fileURLWithPath: destPath)
-
-            // Remove existing destination
-            try? FileManager.default.removeItem(at: destUrl)
-
-            let asset = AVAsset(url: pcmUrl)
-            guard let exportSession = AVAssetExportSession(
-                asset: asset,
-                presetName: AVAssetExportPresetAppleM4A
-            ) else {
-                // Fallback: just rename the CAF file
-                try? FileManager.default.moveItem(at: pcmUrl, to: destUrl)
-                DispatchQueue.main.async {
-                    result(["path": destPath, "durationMs": durationMs])
-                }
-                return
-            }
-
-            exportSession.outputURL = destUrl
-            exportSession.outputFileType = .m4a
-
-            exportSession.exportAsynchronously {
-                // Clean up temp PCM file
-                try? FileManager.default.removeItem(at: pcmUrl)
-
-                DispatchQueue.main.async {
-                    if exportSession.status == .completed {
-                        NSLog("AppleStt: Recording saved → \(destPath) (\(durationMs)ms)")
-                        result(["path": destPath, "durationMs": durationMs])
-                    } else {
-                        NSLog("AppleStt: Export failed: \(exportSession.error?.localizedDescription ?? "unknown")")
-                        result(["path": destPath, "durationMs": durationMs])
-                    }
-                }
-            }
-        }
+        let fileSize = (try? FileManager.default.attributesOfItem(atPath: destPath)[.size] as? Int) ?? 0
+        NSLog("AppleStt: Recording saved → \(destPath) (\(durationMs)ms, \(fileSize / 1024)KB)")
+        result(["path": destPath, "durationMs": durationMs])
     }
 
     private func stopCurrentSession() {
