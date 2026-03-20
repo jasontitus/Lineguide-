@@ -259,7 +259,11 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: const Text('Open the script editor in your browser'),
             trailing: const Icon(Icons.share),
             onTap: () {
-              Share.share('Edit your CastCircle script on the web:\nhttps://castcircle-app.web.app');
+              final email = SupabaseService.instance.currentUser?.email ?? '';
+              final text = 'Edit your CastCircle script on the web:\n'
+                  'https://castcircle-app.web.app'
+                  '${email.isNotEmpty ? '\n\nSign in with: $email' : ''}';
+              Share.share(text, subject: 'CastCircle Web Editor');
             },
           ),
           _sectionHeader(context, 'Account'),

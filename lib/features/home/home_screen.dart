@@ -286,7 +286,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       case 'settings':
         context.push('/settings');
       case 'web-editor':
-        Share.share('Edit your CastCircle script on the web:\nhttps://castcircle-app.web.app');
+        final email = SupabaseService.instance.currentUser?.email ?? '';
+        final prodTitle = production.title;
+        final text = 'Edit "$prodTitle" on the web:\n'
+            'https://castcircle-app.web.app'
+            '${email.isNotEmpty ? '\n\nSign in with: $email' : ''}';
+        Share.share(text, subject: 'CastCircle: Edit $prodTitle');
     }
   }
 

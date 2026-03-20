@@ -15,6 +15,7 @@ import '../../core/theme/app_theme.dart';
 import '../../data/models/script_models.dart';
 import '../../data/services/analytics_service.dart';
 import '../../data/services/script_export.dart';
+import '../../data/services/supabase_service.dart';
 import '../../providers/production_providers.dart';
 import 'validation_panel.dart';
 
@@ -63,15 +64,20 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
             icon: const Icon(Icons.language),
             tooltip: 'Edit on web',
             onPressed: () {
+              final production = ref.read(currentProductionProvider);
+              final email = SupabaseService.instance.currentUser?.email ?? '';
+              final productionName = production?.title ?? script.title;
+
               showDialog(
                 context: context,
                 builder: (ctx) => AlertDialog(
                   icon: const Icon(Icons.desktop_windows, size: 40),
                   title: const Text('Edit on a Big Screen'),
-                  content: const Text(
+                  content: Text(
                     'Editing scripts is easier with a real keyboard and mouse. '
                     'Share this link to open the web editor in any browser — '
-                    'your script syncs automatically via the cloud.',
+                    'your script syncs automatically via the cloud.'
+                    '${email.isNotEmpty ? '\n\nSign in as: $email' : ''}',
                   ),
                   actions: [
                     TextButton(
@@ -81,14 +87,17 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
                     FilledButton.icon(
                       onPressed: () async {
                         Navigator.pop(ctx);
-                        // Wait for dialog dismiss animation before showing share sheet
                         await Future.delayed(const Duration(milliseconds: 300));
                         final box = context.findRenderObject() as RenderBox?;
                         final origin = box != null
                             ? box.localToGlobal(Offset.zero) & box.size
                             : null;
+                        final text = 'Edit "$productionName" on the web:\n'
+                            'https://castcircle-app.web.app\n'
+                            '${email.isNotEmpty ? '\nSign in with: $email' : ''}';
                         Share.share(
-                          'Edit your CastCircle script on the web:\nhttps://castcircle-app.web.app',
+                          text,
+                          subject: 'CastCircle: Edit $productionName',
                           sharePositionOrigin: origin,
                         );
                       },
