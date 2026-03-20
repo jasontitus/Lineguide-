@@ -1903,7 +1903,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
             label: 'Review',
             onPressed: () => context.push('/recordings'),
           ),
-          duration: const Duration(seconds: 5),
+          duration: const Duration(seconds: 3),
         ),
       );
     }

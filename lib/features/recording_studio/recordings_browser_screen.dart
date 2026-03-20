@@ -386,12 +386,27 @@ class _RecordingsBrowserScreenState
   }
 
   Future<void> _playRecording(Recording recording, String lineId) async {
+    final file = File(recording.localPath);
+    final exists = file.existsSync();
+    final size = exists ? file.lengthSync() : 0;
+    debugPrint('PlayRecording: path=${recording.localPath} exists=$exists size=$size');
+
+    if (!exists || size < 100) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('File missing or empty (${recording.localPath.split('/').last}, ${size}B)')),
+        );
+      }
+      return;
+    }
+
     try {
       await _player.stop();
       await _player.setFilePath(recording.localPath);
       setState(() => _playingLineId = lineId);
       await _player.play();
     } catch (e) {
+      debugPrint('PlayRecording ERROR: $e');
       if (mounted) {
         setState(() => _playingLineId = null);
         ScaffoldMessenger.of(context).showSnackBar(
