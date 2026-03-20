@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../data/services/debug_log_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' show FileOptions;
 import '../../data/services/supabase_service.dart';
 
 class DebugLogScreen extends StatefulWidget {
@@ -66,21 +65,23 @@ class _DebugLogScreenState extends State<DebugLogScreen> {
               try {
                 final supa = SupabaseService.instance;
                 if (!supa.isInitialized) throw Exception('Supabase not initialized');
-                final bytes = Uint8List.fromList(text.codeUnits);
-                await supa.client.storage.from('recordings').uploadBinary(
-                  'debug_logs/$filename',
-                  bytes,
-                  fileOptions: const FileOptions(upsert: true),
-                );
+                final email = supa.currentUser?.email ?? 'unknown';
+                await supa.client.from('debug_reports').insert({
+                  'user_id': supa.currentUser?.id,
+                  'user_email': email,
+                  'label': label,
+                  'content': text,
+                  'entry_count': entries.length,
+                });
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Uploaded $filename (${entries.length} entries)')),
+                    SnackBar(content: Text('Sent $label log (${entries.length} entries)')),
                   );
                 }
               } catch (e) {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Upload failed: $e')),
+                    SnackBar(content: Text('Send failed: $e')),
                   );
                 }
               }

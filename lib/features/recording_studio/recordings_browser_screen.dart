@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../data/models/script_models.dart';
+import '../../data/services/debug_log_service.dart';
 import '../../providers/production_providers.dart';
 
 /// Browse all recordings for the current production, grouped by character.
@@ -417,9 +418,14 @@ class _RecordingsBrowserScreenState
   }
 
   Future<void> _playRecording(Recording recording, String lineId) async {
+    final dlog = DebugLogService.instance;
+    dlog.log(LogCategory.general,
+        'Play: resolving ${recording.scriptLineId.substring(0, 8)}... stored=${recording.localPath.split("/").last}');
+
     final resolvedPath = await _resolveRecordingPath(recording);
 
     if (resolvedPath == null) {
+      dlog.log(LogCategory.error, 'Play: file NOT FOUND for ${recording.scriptLineId.substring(0, 8)}');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Recording file not found (${p.basename(recording.localPath)})')),
@@ -429,9 +435,11 @@ class _RecordingsBrowserScreenState
     }
 
     final size = File(resolvedPath).lengthSync();
-    debugPrint('PlayRecording: path=$resolvedPath size=$size');
+    dlog.log(LogCategory.general,
+        'Play: found at ${resolvedPath.split("/").last} (${size ~/ 1024}KB)');
 
     if (size < 100) {
+      dlog.log(LogCategory.error, 'Play: file empty (${size}B)');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Recording file is empty')),
@@ -447,6 +455,7 @@ class _RecordingsBrowserScreenState
       await _player.play();
     } catch (e) {
       debugPrint('PlayRecording ERROR: $e');
+      dlog.logError(LogCategory.error, 'Play: playback failed', e);
       if (mounted) {
         setState(() => _playingLineId = null);
         ScaffoldMessenger.of(context).showSnackBar(
