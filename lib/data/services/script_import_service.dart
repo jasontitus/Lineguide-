@@ -12,6 +12,7 @@ import 'ocr_confidence_service.dart';
 import 'script_parser.dart';
 import 'script_export.dart';
 import 'pdf_text_channel.dart';
+import 'vision_ocr_channel.dart';
 
 /// Service to import scripts from PDF or text files.
 class ScriptImportService {
@@ -206,94 +207,109 @@ class ScriptImportService {
   }
 
   /// OCR-based PDF import pipeline.
-  /// Renders each page to an image, runs ML Kit text recognition,
+  /// Renders each page to an image, runs text recognition,
   /// and maps per-line OCR confidence back onto parsed ScriptLines.
   Future<ParsedScript> _importFromPdfOcr(String pdfPath,
       {required String title}) async {
-    // Ensure pdfrx cache directory is set (required before first use)
-    Pdfrx.getCacheDirectory ??= () async {
-      final dir = await getTemporaryDirectory();
-      return dir.path;
-    };
-    final doc = await PdfDocument.openFile(pdfPath);
-    final pageCount = doc.pages.length;
-
-    final textRecognizer = TextRecognizer();
     final buffer = StringBuffer();
-    // Track confidence and page per raw text line index (0-based)
     final lineConfidences = <int, double>{};
     final linePageMap = <int, int>{}; // raw line index → 1-based page
     var rawLineIndex = 0;
-
     var failedPages = 0;
-    try {
-      for (var i = 1; i <= pageCount; i++) {
-        try {
-          // Render page to image at 2x for good OCR quality
-          final page = doc.pages[i - 1]; // 0-indexed
-          final pdfImage = await page.render(
-            fullWidth: page.width * 2,
-            fullHeight: page.height * 2,
-          );
-          if (pdfImage == null) {
-            debugPrint('PDF OCR: Page $i/$pageCount — render returned null, skipping');
-            failedPages++;
-            continue;
-          }
-          final image = await pdfImage.createImage();
-          pdfImage.dispose();
 
-          // Save to temp file for ML Kit (requires file path)
-          final byteData =
-              await image.toByteData(format: ui.ImageByteFormat.png);
-          image.dispose();
+    if (Platform.isMacOS) {
+      // macOS: single native call — PDFKit render + Vision OCR, no round-trips
+      final pdfResult = await VisionOcrChannel.ocrPdf(pdfPath);
+      if (pdfResult == null) {
+        throw Exception('Vision OCR plugin not available');
+      }
 
-          if (byteData == null) {
-            debugPrint('PDF OCR: Page $i/$pageCount — render returned null, skipping');
-            failedPages++;
-            continue;
-          }
+      failedPages = pdfResult.failedPages;
+      for (final page in pdfResult.pages) {
+        for (final line in page.lines) {
+          buffer.writeln(line.text);
+          lineConfidences[rawLineIndex] = line.confidence;
+          linePageMap[rawLineIndex] = page.page;
+          rawLineIndex++;
+        }
+        buffer.writeln();
+        rawLineIndex++;
+      }
 
-          final tempDir = await getTemporaryDirectory();
-          final tempFile = File(p.join(tempDir.path, 'ocr_page_$i.png'));
-          await tempFile.writeAsBytes(byteData.buffer.asUint8List());
+      debugPrint('PDF OCR (Vision): ${pdfResult.pageCount} pages, '
+          '${pdfResult.failedPages} failed');
+    } else {
+      // iOS/Android: use pdfrx render + Google ML Kit per page
+      Pdfrx.getCacheDirectory ??= () async {
+        final dir = await getTemporaryDirectory();
+        return dir.path;
+      };
+      final doc = await PdfDocument.openFile(pdfPath);
+      final pageCount = doc.pages.length;
 
-          // Run OCR
-          final inputImage = InputImage.fromFilePath(tempFile.path);
-          final recognized = await textRecognizer.processImage(inputImage);
+      final textRecognizer = TextRecognizer();
 
-          // Reconstruct text preserving line breaks, estimate confidence
-          for (final block in recognized.blocks) {
-            for (final line in block.lines) {
-              buffer.writeln(line.text);
-              // ML Kit on iOS doesn't return confidence scores, so we
-              // estimate quality heuristically from the recognized text.
-              lineConfidences[rawLineIndex] = _estimateLineConfidence(line.text);
-              linePageMap[rawLineIndex] = i; // i is 1-based page number
+      try {
+        for (var i = 1; i <= pageCount; i++) {
+          try {
+            final page = doc.pages[i - 1];
+            final pdfImage = await page.render(
+              fullWidth: page.width * 2,
+              fullHeight: page.height * 2,
+            );
+            if (pdfImage == null) {
+              debugPrint('PDF OCR: Page $i/$pageCount — render returned null, skipping');
+              failedPages++;
+              continue;
+            }
+            final image = await pdfImage.createImage();
+            pdfImage.dispose();
+
+            final byteData =
+                await image.toByteData(format: ui.ImageByteFormat.png);
+            image.dispose();
+
+            if (byteData == null) {
+              debugPrint('PDF OCR: Page $i/$pageCount — render returned null, skipping');
+              failedPages++;
+              continue;
+            }
+
+            final tempDir = await getTemporaryDirectory();
+            final tempFile = File(p.join(tempDir.path, 'ocr_page_$i.png'));
+            await tempFile.writeAsBytes(byteData.buffer.asUint8List());
+
+            final inputImage = InputImage.fromFilePath(tempFile.path);
+            final recognized = await textRecognizer.processImage(inputImage);
+
+            for (final block in recognized.blocks) {
+              for (final line in block.lines) {
+                buffer.writeln(line.text);
+                lineConfidences[rawLineIndex] = _estimateLineConfidence(line.text);
+                linePageMap[rawLineIndex] = i;
+                rawLineIndex++;
+              }
+              buffer.writeln();
               rawLineIndex++;
             }
-            buffer.writeln(); // paragraph break between blocks
-            rawLineIndex++; // account for the blank line
+
+            await tempFile.delete();
+
+            debugPrint('PDF OCR: Page $i/$pageCount done '
+                '(${recognized.blocks.length} blocks)');
+          } catch (e) {
+            debugPrint('PDF OCR: Page $i/$pageCount FAILED: $e — skipping');
+            failedPages++;
           }
-
-          // Clean up temp file
-          await tempFile.delete();
-
-          debugPrint('PDF OCR: Page $i/$pageCount done '
-              '(${recognized.blocks.length} blocks)');
-        } catch (e) {
-          // Don't let a single page failure kill the entire import
-          debugPrint('PDF OCR: Page $i/$pageCount FAILED: $e — skipping');
-          failedPages++;
         }
+      } finally {
+        textRecognizer.close();
+        await doc.dispose();
       }
-    } finally {
-      textRecognizer.close();
-      await doc.dispose();
     }
 
     if (failedPages > 0) {
-      debugPrint('PDF OCR: $failedPages of $pageCount pages failed');
+      debugPrint('PDF OCR: $failedPages pages failed');
     }
 
     final rawText = buffer.toString();
@@ -305,11 +321,19 @@ class ScriptImportService {
     final script = _parser.parse(rawText, title: title);
 
     // Map OCR confidence and source page onto parsed ScriptLines.
+    // Use a single forward pass through raw lines so each raw line is
+    // consumed at most once — prevents all parsed lines from matching
+    // the same early occurrence of common text.
     final rawLines = rawText.split('\n');
+    var rawSearchStart = 0;
     final updatedLines = script.lines.map((line) {
       final conf = _findConfidenceForParsedLine(
           line.text, rawLines, lineConfidences);
-      final pageInfo = _findSourcePage(line.text, rawLines, linePageMap);
+      final pageInfo = _findSourcePageFrom(
+          line.text, rawLines, linePageMap, rawSearchStart);
+      if (pageInfo != null) {
+        rawSearchStart = pageInfo.rawLineIndex + 1;
+      }
       return line.copyWith(
         ocrConfidence: conf != null ? () => conf : null,
         sourcePage: pageInfo != null ? () => pageInfo.page : null,
@@ -330,33 +354,39 @@ class ScriptImportService {
     return script;
   }
 
-  /// Find the source page for a parsed line by matching against raw lines.
+  /// Find the source page for a parsed line by matching against raw lines,
+  /// starting from [startIndex] to avoid re-matching earlier lines.
+  ({int page, int lineOnPage, int rawLineIndex})? _findSourcePageFrom(
+    String parsedText,
+    List<String> rawLines,
+    Map<int, int> linePageMap,
+    int startIndex,
+  ) {
+    final searchText = parsedText.trim().toLowerCase();
+    if (searchText.isEmpty) return null;
+
+    for (var i = startIndex; i < rawLines.length; i++) {
+      final rawTrimmed = rawLines[i].trim().toLowerCase();
+      if (rawTrimmed.isEmpty) continue;
+      final page = linePageMap[i];
+      if (page == null) continue;
+      if (rawTrimmed.contains(searchText) ||
+          searchText.contains(rawTrimmed)) {
+        return (page: page, lineOnPage: 0, rawLineIndex: i);
+      }
+    }
+    return null;
+  }
+
+  /// Find the source page for a parsed line (legacy — searches from start).
   ({int page, int lineOnPage})? _findSourcePage(
     String parsedText,
     List<String> rawLines,
     Map<int, int> linePageMap,
   ) {
-    final searchText = parsedText.trim().toLowerCase();
-    if (searchText.isEmpty) return null;
-
-    // Track line-within-page counters per page
-    final pageLineCounts = <int, int>{};
-
-    for (var i = 0; i < rawLines.length; i++) {
-      final rawTrimmed = rawLines[i].trim().toLowerCase();
-      if (rawTrimmed.isEmpty) continue;
-      final page = linePageMap[i];
-      if (page != null) {
-        pageLineCounts[page] = (pageLineCounts[page] ?? 0) + 1;
-      }
-      if (rawTrimmed.contains(searchText) ||
-          searchText.contains(rawTrimmed)) {
-        if (page != null) {
-          return (page: page, lineOnPage: pageLineCounts[page]!);
-        }
-      }
-    }
-    return null;
+    final result = _findSourcePageFrom(parsedText, rawLines, linePageMap, 0);
+    if (result == null) return null;
+    return (page: result.page, lineOnPage: result.lineOnPage);
   }
 
   /// Find the OCR confidence for a parsed line by locating which raw text

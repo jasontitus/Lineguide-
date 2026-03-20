@@ -45,20 +45,38 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     firebaseAvailable = true;
-  } catch (e) {
+    DebugLogService.instance.log(LogCategory.firebase, 'Firebase initialized OK');
+  } catch (e, stack) {
+    DebugLogService.instance.log(LogCategory.firebase, 'Firebase init FAILED: $e');
+    DebugLogService.instance.log(LogCategory.firebase, '$stack');
     debugPrint('Firebase not configured for this platform — skipping ($e)');
   }
 
   if (firebaseAvailable) {
-    // Crashlytics: enable collection and catch all errors
-    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    // Crashlytics: wire up error handlers (collection enabled via Info.plist)
+    FlutterError.onError = (details) {
+      DebugLogService.instance.log(LogCategory.firebase,
+          'FlutterError caught: ${details.exceptionAsString()}');
+      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+    };
 
     // Crashlytics: catch async errors not caught by Flutter
     PlatformDispatcher.instance.onError = (error, stack) {
+      DebugLogService.instance.log(LogCategory.firebase,
+          'PlatformDispatcher error caught: $error');
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
       return true;
     };
+
+    // Crashlytics diagnostics
+    final didCrash = await FirebaseCrashlytics.instance.didCrashOnPreviousExecution();
+    DebugLogService.instance.log(LogCategory.firebase,
+        'Crashed on previous execution: $didCrash');
+    DebugLogService.instance.log(LogCategory.firebase,
+        'Crashlytics collection enabled: ${FirebaseCrashlytics.instance.isCrashlyticsCollectionEnabled}');
+
+    // Force enable collection
+    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
 
     // Performance monitoring
     FirebasePerformance.instance.setPerformanceCollectionEnabled(true);

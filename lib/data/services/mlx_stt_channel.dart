@@ -57,6 +57,8 @@ class MlxSttChannel {
     } on PlatformException catch (e) {
       debugPrint('MlxStt: transcribe failed: ${e.message}');
       return null;
+    } on MissingPluginException {
+      return null;
     }
   }
 
@@ -82,6 +84,8 @@ class MlxSttChannel {
     } on PlatformException catch (e) {
       debugPrint('MlxStt: loadAdapter failed: ${e.message}');
       return false;
+    } on MissingPluginException {
+      return false;
     }
   }
 
@@ -90,6 +94,8 @@ class MlxSttChannel {
     try {
       return await _channel.invokeMethod<bool>('unloadAdapter') ?? false;
     } on PlatformException {
+      return false;
+    } on MissingPluginException {
       return false;
     }
   }
@@ -123,6 +129,8 @@ class MlxSttChannel {
     } on PlatformException catch (e) {
       debugPrint('MlxStt: transcribeStreaming failed: ${e.message}');
       return null;
+    } on MissingPluginException {
+      return null;
     }
   }
 
@@ -144,6 +152,9 @@ class MlxSttChannel {
       _initialized = false;
     } on PlatformException {
       // Ignore
+    } on MissingPluginException {
+      // Plugin not registered on this platform (e.g. macOS)
+      _initialized = false;
     }
   }
 }

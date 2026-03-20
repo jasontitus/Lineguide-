@@ -104,9 +104,11 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
       });
 
       if (!ready) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted && !_modelsReady) _showModelPrompt();
-        });
+        if (!Platform.isMacOS) {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (mounted && !_modelsReady) _showModelPrompt();
+          });
+        }
       }
     }
   }
@@ -248,13 +250,15 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
                   return DropdownMenuItem(
                     value: char.name,
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         CircleAvatar(
                           backgroundColor: color,
                           radius: 8,
                         ),
                         const SizedBox(width: 8),
-                        Expanded(child: Text(char.name)),
+                        Flexible(child: Text(char.name, overflow: TextOverflow.ellipsis)),
+                        const SizedBox(width: 8),
                         Text(
                           '${char.lineCount} lines',
                           style: theme.textTheme.bodySmall,

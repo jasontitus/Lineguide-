@@ -22,6 +22,7 @@ class ScriptImportScreen extends ConsumerStatefulWidget {
 
 class _ScriptImportScreenState extends ConsumerState<ScriptImportScreen> {
   bool _loading = false;
+  bool _saving = false;
   String? _error;
   ParsedScript? _preview;
   String? _importedPdfPath; // persisted copy of imported PDF for page viewer
@@ -230,13 +231,23 @@ class _ScriptImportScreenState extends ConsumerState<ScriptImportScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: () async {
+                    onPressed: _saving ? null : () async {
+                      setState(() => _saving = true);
                       ref.read(currentScriptProvider.notifier).state = script;
                       await persistScript(ref);
                       if (context.mounted) context.push('/production');
                     },
-                    icon: const Icon(Icons.check),
-                    label: const Text('Accept Script'),
+                    icon: _saving
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.check),
+                    label: Text(_saving ? 'Saving...' : 'Accept Script'),
                   ),
                 ),
               ],

@@ -70,16 +70,63 @@ class _DebugLogScreenState extends State<DebugLogScreen> {
             },
           ),
           PopupMenuButton<String>(
-            onSelected: (action) {
-              if (action == 'test_crash' && firebaseAvailable) {
-                // Force a test crash to verify Crashlytics
+            onSelected: (action) async {
+              if (action == 'test_nonfatal' && firebaseAvailable) {
+                _log.log(LogCategory.firebase, 'Sending non-fatal error to Crashlytics...');
+                try {
+                  await FirebaseCrashlytics.instance.recordError(
+                    Exception('Crashlytics test non-fatal'),
+                    StackTrace.current,
+                    reason: 'test from debug screen',
+                  );
+                  _log.log(LogCategory.firebase, 'Non-fatal error sent OK');
+                } catch (e) {
+                  _log.log(LogCategory.firebase, 'Non-fatal error FAILED: $e');
+                }
+                if (mounted) setState(() {});
+              }
+              if (action == 'test_log' && firebaseAvailable) {
+                _log.log(LogCategory.firebase, 'Sending custom log to Crashlytics...');
+                FirebaseCrashlytics.instance.log('Test log from debug screen at ${DateTime.now()}');
+                _log.log(LogCategory.firebase, 'Custom log sent');
+                try {
+                  await FirebaseCrashlytics.instance.setCustomKey('test_key', 'test_value_${DateTime.now().millisecondsSinceEpoch}');
+                  _log.log(LogCategory.firebase, 'Custom key set OK');
+                } catch (e) {
+                  _log.log(LogCategory.firebase, 'Custom key FAILED: $e');
+                }
+                if (mounted) setState(() {});
+              }
+              if (action == 'test_fatal' && firebaseAvailable) {
+                _log.log(LogCategory.firebase, 'Throwing fatal Dart exception...');
+                if (mounted) setState(() {});
+                // Small delay so log entry is visible before crash
+                await Future.delayed(const Duration(milliseconds: 200));
+                throw Exception('Crashlytics test fatal error');
+              }
+              if (action == 'test_native_crash' && firebaseAvailable) {
+                _log.log(LogCategory.firebase, 'Triggering native crash (SIGABRT)...');
+                if (mounted) setState(() {});
+                await Future.delayed(const Duration(milliseconds: 200));
                 FirebaseCrashlytics.instance.crash();
               }
             },
             itemBuilder: (_) => [
               const PopupMenuItem(
-                value: 'test_crash',
-                child: Text('Test Crash (Crashlytics)'),
+                value: 'test_nonfatal',
+                child: Text('Send Non-Fatal Error'),
+              ),
+              const PopupMenuItem(
+                value: 'test_log',
+                child: Text('Send Custom Log + Key'),
+              ),
+              const PopupMenuItem(
+                value: 'test_fatal',
+                child: Text('Test Fatal Exception'),
+              ),
+              const PopupMenuItem(
+                value: 'test_native_crash',
+                child: Text('Test Native Crash (SIGABRT)'),
               ),
             ],
           ),
@@ -263,6 +310,8 @@ class _DebugLogScreenState extends State<DebugLogScreen> {
         return Colors.purple;
       case LogCategory.network:
         return Colors.blue;
+      case LogCategory.firebase:
+        return Colors.amber;
       case LogCategory.general:
         return Colors.grey;
       case LogCategory.error:

@@ -445,150 +445,125 @@ class _ProductionCard extends StatelessWidget {
         savedCharacterName != null && savedCharacterName!.isNotEmpty;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title row with overflow menu
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: theme.colorScheme.primaryContainer,
-                  child: Icon(
-                    Icons.theater_comedy,
-                    color: theme.colorScheme.onPrimaryContainer,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        production.title,
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
+      child: InkWell(
+        onTap: onRehearse,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(
+                Icons.theater_comedy,
+                color: theme.colorScheme.primary,
+                size: 32,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      production.title,
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    if (hasCharacter) ...[
                       const SizedBox(height: 2),
                       Text(
-                        hasCharacter
-                            ? savedCharacterName!
-                            : 'No character selected',
+                        'Playing: $savedCharacterName',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: hasCharacter
-                              ? theme.colorScheme.onSurface
-                                  .withOpacity( 0.7)
-                              : theme.colorScheme.onSurface
-                                  .withOpacity( 0.4),
-                          fontStyle: hasCharacter
-                              ? FontStyle.normal
-                              : FontStyle.italic,
+                          color: theme.colorScheme.onSurface.withOpacity(0.6),
                         ),
                       ),
                     ],
-                  ),
-                ),
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert),
-                  onSelected: (action) {
-                    if (action == 'delete') {
-                      onDelete();
-                    } else {
-                      onMenuAction(action);
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                        value: 'editor',
-                        child: ListTile(
-                            leading: Icon(Icons.edit_note),
-                            title: Text('Edit Script'),
-                            dense: true,
-                            contentPadding: EdgeInsets.zero)),
-                    const PopupMenuItem(
-                        value: 'characters',
-                        child: ListTile(
-                            leading: Icon(Icons.person_search),
-                            title: Text('Characters'),
-                            dense: true,
-                            contentPadding: EdgeInsets.zero)),
-                    const PopupMenuItem(
-                        value: 'cast',
-                        child: ListTile(
-                            leading: Icon(Icons.people_outline),
-                            title: Text('Cast'),
-                            dense: true,
-                            contentPadding: EdgeInsets.zero)),
-                    const PopupMenuItem(
-                        value: 'voice-config',
-                        child: ListTile(
-                            leading: Icon(Icons.record_voice_over),
-                            title: Text('Voice Config'),
-                            dense: true,
-                            contentPadding: EdgeInsets.zero)),
-                    const PopupMenuItem(
-                        value: 'record',
-                        child: ListTile(
-                            leading: Icon(Icons.mic),
-                            title: Text('Record Lines'),
-                            dense: true,
-                            contentPadding: EdgeInsets.zero)),
-                    const PopupMenuItem(
-                        value: 'history',
-                        child: ListTile(
-                            leading: Icon(Icons.history),
-                            title: Text('History'),
-                            dense: true,
-                            contentPadding: EdgeInsets.zero)),
-                    const PopupMenuItem(
-                        value: 'ai-models',
-                        child: ListTile(
-                            leading: Icon(Icons.smart_toy),
-                            title: Text('AI Models'),
-                            dense: true,
-                            contentPadding: EdgeInsets.zero)),
-                    const PopupMenuItem(
-                        value: 'settings',
-                        child: ListTile(
-                            leading: Icon(Icons.settings),
-                            title: Text('Settings'),
-                            dense: true,
-                            contentPadding: EdgeInsets.zero)),
-                    const PopupMenuDivider(),
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: ListTile(
-                        leading: Icon(Icons.delete,
-                            color: theme.colorScheme.error),
-                        title: Text('Delete',
-                            style:
-                                TextStyle(color: theme.colorScheme.error)),
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
                   ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Rehearse / Set Up button
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: onRehearse,
-                icon: const Icon(Icons.play_arrow),
-                label: const Text('Rehearse'),
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
-                  textStyle: theme.textTheme.titleMedium,
-                ),
               ),
-            ),
-          ],
+              PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert,
+                    color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                onSelected: (action) {
+                  if (action == 'delete') {
+                    onDelete();
+                  } else {
+                    onMenuAction(action);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                      value: 'editor',
+                      child: ListTile(
+                          leading: Icon(Icons.edit_note),
+                          title: Text('Edit Script'),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero)),
+                  const PopupMenuItem(
+                      value: 'characters',
+                      child: ListTile(
+                          leading: Icon(Icons.person_search),
+                          title: Text('Characters'),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero)),
+                  const PopupMenuItem(
+                      value: 'cast',
+                      child: ListTile(
+                          leading: Icon(Icons.people_outline),
+                          title: Text('Cast'),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero)),
+                  const PopupMenuItem(
+                      value: 'voice-config',
+                      child: ListTile(
+                          leading: Icon(Icons.record_voice_over),
+                          title: Text('Voice Config'),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero)),
+                  const PopupMenuItem(
+                      value: 'record',
+                      child: ListTile(
+                          leading: Icon(Icons.mic),
+                          title: Text('Record Lines'),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero)),
+                  const PopupMenuItem(
+                      value: 'history',
+                      child: ListTile(
+                          leading: Icon(Icons.history),
+                          title: Text('History'),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero)),
+                  const PopupMenuItem(
+                      value: 'ai-models',
+                      child: ListTile(
+                          leading: Icon(Icons.smart_toy),
+                          title: Text('AI Models'),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero)),
+                  const PopupMenuItem(
+                      value: 'settings',
+                      child: ListTile(
+                          leading: Icon(Icons.settings),
+                          title: Text('Settings'),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero)),
+                  const PopupMenuDivider(),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: ListTile(
+                      leading: Icon(Icons.delete,
+                          color: theme.colorScheme.error),
+                      title: Text('Delete',
+                          style:
+                              TextStyle(color: theme.colorScheme.error)),
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

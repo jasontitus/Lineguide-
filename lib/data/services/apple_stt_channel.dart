@@ -71,6 +71,9 @@ class AppleSttChannel {
       debugPrint('AppleStt: listen failed: ${e.message}');
       _listening = false;
       return false;
+    } on MissingPluginException {
+      _listening = false;
+      return false;
     }
   }
 
@@ -80,6 +83,8 @@ class AppleSttChannel {
       await _channel.invokeMethod<void>('stop');
     } on PlatformException catch (e) {
       debugPrint('AppleStt: stop failed: ${e.message}');
+    } on MissingPluginException {
+      // Not available on this platform
     }
     _listening = false;
   }
