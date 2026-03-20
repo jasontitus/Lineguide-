@@ -17,6 +17,7 @@ import '../../data/services/stt_service.dart';
 import '../../data/services/debug_log_service.dart';
 import '../../data/services/stt_adaptation_service.dart';
 import '../../data/services/stt_vocabulary_service.dart';
+import '../../data/services/analytics_service.dart';
 import '../../data/services/media_control_service.dart';
 import '../../data/services/voice_config_service.dart';
 import '../../providers/production_providers.dart';
@@ -115,6 +116,13 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
   Future<void> _initAudio() async {
     _dlog.log(LogCategory.rehearsal, 'Rehearsal starting');
     _dlog.startMemoryMonitoring();
+
+    final character = ref.read(rehearsalCharacterProvider) ?? 'unknown';
+    final rehearsalMode = ref.read(rehearsalModeProvider);
+    AnalyticsService.instance.logRehearsalStarted(
+      character: character,
+      mode: rehearsalMode.name,
+    );
 
     // Keep screen on during rehearsal
     WakelockPlus.enable();

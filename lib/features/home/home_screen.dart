@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/responsive.dart';
-
+import '../../data/services/analytics_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/production_models.dart';
 import '../../data/models/script_models.dart';
@@ -284,6 +285,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         context.push('/ai-models');
       case 'settings':
         context.push('/settings');
+      case 'web-editor':
+        Share.share('Edit your CastCircle script on the web:\nhttps://castcircle-app.web.app');
     }
   }
 
@@ -369,6 +372,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     ref.read(productionsProvider.notifier).add(production);
     ref.read(currentProductionProvider.notifier).state = production;
+    AnalyticsService.instance.logProductionCreated();
     if (context.mounted) {
       Navigator.pop(context);
       context.push('/import');
@@ -545,6 +549,13 @@ class _ProductionCard extends StatelessWidget {
                       child: ListTile(
                           leading: Icon(Icons.settings),
                           title: Text('Settings'),
+                          dense: true,
+                          contentPadding: EdgeInsets.zero)),
+                  const PopupMenuItem(
+                      value: 'web-editor',
+                      child: ListTile(
+                          leading: Icon(Icons.language),
+                          title: Text('Edit on Web'),
                           dense: true,
                           contentPadding: EdgeInsets.zero)),
                   const PopupMenuDivider(),

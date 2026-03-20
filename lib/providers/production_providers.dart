@@ -14,6 +14,8 @@ import '../data/services/deep_link_service.dart';
 import '../data/services/script_import_service.dart';
 import '../data/services/script_parser.dart';
 import '../data/services/voice_config_service.dart';
+import '../data/services/analytics_service.dart';
+import '../data/services/perf_service.dart';
 import '../data/services/supabase_service.dart';
 import '../main.dart';
 
@@ -216,9 +218,10 @@ class CastMembersNotifier extends StateNotifier<List<CastMemberModel>> {
 /// and push to cloud. Three layers: Drift DB -> SharedPreferences -> Supabase.
 /// Call after updating currentScriptProvider when you want changes saved.
 Future<void> persistScript(WidgetRef ref) async {
+  final trace = PerfService.instance.startTrace('persist_script');
   final script = ref.read(currentScriptProvider);
   final production = ref.read(currentProductionProvider);
-  if (script == null || production == null) return;
+  if (script == null || production == null) { trace?.stop(); return; }
 
   final repo = ref.read(productionRepositoryProvider);
   await repo.saveScriptLines(production.id, script.lines);
@@ -255,10 +258,12 @@ Future<void> persistScript(WidgetRef ref) async {
   // Also push to cloud so other cast members can download it
   try {
     await pushScriptToCloud(ref);
+    AnalyticsService.instance.logCloudSynced(direction: 'push');
   } catch (e) {
     debugPrint('Cloud sync after persist failed: $e');
     // Non-fatal — local save succeeded
   }
+  trace?.stop();
 }
 
 /// Fetch cloud script lines for a production. Returns null if Supabase

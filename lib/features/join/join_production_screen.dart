@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../app.dart';
 import '../../data/models/cast_member_model.dart';
 import '../../data/models/production_models.dart';
+import '../../data/services/analytics_service.dart';
 import '../../data/services/deep_link_service.dart';
 import '../../data/services/supabase_service.dart';
 import '../../data/services/voice_config_service.dart';
@@ -473,6 +474,7 @@ class _JoinProductionScreenState extends ConsumerState<JoinProductionScreen> {
 
       await ref.read(productionsProvider.notifier).add(production);
       await ref.read(castMembersProvider.notifier).save(localMember);
+      AnalyticsService.instance.logProductionJoined();
 
       // Sync script from cloud
       final cloudLines = await fetchCloudScriptLines(productionId);

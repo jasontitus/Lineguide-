@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../data/services/analytics_service.dart';
 import '../../data/services/model_download_service.dart';
 import '../../data/services/model_manager.dart';
 import '../../data/services/tts_service.dart';
@@ -76,6 +77,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
 
       // Try to initialize TTS after download
       await TtsService.instance.tryLoadKokoro();
+      AnalyticsService.instance.logModelDownloaded(modelId: 'kokoro_onnx');
 
       if (mounted) {
         setState(() {

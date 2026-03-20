@@ -13,6 +13,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/responsive.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/script_models.dart';
+import '../../data/services/analytics_service.dart';
 import '../../data/services/script_export.dart';
 import '../../providers/production_providers.dart';
 import 'validation_panel.dart';
@@ -981,6 +982,7 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
   void _deleteLine(ScriptLine line) {
     final script = ref.read(currentScriptProvider);
     if (script == null) return;
+    AnalyticsService.instance.logScriptEdited(action: 'delete_line');
 
     final updatedLines =
         script.lines.where((l) => l.id != line.id).toList();
@@ -1017,6 +1019,7 @@ class _ScriptEditorScreenState extends ConsumerState<ScriptEditorScreen> {
   void _updateLine(ScriptLine original, String newChar, String newText) {
     final script = ref.read(currentScriptProvider);
     if (script == null) return;
+    AnalyticsService.instance.logScriptEdited(action: 'edit_line');
 
     final updatedLines = script.lines.map((l) {
       if (l.id == original.id) {

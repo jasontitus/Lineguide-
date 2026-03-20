@@ -8,6 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../../data/models/script_models.dart';
+import '../../data/services/analytics_service.dart';
 import '../../data/services/supabase_service.dart';
 import '../../data/services/voice_config_service.dart';
 import '../../providers/production_providers.dart';
@@ -234,6 +235,11 @@ class _ScriptImportScreenState extends ConsumerState<ScriptImportScreen> {
                     onPressed: _saving ? null : () async {
                       setState(() => _saving = true);
                       ref.read(currentScriptProvider.notifier).state = script;
+                      AnalyticsService.instance.logScriptImported(
+                        format: _importedPdfPath != null ? 'pdf' : 'text',
+                        lineCount: script.lines.length,
+                        characterCount: script.characters.length,
+                      );
                       await persistScript(ref);
                       if (context.mounted) context.push('/production');
                     },

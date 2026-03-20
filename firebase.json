@@ -1,1 +1,44 @@
-{"flutter":{"platforms":{"ios":{"default":{"projectId":"castcircle-app","appId":"1:786015234737:ios:912627f5d9dd0189e2d090","uploadDebugSymbols":true,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"castcircle-app","configurations":{"android":"1:786015234737:android:10879f9140ea5337e2d090","ios":"1:786015234737:ios:912627f5d9dd0189e2d090"}}},"android":{"default":{"projectId":"castcircle-app","appId":"1:786015234737:android:10879f9140ea5337e2d090","fileOutput":"android/app/google-services.json"}}}}}
+{
+  "hosting": {
+    "public": "web-editor",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "flutter": {
+    "platforms": {
+      "ios": {
+        "default": {
+          "projectId": "castcircle-app",
+          "appId": "1:786015234737:ios:912627f5d9dd0189e2d090",
+          "uploadDebugSymbols": true,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "castcircle-app",
+          "configurations": {
+            "android": "1:786015234737:android:10879f9140ea5337e2d090",
+            "ios": "1:786015234737:ios:912627f5d9dd0189e2d090"
+          }
+        }
+      },
+      "android": {
+        "default": {
+          "projectId": "castcircle-app",
+          "appId": "1:786015234737:android:10879f9140ea5337e2d090",
+          "fileOutput": "android/app/google-services.json"
+        }
+      }
+    }
+  }
+}

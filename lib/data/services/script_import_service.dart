@@ -12,6 +12,7 @@ import 'ocr_confidence_service.dart';
 import 'script_parser.dart';
 import 'script_export.dart';
 import 'pdf_text_channel.dart';
+import 'perf_service.dart';
 import 'vision_ocr_channel.dart';
 
 /// Service to import scripts from PDF or text files.
@@ -67,6 +68,10 @@ class ScriptImportService {
   /// 3. If the result looks bad (few characters, too many acts) or the PDF
   ///    has no embedded text (image-only), fall back to OCR pipeline.
   Future<ParsedScript> importFromPdf(String pdfPath) async {
+    return PerfService.instance.measure('pdf_import', () => _importFromPdfInner(pdfPath));
+  }
+
+  Future<ParsedScript> _importFromPdfInner(String pdfPath) async {
     final title = _titleFromPath(pdfPath);
 
     // Strategy 1: Try native PDFKit text extraction (text-based PDFs)

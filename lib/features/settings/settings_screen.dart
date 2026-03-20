@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../app.dart';
 import '../../core/constants.dart';
@@ -250,6 +251,16 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: const Text('View system logs, memory usage, and errors'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/debug-log'),
+          ),
+          _sectionHeader(context, 'Web Editor'),
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: const Text('Edit on the Web'),
+            subtitle: const Text('Open the script editor in your browser'),
+            trailing: const Icon(Icons.share),
+            onTap: () {
+              Share.share('Edit your CastCircle script on the web:\nhttps://castcircle-app.web.app');
+            },
           ),
           _sectionHeader(context, 'Account'),
           ListTile(

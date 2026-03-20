@@ -2,11 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:just_audio/just_audio.dart';
 
 import 'debug_log_service.dart';
 import 'model_manager.dart';
+import 'perf_service.dart';
 
 /// TTS engine type.
 enum TtsEngine {
@@ -52,6 +54,7 @@ class TtsService {
   // Completion callback — guarded by generation counter to fire exactly once per speak()
   Function? _completionHandler;
   bool _isSpeaking = false;
+  Trace? _currentTrace; // Firebase Performance trace for current speak()
   int _speakGen = 0; // incremented each speak(), prevents stale completions
   int _activeGen = 0; // gen at time of current speak(), used by system TTS completion
   bool _usingSystemTts = false; // true only when system TTS is actively speaking
@@ -224,6 +227,9 @@ class TtsService {
   /// Falls back to system TTS only if Kokoro is not available on this device.
   Future<void> speak(String text, {String? character}) async {
     if (!_initialized) await init();
+    _currentTrace?.stop();
+    _currentTrace = PerfService.instance.startTrace('tts_speak');
+    _currentTrace?.putAttribute('engine', _kokoroLoaded ? 'kokoro' : 'system');
     final dlog = DebugLogService.instance;
     final preview = text.length > 40 ? '${text.substring(0, 37)}...' : text;
 
@@ -436,6 +442,8 @@ class TtsService {
   void _fireCompletion(String source) {
     if (_isSpeaking) {
       _isSpeaking = false;
+      _currentTrace?.stop();
+      _currentTrace = null;
       DebugLogService.instance.log(LogCategory.tts, 'Completion fired (source=$source)');
       _completionHandler?.call();
     } else {
