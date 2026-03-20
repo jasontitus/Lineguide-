@@ -719,6 +719,65 @@
     .script-line:hover .line-actions,
     .script-line.selected .line-actions { display: flex; }
 
+    /* ── Recording play button ─────────────── */
+    .play-recording-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--success);
+      background: rgba(76, 175, 80, 0.12);
+      color: var(--success);
+      font-size: 12px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+      font-family: inherit;
+      line-height: 1.3;
+    }
+    .play-recording-btn:hover {
+      background: rgba(76, 175, 80, 0.25);
+    }
+    .play-recording-btn .play-icon {
+      font-size: 11px;
+    }
+    .play-recording-btn .rec-duration {
+      font-size: 10px;
+      opacity: 0.8;
+    }
+    .play-recording-btn.is-playing {
+      background: rgba(76, 175, 80, 0.25);
+      border-color: #66bb6a;
+      animation: play-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes play-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.3); }
+      50% { box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.08); }
+    }
+    .play-recording-btn .play-progress {
+      font-size: 10px;
+      font-variant-numeric: tabular-nums;
+      min-width: 28px;
+      text-align: right;
+      opacity: 0.8;
+    }
+
+    .script-line.audio-playing {
+      background: rgba(76, 175, 80, 0.06);
+      border-color: rgba(76, 175, 80, 0.3);
+    }
+
+    .play-progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: var(--success);
+      border-radius: 0 0 5px 5px;
+      transition: width 0.25s linear;
+    }
+
     .drag-handle {
       cursor: grab;
       color: var(--text-dim);
@@ -945,6 +1004,7 @@
       <div><span id="stat-chars">0</span> characters</div>
       <div><span id="stat-acts">0</span> acts</div>
       <div><span id="stat-scenes">0</span> scenes</div>
+      <div id="stat-recorded-wrap" style="display:none;color:var(--success)"><span id="stat-recorded">0</span> recorded</div>
     </div>
     <button class="btn btn-success btn-sm" id="btn-save-cloud">Save</button>
     <button class="btn btn-sm" id="btn-import-new">Import</button>
@@ -1198,6 +1258,7 @@ let activeSceneKey = null;
 let recordingsByLineId = {}; // lineId → {audio_url, duration_ms}
 let currentAudio = null; // HTMLAudioElement
 let playingLineId = null;
+let playbackProgressRAF = null; // requestAnimationFrame ID
 
 // Undo/Redo
 const undoStack = [];
@@ -1544,17 +1605,62 @@ async function fetchRecordings() {
   }
 }
 
-function playRecording(lineId) {
-  const rec = recordingsByLineId[lineId];
-  if (!rec || !rec.audio_url) return;
-
+function stopPlayback() {
+  if (playbackProgressRAF) {
+    cancelAnimationFrame(playbackProgressRAF);
+    playbackProgressRAF = null;
+  }
   if (currentAudio) {
     currentAudio.pause();
     currentAudio = null;
   }
+  playingLineId = null;
+}
 
-  if (playingLineId === lineId) {
-    playingLineId = null;
+function updatePlaybackUI() {
+  if (!currentAudio || !playingLineId) return;
+  const btn = document.querySelector(`[data-action="play"][data-line-id="${playingLineId}"]`);
+  if (btn) {
+    const elapsed = currentAudio.currentTime;
+    const total = currentAudio.duration || 0;
+    const progressEl = btn.querySelector('.play-progress');
+    if (progressEl) {
+      progressEl.textContent = formatSeconds(elapsed);
+    }
+    const row = btn.closest('.script-line');
+    if (row) {
+      const bar = row.querySelector('.play-progress-bar');
+      if (bar && total > 0) {
+        bar.style.width = Math.min(100, (elapsed / total) * 100) + '%';
+      }
+    }
+  }
+  playbackProgressRAF = requestAnimationFrame(updatePlaybackUI);
+}
+
+function formatSeconds(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return m + ':' + String(sec).padStart(2, '0');
+}
+
+function formatDurationMs(ms) {
+  if (!ms || ms <= 0) return '';
+  const totalSec = Math.round(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function playRecording(lineId) {
+  const rec = recordingsByLineId[lineId];
+  if (!rec || !rec.audio_url) return;
+
+  const wasPlaying = playingLineId;
+  stopPlayback();
+
+  // Toggle off if same line was playing
+  if (wasPlaying === lineId) {
     render();
     return;
   }
@@ -1566,11 +1672,14 @@ function playRecording(lineId) {
   currentAudio.play().catch(e => {
     console.log('Playback failed:', e);
     toast('Playback failed');
+    stopPlayback();
+    render();
   });
 
+  playbackProgressRAF = requestAnimationFrame(updatePlaybackUI);
+
   currentAudio.addEventListener('ended', () => {
-    playingLineId = null;
-    currentAudio = null;
+    stopPlayback();
     render();
   });
 }
@@ -1994,6 +2103,16 @@ function render() {
   scriptLines.forEach(l => { if (l.scene) sceneSet.add(l.act + '|' + l.scene); });
   document.getElementById('stat-scenes').textContent = sceneSet.size;
 
+  // Recording count
+  const recCount = Object.keys(recordingsByLineId).length;
+  const recWrap = document.getElementById('stat-recorded-wrap');
+  if (recCount > 0) {
+    recWrap.style.display = '';
+    document.getElementById('stat-recorded').textContent = recCount;
+  } else {
+    recWrap.style.display = 'none';
+  }
+
   // Character list
   const charList = document.getElementById('char-list');
   charList.innerHTML = chars.map(c => `
@@ -2048,8 +2167,12 @@ function render() {
     }
     if (line.scene || line.lineType === 'header') prevScene = sceneKey;
 
+    const isPlaying = playingLineId === line.id;
+    const rec = recordingsByLineId[line.id];
+    const durationLabel = rec ? formatDurationMs(rec.duration_ms) : '';
+
     html.push(`
-      <div class="script-line ${filtered ? 'filtered-out' : ''} ${selected ? 'selected' : ''}"
+      <div class="script-line ${filtered ? 'filtered-out' : ''} ${selected ? 'selected' : ''} ${isPlaying ? 'audio-playing' : ''}"
            data-index="${i}" draggable="true">
         <div class="drag-handle" title="Drag to reorder">&#x2630;</div>
         <div class="line-number">${i + 1}</div>
@@ -2057,11 +2180,12 @@ function render() {
         ${line.character ? `<div class="line-char" style="color:${color}">${escHtml(line.character)}.</div>` : '<div class="line-char"></div>'}
         ${line.stageDirection ? `<div class="line-direction">(${escHtml(line.stageDirection)})</div>` : ''}
         <div class="line-text ${textClass}" data-line-index="${i}">${escHtml(line.text)}</div>
-        ${recordingsByLineId[line.id] ? `<button class="btn btn-xs btn-icon ${playingLineId === line.id ? 'playing' : ''}" data-action="play" title="Play recording" style="color:${playingLineId === line.id ? 'var(--success)' : 'var(--text-dim)'}">&#9654;</button>` : ''}
+        ${rec ? `<button class="play-recording-btn ${isPlaying ? 'is-playing' : ''}" data-action="play" data-line-id="${line.id}" title="${isPlaying ? 'Stop' : 'Play recording'}"><span class="play-icon">${isPlaying ? '&#9632;' : '&#9654;'}</span>${isPlaying ? '<span class="play-progress">0:00</span>' : ''}${durationLabel ? `<span class="rec-duration">${durationLabel}</span>` : ''}</button>` : ''}
         <div class="line-actions">
           <button class="btn btn-xs btn-icon" data-action="edit" title="Edit (Enter)">&#9998;</button>
           <button class="btn btn-xs btn-icon" data-action="delete" title="Delete">&times;</button>
         </div>
+        ${isPlaying ? '<div class="play-progress-bar" style="width:0%"></div>' : ''}
       </div>
     `);
   }
@@ -2073,13 +2197,13 @@ function render() {
     const idx = parseInt(el.dataset.index, 10);
 
     el.addEventListener('click', (e) => {
-      if (e.target.closest('.line-actions') || e.target.closest('.drag-handle') || e.target.classList.contains('line-text-editable')) return;
+      if (e.target.closest('.line-actions') || e.target.closest('.drag-handle') || e.target.closest('.play-recording-btn') || e.target.classList.contains('line-text-editable')) return;
       if (e.detail === 2) return; // double-click handled separately
       toggleSelect(e, idx);
     });
 
     el.addEventListener('dblclick', (e) => {
-      if (e.target.closest('.line-actions') || e.target.closest('.drag-handle')) return;
+      if (e.target.closest('.line-actions') || e.target.closest('.drag-handle') || e.target.closest('.play-recording-btn')) return;
       startInlineEdit(idx);
     });
 
