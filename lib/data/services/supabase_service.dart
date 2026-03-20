@@ -20,6 +20,8 @@ class SupabaseService {
   static final instance = SupabaseService._();
 
   SupabaseClient get _client => Supabase.instance.client;
+  /// Public access for debug log upload and other direct operations.
+  SupabaseClient get client => _client;
   bool _initialized = false;
   bool get isInitialized => _initialized;
 
@@ -113,6 +115,30 @@ class SupabaseService {
     });
 
     return row;
+  }
+
+  // ── Voice Preset (cloud sync) ────────────────────────
+
+  /// Save the organizer's voice preset choice to Supabase.
+  Future<void> saveVoicePreset({
+    required String productionId,
+    required String presetId,
+  }) async {
+    await _client
+        .from('productions')
+        .update({'voice_preset': presetId})
+        .eq('id', productionId);
+  }
+
+  /// Save the production locale (dialect) to Supabase.
+  Future<void> saveLocale({
+    required String productionId,
+    required String locale,
+  }) async {
+    await _client
+        .from('productions')
+        .update({'locale': locale})
+        .eq('id', productionId);
   }
 
   // ── Cast ──────────────────────────────────────────────

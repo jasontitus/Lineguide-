@@ -4,8 +4,11 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import '../../main.dart' show firebaseAvailable;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../data/services/debug_log_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show FileOptions;
+import '../../data/services/supabase_service.dart';
 
 class DebugLogScreen extends StatefulWidget {
   const DebugLogScreen({super.key});
@@ -51,6 +54,48 @@ class _DebugLogScreenState extends State<DebugLogScreen> {
       appBar: AppBar(
         title: const Text('Debug Log'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.cloud_upload),
+            tooltip: 'Send to developer',
+            onPressed: () async {
+              final entries = _log.entriesForCategory(_filter);
+              final text = entries.map((e) => e.toLine()).join('\n');
+              final label = _filter != null ? _filter!.tag : 'full';
+              final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
+              final filename = 'debug_${label}_$timestamp.txt';
+              try {
+                final supa = SupabaseService.instance;
+                if (!supa.isInitialized) throw Exception('Supabase not initialized');
+                final bytes = Uint8List.fromList(text.codeUnits);
+                await supa.client.storage.from('recordings').uploadBinary(
+                  'debug_logs/$filename',
+                  bytes,
+                  fileOptions: const FileOptions(upsert: true),
+                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Uploaded $filename (${entries.length} entries)')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Upload failed: $e')),
+                  );
+                }
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.share),
+            tooltip: 'Share log',
+            onPressed: () {
+              final entries = _log.entriesForCategory(_filter);
+              final text = entries.map((e) => e.toLine()).join('\n');
+              final label = _filter != null ? '${_filter!.tag} log' : 'full log';
+              Share.share(text, subject: 'CastCircle $label');
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.copy),
             tooltip: 'Copy log',

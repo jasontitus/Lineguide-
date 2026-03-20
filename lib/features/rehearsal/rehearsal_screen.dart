@@ -1210,6 +1210,7 @@ class _RehearsalScreenState extends ConsumerState<RehearsalScreen> {
     _currentBestScore = 0.0;
 
     if (isMyLine) {
+      _dlog.log(LogCategory.rehearsal, 'MY LINE: ${line.character} → "${line.text.length > 40 ? '${line.text.substring(0, 37)}...' : line.text}"');
       _startListeningForMyLine(line);
     } else {
       _playOtherLine(line);
