@@ -24,6 +24,8 @@
       --tab-active: #e94560;
       --tab-inactive: #2a2a4a;
       --drag-over: rgba(233, 69, 96, 0.15);
+      --radius: 10px;
+      --radius-sm: 6px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -69,12 +71,13 @@
       font-size: 12px;
       padding: 3px 10px;
       background: var(--accent2);
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
       font-family: monospace;
       letter-spacing: 2px;
       font-weight: 700;
       user-select: all;
+      transition: background 0.15s;
     }
 
     .topbar .join-code-badge:hover { background: var(--accent); }
@@ -89,31 +92,74 @@
 
     .topbar .stats span { font-weight: 600; color: var(--text); }
 
-    /* ── Buttons ────────────────────────────── */
-    .btn {
-      padding: 6px 14px;
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      background: var(--surface2);
-      color: var(--text);
-      font-size: 12px;
+    /* ── Top Navigation Bar ────────────────── */
+    .main-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .nav-pill {
+      padding: 7px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s;
+      color: var(--text-dim);
+      background: transparent;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      user-select: none;
       white-space: nowrap;
       font-family: inherit;
     }
 
-    .btn:hover { background: var(--accent2); }
+    .nav-pill:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .nav-pill.active {
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px rgba(233, 69, 96, 0.25);
+    }
+
+    .nav-separator {
+      flex: 1;
+    }
+
+    /* ── Buttons ────────────────────────────── */
+    .btn {
+      padding: 7px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .btn:hover { background: var(--accent2); border-color: var(--accent2); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
     .btn-primary { background: var(--accent); border-color: var(--accent); }
-    .btn-primary:hover { background: #c73a52; }
+    .btn-primary:hover { background: #c73a52; border-color: #c73a52; }
     .btn-success { background: var(--success); border-color: var(--success); }
-    .btn-success:hover { background: #388e3c; }
+    .btn-success:hover { background: #388e3c; border-color: #388e3c; }
     .btn-danger { background: #c62828; border-color: #c62828; }
-    .btn-danger:hover { background: #a11b1b; }
-    .btn-sm { padding: 4px 10px; font-size: 11px; }
-    .btn-xs { padding: 2px 6px; font-size: 10px; }
-    .btn-icon { padding: 4px 6px; font-size: 14px; line-height: 1; }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-danger:hover { background: #a11b1b; border-color: #a11b1b; }
+    .btn-sm { padding: 5px 12px; font-size: 11px; }
+    .btn-xs { padding: 3px 8px; font-size: 10px; }
+    .btn-icon { padding: 5px 8px; font-size: 14px; line-height: 1; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
     .btn-group {
       display: inline-flex;
@@ -123,8 +169,8 @@
       border-radius: 0;
       border-right-width: 0;
     }
-    .btn-group .btn:first-child { border-radius: 5px 0 0 5px; }
-    .btn-group .btn:last-child { border-radius: 0 5px 5px 0; border-right-width: 1px; }
+    .btn-group .btn:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    .btn-group .btn:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-right-width: 1px; }
 
     /* ── Auth Screen ────────────────────────── */
     #auth-screen {
@@ -139,7 +185,7 @@
     .auth-box {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius);
       padding: 32px;
       width: 100%;
       max-width: 380px;
@@ -164,10 +210,13 @@
       padding: 10px 12px;
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       color: var(--text);
       font-size: 14px;
+      transition: border-color 0.15s;
     }
+
+    .auth-box input:focus { border-color: var(--accent); outline: none; }
 
     .auth-error {
       color: var(--accent);
@@ -202,7 +251,7 @@
     .production-box {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius);
       padding: 32px;
       width: 100%;
       max-width: 520px;
@@ -222,15 +271,16 @@
       align-items: center;
       padding: 12px 16px;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: var(--radius);
       margin-bottom: 8px;
       cursor: pointer;
-      transition: background 0.1s, border-color 0.1s;
+      transition: all 0.15s ease;
     }
 
     .production-item:hover {
       background: rgba(255,255,255,0.05);
       border-color: var(--accent);
+      transform: translateY(-1px);
     }
 
     .production-item .title { flex: 1; font-weight: 600; }
@@ -247,11 +297,14 @@
       padding: 8px 12px;
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       color: var(--text);
       font-size: 14px;
       font-family: inherit;
+      transition: border-color 0.15s;
     }
+
+    .create-production input:focus, .join-production input:focus { border-color: var(--accent); outline: none; }
 
     .join-production {
       display: flex;
@@ -281,7 +334,7 @@
     .join-box {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius);
       padding: 32px;
       width: 100%;
       max-width: 480px;
@@ -296,7 +349,7 @@
       margin-bottom: 16px;
       padding: 12px;
       background: var(--bg);
-      border-radius: 8px;
+      border-radius: var(--radius);
       text-align: center;
     }
 
@@ -311,10 +364,10 @@
       align-items: center;
       padding: 10px 14px;
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       margin-bottom: 6px;
       cursor: pointer;
-      transition: background 0.1s, border-color 0.15s;
+      transition: all 0.15s ease;
     }
 
     .join-char-item:hover { background: rgba(255,255,255,0.05); border-color: var(--accent); }
@@ -352,7 +405,7 @@
 
     .drop-zone {
       border: 2px dashed var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius);
       padding: 48px 24px;
       text-align: center;
       cursor: pointer;
@@ -385,14 +438,17 @@
     }
 
     .toolbar .search-box {
-      padding: 5px 10px;
+      padding: 6px 12px;
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 5px;
+      border-radius: var(--radius-sm);
       color: var(--text);
       font-size: 12px;
       width: 180px;
+      transition: border-color 0.15s;
     }
+
+    .toolbar .search-box:focus { border-color: var(--accent); outline: none; }
 
     .toolbar .separator {
       width: 1px;
@@ -430,9 +486,9 @@
     .user-badge {
       font-size: 11px;
       color: var(--text-dim);
-      padding: 3px 8px;
+      padding: 4px 10px;
       background: var(--bg);
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
     }
 
     /* ── Editor Layout ──────────────────────── */
@@ -442,7 +498,7 @@
       overflow: hidden;
     }
 
-    /* ── Sidebar ────────────────────────────── */
+    /* ── Sidebar (collapsible) ──────────────── */
     .sidebar {
       width: 260px;
       background: var(--surface);
@@ -450,48 +506,38 @@
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
-    }
-
-    .sidebar-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .sidebar-tab {
-      flex: 1;
-      padding: 10px 8px;
-      text-align: center;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      color: var(--text-dim);
-      border-bottom: 2px solid transparent;
-      transition: color 0.15s, border-color 0.15s;
-      user-select: none;
-    }
-
-    .sidebar-tab:hover { color: var(--text); }
-    .sidebar-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-    .sidebar-panel {
-      display: none;
-      flex-direction: column;
-      flex: 1;
+      transition: width 0.25s ease, opacity 0.2s ease;
       overflow: hidden;
     }
 
-    .sidebar-panel.active { display: flex; }
+    .sidebar.collapsed {
+      width: 0;
+      opacity: 0;
+      border-right: none;
+    }
+
+    .sidebar-toggle-btn {
+      padding: 5px 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-dim);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .sidebar-toggle-btn:hover { color: var(--text); background: var(--accent2); }
 
     .sidebar-section-title {
-      padding: 10px 14px 6px;
+      padding: 12px 14px 8px;
       font-size: 10px;
       text-transform: uppercase;
       color: var(--text-dim);
       letter-spacing: 1px;
       flex-shrink: 0;
+      font-weight: 600;
     }
 
     .sidebar-scroll { flex: 1; overflow-y: auto; padding: 0 8px 8px; }
@@ -510,11 +556,11 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 7px 8px;
-      border-radius: 5px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
       font-size: 12px;
-      transition: background 0.1s;
+      transition: all 0.12s ease;
     }
 
     .char-item:hover { background: rgba(255,255,255,0.05); }
@@ -523,185 +569,418 @@
     .char-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .char-count { margin-left: auto; font-size: 10px; color: var(--text-dim); }
 
-    /* Recordings panel */
-    .recordings-filter-select {
-      width: 100%;
-      padding: 6px 8px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      color: var(--text);
-      font-size: 12px;
-      cursor: pointer;
+    /* ── Full-Page Recordings View ──────────── */
+    .recordings-view {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
     }
 
-    .rec-item {
+    .recordings-view.active { display: flex; }
+
+    .recordings-header {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 8px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.1s;
-      font-size: 12px;
-      position: relative;
-    }
-
-    .rec-item:hover { background: rgba(255,255,255,0.05); }
-    .rec-item.is-playing { background: rgba(233, 69, 96, 0.12); }
-
-    .rec-item-char {
-      font-weight: 600;
-      font-size: 11px;
+      gap: 16px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
       flex-shrink: 0;
-      max-width: 70px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
-    .rec-item-text {
+    .recordings-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .recordings-header .recordings-stats {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .recordings-filter-select {
+      padding: 7px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+      margin-left: auto;
+    }
+
+    .recordings-filter-select:focus { border-color: var(--accent); outline: none; }
+
+    .recordings-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .recordings-list-pane {
       flex: 1;
       min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: var(--text-dim);
-      font-size: 11px;
+      overflow-y: auto;
+      padding: 12px 16px;
     }
 
-    .rec-item-dur {
-      font-size: 10px;
+    .recordings-context-pane {
+      width: 380px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .recordings-context-pane.empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .recordings-context-pane .context-placeholder {
+      color: var(--text-dim);
+      font-size: 13px;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .recordings-context-title {
+      padding: 14px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .recordings-context-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px;
+    }
+
+    .context-line {
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 2px;
+      font-size: 13px;
+      line-height: 1.5;
+      transition: background 0.15s;
+    }
+
+    .context-line.is-current {
+      background: rgba(233, 69, 96, 0.12);
+      border: 1px solid rgba(233, 69, 96, 0.3);
+      border-radius: var(--radius-sm);
+    }
+
+    .context-line .context-char {
+      font-weight: 700;
+      font-size: 12px;
+      margin-right: 6px;
+    }
+
+    .context-line .context-text {
+      color: var(--text);
+    }
+
+    .context-line.is-dim .context-text {
+      color: var(--text-dim);
+    }
+
+    /* Recording row item (full page) */
+    .fp-rec-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fp-rec-item:hover {
+      background: rgba(255,255,255,0.03);
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    .fp-rec-item.is-playing {
+      background: rgba(76, 175, 80, 0.06);
+      border-color: rgba(76, 175, 80, 0.3);
+    }
+
+    .fp-rec-item.is-selected {
+      background: rgba(233, 69, 96, 0.06);
+      border-color: rgba(233, 69, 96, 0.3);
+    }
+
+    .fp-rec-line-num {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      font-size: 11px;
+      font-weight: 700;
       color: var(--text-dim);
       flex-shrink: 0;
-      font-family: monospace;
     }
 
-    .rec-item-play {
-      padding: 2px 5px;
-      font-size: 12px;
-      line-height: 1;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 4px;
+    .fp-rec-char {
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+      min-width: 80px;
+    }
+
+    .fp-rec-text {
+      flex: 1;
+      min-width: 0;
+      font-size: 13px;
+      line-height: 1.5;
       color: var(--text);
+    }
+
+    .fp-rec-duration {
+      font-size: 12px;
+      font-family: monospace;
+      color: var(--text-dim);
+      flex-shrink: 0;
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .fp-rec-play-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--success);
+      background: rgba(76, 175, 80, 0.1);
+      color: var(--success);
+      font-size: 14px;
       cursor: pointer;
       flex-shrink: 0;
+      transition: all 0.15s ease;
     }
 
-    .rec-item-play:hover { background: var(--accent2); }
+    .fp-rec-play-btn:hover {
+      background: rgba(76, 175, 80, 0.25);
+      transform: scale(1.05);
+    }
 
-    .rec-item-delete {
-      padding: 2px 5px;
-      font-size: 12px;
-      line-height: 1;
-      background: transparent;
+    .fp-rec-play-btn.is-playing {
+      background: rgba(76, 175, 80, 0.25);
+      animation: play-pulse 1.5s ease-in-out infinite;
+    }
+
+    .fp-rec-delete-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
       border: 1px solid transparent;
-      border-radius: 4px;
+      background: transparent;
       color: var(--text-dim);
+      font-size: 16px;
       cursor: pointer;
       flex-shrink: 0;
       opacity: 0;
-      transition: opacity 0.15s;
+      transition: all 0.15s ease;
     }
 
-    .rec-item:hover .rec-item-delete { opacity: 1; }
-    .rec-item-delete:hover { color: var(--accent); border-color: var(--accent); }
+    .fp-rec-item:hover .fp-rec-delete-btn { opacity: 0.6; }
+    .fp-rec-delete-btn:hover { opacity: 1 !important; color: var(--accent); border-color: var(--accent); }
 
-    .recordings-summary-text {
-      font-size: 10px;
+    .fp-rec-progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: var(--success);
+      border-radius: 0 0 var(--radius) var(--radius);
+      transition: width 0.25s linear;
+    }
+
+    .recordings-empty-full {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
       color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-weight: 600;
-    }
-
-    .recordings-empty {
-      padding: 20px 14px;
+      font-size: 14px;
       text-align: center;
-      color: var(--text-dim);
-      font-size: 12px;
+    }
+
+    .recordings-empty-full .empty-icon {
+      font-size: 40px;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+
+    /* ── Full-Page Cast View ───────────────── */
+    .cast-view {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .cast-view.active { display: flex; }
+
+    .cast-view-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .cast-view-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .cast-view-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 24px;
+      max-width: 800px;
     }
 
     /* Cast list */
     .cast-member-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
+      gap: 10px;
+      padding: 12px 16px;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      margin-bottom: 6px;
-      font-size: 12px;
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+      font-size: 13px;
+      transition: all 0.12s ease;
     }
+
+    .cast-member-item:hover { background: rgba(255,255,255,0.02); }
 
     .cast-member-item .member-info { flex: 1; }
     .cast-member-item .member-name { font-weight: 600; }
-    .cast-member-item .member-char { color: var(--text-dim); font-size: 11px; }
+    .cast-member-item .member-char { color: var(--text-dim); font-size: 12px; }
     .cast-member-item .member-role {
       font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 3px;
+      padding: 3px 8px;
+      border-radius: 12px;
       text-transform: uppercase;
       font-weight: 600;
     }
     .cast-member-item .member-role.organizer { background: var(--accent2); color: #c9a0dc; }
     .cast-member-item .member-role.actor { background: var(--dialogue-bg); color: #7eb8ec; }
-    .cast-member-item .member-joined { font-size: 10px; color: var(--success); }
-    .cast-member-item .member-pending { font-size: 10px; color: var(--warning); }
+    .cast-member-item .member-joined { font-size: 11px; color: var(--success); }
+    .cast-member-item .member-pending { font-size: 11px; color: var(--warning); }
 
     .join-code-box {
-      margin: 8px 0;
-      padding: 14px;
+      margin: 12px 0;
+      padding: 20px;
       background: var(--bg);
       border: 1px dashed var(--border);
-      border-radius: 8px;
+      border-radius: var(--radius);
       text-align: center;
     }
 
-    .join-code-box .code-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 6px; }
+    .join-code-box .code-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; }
     .join-code-box .code-value {
       font-family: monospace;
-      font-size: 22px;
+      font-size: 28px;
       font-weight: 700;
-      letter-spacing: 4px;
+      letter-spacing: 6px;
       color: var(--accent);
       cursor: pointer;
       user-select: all;
+      transition: color 0.15s;
     }
-    .join-code-box .code-value:hover { text-decoration: underline; }
-    .join-code-box .code-hint { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+    .join-code-box .code-value:hover { color: #ff6b82; }
+    .join-code-box .code-hint { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
 
     .share-link-box {
       margin-top: 8px;
-      padding: 8px;
+      padding: 10px 14px;
       background: var(--bg);
-      border-radius: 6px;
-      font-size: 11px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
       word-break: break-all;
       color: var(--text-dim);
       cursor: pointer;
+      transition: color 0.15s;
     }
     .share-link-box:hover { color: var(--text); }
 
-    /* Scene list */
-    .scene-item {
-      padding: 8px 10px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      margin-bottom: 6px;
-      cursor: pointer;
-      transition: background 0.1s;
-      font-size: 12px;
+    /* ── Full-Page Scenes View ──────────────── */
+    .scenes-view {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
     }
 
-    .scene-item:hover { background: rgba(255,255,255,0.05); }
+    .scenes-view.active { display: flex; }
+
+    .scenes-view-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .scenes-view-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .scenes-view-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 24px;
+      max-width: 800px;
+    }
+
+    /* Scene list */
+    .scene-item {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-size: 13px;
+    }
+
+    .scene-item:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1); }
     .scene-item.active { border-color: var(--accent); background: rgba(233,69,96,0.08); }
 
-    .scene-item .scene-header { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
-    .scene-item .scene-act { font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
+    .scene-item .scene-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .scene-item .scene-act { font-size: 11px; color: var(--text-dim); text-transform: uppercase; }
     .scene-item .scene-name { font-weight: 600; }
-    .scene-item .scene-meta { font-size: 10px; color: var(--text-dim); }
+    .scene-item .scene-meta { font-size: 11px; color: var(--text-dim); }
 
     /* ── Script Area ────────────────────────── */
     .script-area {
@@ -714,13 +993,13 @@
       display: flex;
       align-items: flex-start;
       gap: 6px;
-      padding: 6px 10px;
-      margin-bottom: 1px;
-      border-radius: 5px;
+      padding: 7px 12px;
+      margin-bottom: 2px;
+      border-radius: var(--radius-sm);
       border: 1px solid transparent;
-      transition: background 0.1s;
+      transition: all 0.12s ease;
       cursor: pointer;
-      min-height: 32px;
+      min-height: 34px;
       position: relative;
     }
 
@@ -743,8 +1022,8 @@
 
     .line-type-badge {
       font-size: 9px;
-      padding: 2px 5px;
-      border-radius: 3px;
+      padding: 2px 6px;
+      border-radius: 4px;
       min-width: 20px;
       text-align: center;
       flex-shrink: 0;
@@ -812,7 +1091,7 @@
 
     .line-actions {
       display: none;
-      gap: 2px;
+      gap: 3px;
       flex-shrink: 0;
       align-items: center;
     }
@@ -824,20 +1103,21 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      padding: 3px 10px;
-      border-radius: 12px;
+      padding: 4px 12px;
+      border-radius: 14px;
       border: 1px solid var(--success);
       background: rgba(76, 175, 80, 0.12);
       color: var(--success);
       font-size: 12px;
       cursor: pointer;
       flex-shrink: 0;
-      transition: background 0.15s, border-color 0.15s;
+      transition: all 0.15s ease;
       font-family: inherit;
       line-height: 1.3;
     }
     .play-recording-btn:hover {
       background: rgba(76, 175, 80, 0.25);
+      transform: scale(1.02);
     }
     .play-recording-btn .play-icon {
       font-size: 11px;
@@ -874,7 +1154,7 @@
       left: 0;
       height: 2px;
       background: var(--success);
-      border-radius: 0 0 5px 5px;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
       transition: width 0.25s linear;
     }
 
@@ -897,21 +1177,23 @@
       z-index: 500;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: var(--radius);
       padding: 4px 0;
-      min-width: 180px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      min-width: 200px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
     }
 
     .context-menu.open { display: block; }
 
     .context-menu-item {
-      padding: 8px 16px;
+      padding: 9px 16px;
       font-size: 12px;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 8px;
+      transition: background 0.1s;
     }
 
     .context-menu-item:hover { background: rgba(255,255,255,0.05); }
@@ -934,7 +1216,7 @@
     .modal {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius);
       padding: 24px;
       width: 90%;
       max-width: 560px;
@@ -960,10 +1242,16 @@
       padding: 8px 10px;
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 5px;
+      border-radius: var(--radius-sm);
       color: var(--text);
       font-size: 13px;
       font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--accent);
+      outline: none;
     }
 
     .form-group textarea { min-height: 80px; resize: vertical; }
@@ -979,14 +1267,15 @@
       right: 24px;
       background: var(--surface2);
       border: 1px solid var(--border);
-      padding: 10px 18px;
-      border-radius: 8px;
+      padding: 12px 20px;
+      border-radius: var(--radius);
       font-size: 13px;
       z-index: 400;
       opacity: 0;
       transform: translateY(10px);
       transition: opacity 0.2s, transform 0.2s;
       pointer-events: none;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     }
 
     .toast.show { opacity: 1; transform: translateY(0); }
@@ -994,7 +1283,37 @@
     /* ── Responsive ─────────────────────────── */
     @media (max-width: 768px) {
       .sidebar { display: none; }
+      .sidebar-toggle-btn { display: none; }
       .line-char { min-width: 60px; }
+      .recordings-context-pane { display: none; }
+      .recordings-body { flex-direction: column; }
+      .recordings-list-pane { flex: 1; }
+      .main-nav { overflow-x: auto; gap: 4px; padding: 8px 12px; }
+      .nav-pill { padding: 6px 14px; font-size: 12px; }
+      .fp-rec-text { font-size: 12px; }
+      .fp-rec-char { min-width: 60px; font-size: 12px; }
+    }
+
+    /* ── Mobile bottom sheet for context ───── */
+    @media (max-width: 768px) {
+      .recordings-context-pane {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 50vh;
+        border-left: none;
+        border-top: 1px solid var(--border);
+        border-radius: 16px 16px 0 0;
+        z-index: 150;
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
+      }
+
+      .recordings-context-pane.mobile-visible {
+        display: flex;
+      }
     }
   </style>
 </head>
@@ -1117,32 +1436,35 @@
     <button class="btn btn-sm" id="btn-signout-editor">Sign Out</button>
   </div>
 
-  <div class="toolbar" id="editor-toolbar">
-    <input type="text" class="search-box" placeholder="Search lines... (/)" id="search-box">
-    <div class="separator"></div>
-    <button class="btn btn-sm" id="btn-add-line">+ Line</button>
-    <button class="btn btn-sm" id="btn-undo" title="Undo (Cmd+Z)" disabled>Undo</button>
-    <button class="btn btn-sm" id="btn-redo" title="Redo (Cmd+Shift+Z)" disabled>Redo</button>
-    <div class="separator"></div>
-    <button class="btn btn-sm" id="btn-move-up">Up</button>
-    <button class="btn btn-sm" id="btn-move-down">Down</button>
-    <button class="btn btn-sm" id="btn-merge-down">Merge</button>
-    <button class="btn btn-sm" id="btn-split-line">Split</button>
-    <button class="btn btn-sm" id="btn-delete-selected">Delete</button>
-    <div class="save-indicator" id="save-indicator"></div>
+  <!-- Top Navigation Bar -->
+  <div class="main-nav" id="main-nav">
+    <button class="nav-pill active" data-nav="script">Script</button>
+    <button class="nav-pill" data-nav="recordings">Recordings</button>
+    <button class="nav-pill" data-nav="cast">Cast</button>
+    <button class="nav-pill" data-nav="scenes">Scenes</button>
   </div>
 
-  <div class="editor-layout">
-    <div class="sidebar">
-      <div class="sidebar-tabs">
-        <div class="sidebar-tab active" data-tab="script">Script</div>
-        <div class="sidebar-tab" data-tab="cast">Cast</div>
-        <div class="sidebar-tab" data-tab="scenes">Scenes</div>
-        <div class="sidebar-tab" data-tab="recordings">Recordings</div>
-      </div>
+  <!-- Script View: toolbar + sidebar + script area -->
+  <div id="script-view" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="toolbar" id="editor-toolbar">
+      <button class="sidebar-toggle-btn" id="btn-toggle-sidebar" title="Toggle sidebar">Characters</button>
+      <div class="separator"></div>
+      <input type="text" class="search-box" placeholder="Search lines... (/)" id="search-box">
+      <div class="separator"></div>
+      <button class="btn btn-sm" id="btn-add-line">+ Line</button>
+      <button class="btn btn-sm" id="btn-undo" title="Undo (Cmd+Z)" disabled>Undo</button>
+      <button class="btn btn-sm" id="btn-redo" title="Redo (Cmd+Shift+Z)" disabled>Redo</button>
+      <div class="separator"></div>
+      <button class="btn btn-sm" id="btn-move-up">Up</button>
+      <button class="btn btn-sm" id="btn-move-down">Down</button>
+      <button class="btn btn-sm" id="btn-merge-down">Merge</button>
+      <button class="btn btn-sm" id="btn-split-line">Split</button>
+      <button class="btn btn-sm" id="btn-delete-selected">Delete</button>
+      <div class="save-indicator" id="save-indicator"></div>
+    </div>
 
-      <!-- Script / Characters Panel -->
-      <div class="sidebar-panel active" id="panel-script">
+    <div class="editor-layout">
+      <div class="sidebar" id="editor-sidebar">
         <div class="sidebar-section-title">Characters</div>
         <div class="sidebar-scroll" id="char-list"></div>
         <div class="sidebar-actions">
@@ -1153,54 +1475,60 @@
         </div>
       </div>
 
-      <!-- Cast Panel -->
-      <div class="sidebar-panel" id="panel-cast">
-        <div class="sidebar-section-title">Join Code</div>
-        <div style="padding:0 8px">
-          <div class="join-code-box" id="cast-join-code-box">
-            <div class="code-label">Share this code</div>
-            <div class="code-value" id="cast-join-code">------</div>
-            <div class="code-hint">Click to copy</div>
-          </div>
-          <div class="share-link-box" id="cast-share-link" title="Click to copy link">
-            castcircle://join?code=------
-          </div>
-        </div>
-        <div class="sidebar-section-title" style="margin-top:8px">Members</div>
-        <div class="sidebar-scroll" id="cast-member-list"></div>
-        <div class="sidebar-actions">
-          <button class="btn btn-sm" id="btn-add-invitation">+ Add Invitation</button>
-          <button class="btn btn-sm" id="btn-refresh-cast">Refresh</button>
-        </div>
-      </div>
+      <div class="script-area" id="script-area"></div>
+    </div>
+  </div>
 
-      <!-- Scenes Panel -->
-      <div class="sidebar-panel" id="panel-scenes">
-        <div class="sidebar-section-title">Scenes</div>
-        <div class="sidebar-scroll" id="scene-list"></div>
-        <div class="sidebar-actions">
-          <button class="btn btn-sm" id="btn-rename-scene">Rename Scene</button>
-          <button class="btn btn-sm" id="btn-split-scene">Split Scene</button>
-          <button class="btn btn-sm" id="btn-merge-scenes">Merge Scenes</button>
-          <button class="btn btn-sm" id="btn-set-act-scene">Set Act/Scene</button>
-        </div>
-      </div>
-
-      <!-- Recordings Panel -->
-      <div class="sidebar-panel" id="panel-recordings">
-        <div class="sidebar-section-title">
-          <span id="recordings-summary">Recordings</span>
-        </div>
-        <div style="padding:0 8px 6px">
-          <select id="recordings-char-filter" class="recordings-filter-select">
-            <option value="">All Characters</option>
-          </select>
-        </div>
-        <div class="sidebar-scroll" id="recordings-list"></div>
+  <!-- Full-Page Recordings View -->
+  <div class="recordings-view" id="recordings-view">
+    <div class="recordings-header">
+      <h2 id="recordings-title">Recordings</h2>
+      <span class="recordings-stats" id="recordings-stats-text"></span>
+      <select id="recordings-char-filter" class="recordings-filter-select">
+        <option value="">All Characters</option>
+      </select>
+    </div>
+    <div class="recordings-body">
+      <div class="recordings-list-pane" id="recordings-list-pane"></div>
+      <div class="recordings-context-pane" id="recordings-context-pane">
+        <div class="context-placeholder">Select a recording to see script context</div>
       </div>
     </div>
+  </div>
 
-    <div class="script-area" id="script-area"></div>
+  <!-- Full-Page Cast View -->
+  <div class="cast-view" id="cast-view">
+    <div class="cast-view-header">
+      <h2>Cast</h2>
+      <button class="btn btn-sm" id="btn-add-invitation">+ Add Invitation</button>
+      <button class="btn btn-sm" id="btn-refresh-cast">Refresh</button>
+    </div>
+    <div class="cast-view-body">
+      <div class="join-code-box" id="cast-join-code-box">
+        <div class="code-label">Share this code to invite cast members</div>
+        <div class="code-value" id="cast-join-code">------</div>
+        <div class="code-hint">Click to copy</div>
+      </div>
+      <div class="share-link-box" id="cast-share-link" title="Click to copy link">
+        castcircle://join?code=------
+      </div>
+      <div class="sidebar-section-title" style="margin-top:16px;padding-left:0">Members</div>
+      <div id="cast-member-list"></div>
+    </div>
+  </div>
+
+  <!-- Full-Page Scenes View -->
+  <div class="scenes-view" id="scenes-view">
+    <div class="scenes-view-header">
+      <h2>Scenes</h2>
+      <button class="btn btn-sm" id="btn-rename-scene">Rename Scene</button>
+      <button class="btn btn-sm" id="btn-split-scene">Split Scene</button>
+      <button class="btn btn-sm" id="btn-merge-scenes">Merge Scenes</button>
+      <button class="btn btn-sm" id="btn-set-act-scene">Set Act/Scene</button>
+    </div>
+    <div class="scenes-view-body">
+      <div id="scene-list"></div>
+    </div>
   </div>
 </div>
 
@@ -1745,10 +2073,13 @@ function stopPlayback() {
 
 function updatePlaybackUI() {
   if (!currentAudio || !playingLineId) return;
+  const elapsed = currentAudio.currentTime;
+  const total = currentAudio.duration || 0;
+  const pct = total > 0 ? Math.min(100, (elapsed / total) * 100) + '%' : '0%';
+
+  // Update script-area play button
   const btn = document.querySelector(`[data-action="play"][data-line-id="${playingLineId}"]`);
   if (btn) {
-    const elapsed = currentAudio.currentTime;
-    const total = currentAudio.duration || 0;
     const progressEl = btn.querySelector('.play-progress');
     if (progressEl) {
       progressEl.textContent = formatSeconds(elapsed);
@@ -1756,11 +2087,14 @@ function updatePlaybackUI() {
     const row = btn.closest('.script-line');
     if (row) {
       const bar = row.querySelector('.play-progress-bar');
-      if (bar && total > 0) {
-        bar.style.width = Math.min(100, (elapsed / total) * 100) + '%';
-      }
+      if (bar) bar.style.width = pct;
     }
   }
+
+  // Update full-page recordings progress bar
+  const fpItem = document.querySelector(`.fp-rec-item.is-playing .fp-rec-progress-bar`);
+  if (fpItem) fpItem.style.width = pct;
+
   playbackProgressRAF = requestAnimationFrame(updatePlaybackUI);
 }
 
@@ -1935,6 +2269,9 @@ function showEditor() {
   } else {
     codeEl.style.display = 'none';
   }
+
+  // Reset to script view
+  switchNav('script');
 
   updateSaveIndicator();
   updateUndoRedoButtons();
@@ -2528,12 +2865,18 @@ function renderScenePanel() {
       const startIdx = parseInt(el.dataset.start, 10);
       activeSceneKey = el.dataset.sceneKey;
 
-      // Scroll to the scene in the script area
-      const lineEl = document.querySelector(`.script-line[data-index="${startIdx}"]`);
-      if (lineEl) lineEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
       // Re-render scene panel to show active state
       renderScenePanel();
+    });
+
+    el.addEventListener('dblclick', () => {
+      const startIdx = parseInt(el.dataset.start, 10);
+      // Switch to script view and scroll to the scene
+      switchNav('script');
+      setTimeout(() => {
+        const lineEl = document.querySelector(`.script-line[data-index="${startIdx}"]`);
+        if (lineEl) lineEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     });
   });
 }
@@ -3231,10 +3574,13 @@ function closeModal(id) {
 // ══════════════════════════════════════════════════════════
 
 let recordingsFilterChar = '';
+let selectedRecordingLineId = null;
 
 function renderRecordingsPanel() {
-  const list = document.getElementById('recordings-list');
-  const summary = document.getElementById('recordings-summary');
+  const listPane = document.getElementById('recordings-list-pane');
+  const contextPane = document.getElementById('recordings-context-pane');
+  const titleEl = document.getElementById('recordings-title');
+  const statsEl = document.getElementById('recordings-stats-text');
   const filterSelect = document.getElementById('recordings-char-filter');
 
   // Populate character filter dropdown
@@ -3265,52 +3611,79 @@ function renderRecordingsPanel() {
   // Summary
   const totalMs = entries.reduce((sum, e) => sum + e.duration_ms, 0);
   const totalFormatted = formatDurationMs(totalMs);
-  summary.textContent = `Recordings (${entries.length}${totalFormatted ? ' \u00b7 ' + totalFormatted : ''})`;
+  titleEl.textContent = `${entries.length} Recording${entries.length !== 1 ? 's' : ''}`;
+  statsEl.textContent = totalFormatted ? `Total: ${totalFormatted}` : '';
 
   if (entries.length === 0) {
-    list.innerHTML = '<div class="recordings-empty">No recordings yet.<br>Record lines in the app to see them here.</div>';
+    listPane.innerHTML = `
+      <div class="recordings-empty-full">
+        <div class="empty-icon">&#127908;</div>
+        <div>No recordings yet</div>
+        <div style="font-size:12px;margin-top:6px;color:var(--text-dim)">Record lines in the app to see them here.</div>
+      </div>
+    `;
+    contextPane.innerHTML = '<div class="context-placeholder">No recordings to display</div>';
     return;
   }
 
-  list.innerHTML = entries.map(e => {
+  listPane.innerHTML = entries.map(e => {
     const color = charColor(e.charName);
     const isPlaying = playingLineId === e.lineId;
-    const truncText = e.lineText.length > 40 ? e.lineText.slice(0, 40) + '\u2026' : e.lineText;
+    const isSelected = selectedRecordingLineId === e.lineId;
     return `
-      <div class="rec-item ${isPlaying ? 'is-playing' : ''}" data-line-id="${escAttr(e.lineId)}" data-line-index="${e.lineIndex}">
-        <span class="rec-item-char" style="color:${color}">#${e.lineNum} ${escHtml(e.charName)}</span>
-        <span class="rec-item-text" title="${escAttr(e.lineText)}">${escHtml(truncText || '(no matching line)')}</span>
-        <span class="rec-item-dur">${formatDurationMs(e.duration_ms)}</span>
-        <button class="rec-item-play" data-rec-play="${escAttr(e.lineId)}" title="${isPlaying ? 'Stop' : 'Play'}">${isPlaying ? '\u25A0' : '\u25B6'}</button>
-        <button class="rec-item-delete" data-rec-delete="${escAttr(e.lineId)}" data-char-name="${escAttr(e.charName)}" title="Delete recording">&times;</button>
+      <div class="fp-rec-item ${isPlaying ? 'is-playing' : ''} ${isSelected ? 'is-selected' : ''}" data-line-id="${escAttr(e.lineId)}" data-line-index="${e.lineIndex}">
+        <div class="fp-rec-line-num">${e.lineNum}</div>
+        <div class="fp-rec-char" style="color:${color}">${escHtml(e.charName)}</div>
+        <div class="fp-rec-text">${escHtml(e.lineText || '(no matching line)')}</div>
+        <div class="fp-rec-duration">${formatDurationMs(e.duration_ms)}</div>
+        <button class="fp-rec-play-btn ${isPlaying ? 'is-playing' : ''}" data-rec-play="${escAttr(e.lineId)}" title="${isPlaying ? 'Stop' : 'Play'}">${isPlaying ? '&#9632;' : '&#9654;'}</button>
+        <button class="fp-rec-delete-btn" data-rec-delete="${escAttr(e.lineId)}" data-char-name="${escAttr(e.charName)}" title="Delete recording">&times;</button>
+        ${isPlaying ? '<div class="fp-rec-progress-bar" style="width:0%"></div>' : ''}
       </div>
     `;
   }).join('');
 
   // Attach listeners
-  list.querySelectorAll('.rec-item').forEach(el => {
-    // Click row to scroll to line in script
+  listPane.querySelectorAll('.fp-rec-item').forEach(el => {
+    // Click row to show context
     el.addEventListener('click', (e) => {
+      if (e.target.closest('[data-rec-play]') || e.target.closest('[data-rec-delete]')) return;
+      selectedRecordingLineId = el.dataset.lineId;
+      renderRecordingsContext(el.dataset.lineId);
+      // Update selected state
+      listPane.querySelectorAll('.fp-rec-item').forEach(x => x.classList.remove('is-selected'));
+      el.classList.add('is-selected');
+      // On mobile, show the context pane
+      contextPane.classList.add('mobile-visible');
+    });
+
+    // Double-click to jump to line in script
+    el.addEventListener('dblclick', (e) => {
       if (e.target.closest('[data-rec-play]') || e.target.closest('[data-rec-delete]')) return;
       const idx = parseInt(el.dataset.lineIndex, 10);
       if (idx >= 0) {
-        switchTab('script');
+        switchNav('script');
         setTimeout(() => scrollToLine(idx), 100);
       }
     });
   });
 
-  list.querySelectorAll('[data-rec-play]').forEach(btn => {
+  listPane.querySelectorAll('[data-rec-play]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const lineId = btn.dataset.recPlay;
       playRecording(lineId);
-      // Re-render to update play/stop state
+      // Show context for playing line
+      selectedRecordingLineId = playingLineId;
+      if (playingLineId) {
+        renderRecordingsContext(playingLineId);
+        contextPane.classList.add('mobile-visible');
+      }
       if (activeTab === 'recordings') renderRecordingsPanel();
     });
   });
 
-  list.querySelectorAll('[data-rec-delete]').forEach(btn => {
+  listPane.querySelectorAll('[data-rec-delete]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const lineId = btn.dataset.recDelete;
@@ -3318,6 +3691,56 @@ function renderRecordingsPanel() {
       deleteRecording(lineId, charName);
     });
   });
+
+  // Re-render context if one is selected
+  if (selectedRecordingLineId && recordingsByLineId[selectedRecordingLineId]) {
+    renderRecordingsContext(selectedRecordingLineId);
+  } else {
+    contextPane.innerHTML = '<div class="context-placeholder">Select a recording to see script context</div>';
+  }
+}
+
+function renderRecordingsContext(lineId) {
+  const contextPane = document.getElementById('recordings-context-pane');
+  const lineIndex = scriptLines.findIndex(l => l.id === lineId);
+
+  if (lineIndex < 0) {
+    contextPane.innerHTML = '<div class="context-placeholder">Line not found in script</div>';
+    return;
+  }
+
+  const contextRange = 4; // lines before and after
+  const startIdx = Math.max(0, lineIndex - contextRange);
+  const endIdx = Math.min(scriptLines.length, lineIndex + contextRange + 1);
+
+  let html = '<div class="recordings-context-title">Script Context</div>';
+  html += '<div class="recordings-context-scroll">';
+
+  for (let i = startIdx; i < endIdx; i++) {
+    const line = scriptLines[i];
+    const isCurrent = i === lineIndex;
+    const color = line.character ? charColor(line.character) : 'var(--text-dim)';
+    const dimClass = !isCurrent ? 'is-dim' : '';
+
+    html += `<div class="context-line ${isCurrent ? 'is-current' : ''} ${dimClass}">`;
+
+    if (line.lineType === 'header') {
+      html += `<span class="context-text" style="font-weight:700;font-size:15px;text-transform:uppercase">${escHtml(line.text)}</span>`;
+    } else if (line.lineType === 'stageDirection') {
+      html += `<span class="context-text" style="font-style:italic;color:#7ec87e">${escHtml(line.text)}</span>`;
+    } else {
+      html += `<span class="context-char" style="color:${color}">${escHtml(line.character || '')}.</span>`;
+      if (line.stageDirection) {
+        html += `<span style="font-style:italic;color:var(--text-dim);font-size:12px">(${escHtml(line.stageDirection)}) </span>`;
+      }
+      html += `<span class="context-text">${escHtml(line.text)}</span>`;
+    }
+
+    html += '</div>';
+  }
+
+  html += '</div>';
+  contextPane.innerHTML = html;
 }
 
 async function deleteRecording(lineId, charName) {
@@ -3365,21 +3788,46 @@ async function deleteRecording(lineId, charName) {
 }
 
 // ══════════════════════════════════════════════════════════
-// SIDEBAR TABS
+// TOP NAVIGATION
 // ══════════════════════════════════════════════════════════
 
-function switchTab(tabName) {
-  activeTab = tabName;
-  document.querySelectorAll('.sidebar-tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.tab === tabName);
-  });
-  document.querySelectorAll('.sidebar-panel').forEach(p => {
-    p.classList.toggle('active', p.id === 'panel-' + tabName);
+let sidebarCollapsed = false;
+
+function switchNav(viewName) {
+  activeTab = viewName;
+
+  // Update nav pills
+  document.querySelectorAll('.nav-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.nav === viewName);
   });
 
-  if (tabName === 'cast') renderCastPanel();
-  if (tabName === 'scenes') renderScenePanel();
-  if (tabName === 'recordings') renderRecordingsPanel();
+  // Show/hide views
+  const scriptView = document.getElementById('script-view');
+  const recView = document.getElementById('recordings-view');
+  const castView = document.getElementById('cast-view');
+  const scenesView = document.getElementById('scenes-view');
+
+  scriptView.style.display = viewName === 'script' ? 'flex' : 'none';
+  recView.classList.toggle('active', viewName === 'recordings');
+  castView.classList.toggle('active', viewName === 'cast');
+  scenesView.classList.toggle('active', viewName === 'scenes');
+
+  if (viewName === 'cast') renderCastPanel();
+  if (viewName === 'scenes') renderScenePanel();
+  if (viewName === 'recordings') renderRecordingsPanel();
+}
+
+// Legacy compatibility: switchTab calls switchNav
+function switchTab(tabName) {
+  switchNav(tabName);
+}
+
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  const sidebar = document.getElementById('editor-sidebar');
+  const btn = document.getElementById('btn-toggle-sidebar');
+  sidebar.classList.toggle('collapsed', sidebarCollapsed);
+  btn.textContent = sidebarCollapsed ? 'Show Characters' : 'Characters';
 }
 
 // ══════════════════════════════════════════════════════════
@@ -3631,10 +4079,13 @@ function wireEvents() {
   document.getElementById('btn-split-line').addEventListener('click', splitLine);
   document.getElementById('btn-delete-selected').addEventListener('click', deleteSelected);
 
-  // Sidebar tabs
-  document.querySelectorAll('.sidebar-tab').forEach(tab => {
-    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+  // Top navigation pills
+  document.querySelectorAll('.nav-pill').forEach(pill => {
+    pill.addEventListener('click', () => switchNav(pill.dataset.nav));
   });
+
+  // Sidebar toggle
+  document.getElementById('btn-toggle-sidebar').addEventListener('click', toggleSidebar);
 
   // Script panel actions
   document.getElementById('btn-rename-char').addEventListener('click', renameCharacter);
