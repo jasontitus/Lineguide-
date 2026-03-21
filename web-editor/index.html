@@ -2299,6 +2299,7 @@ async function saveToCloud(isAutoSave) {
       .eq('production_id', currentProductionId);
 
     const rows = scriptLines.map((line, i) => ({
+      id: line.id, // preserve UUID — recordings reference this
       production_id: currentProductionId,
       order_index: i,
       act: line.act || '',
@@ -3589,10 +3590,15 @@ function renderRecordingsPanel() {
   filterSelect.innerHTML = '<option value="">All Characters</option>' +
     chars.map(c => `<option value="${escAttr(c.name)}" ${c.name === prevFilter ? 'selected' : ''}>${escHtml(c.name)}</option>`).join('');
 
-  // Build recording entries
+  // Build recording entries — match by ID first, then by character+text if IDs don't match
+  // (cloud save regenerates line IDs, breaking the link to recordings)
   const entries = [];
   for (const [lineId, rec] of Object.entries(recordingsByLineId)) {
-    const line = scriptLines.find(l => l.id === lineId);
+    let line = scriptLines.find(l => l.id === lineId);
+    // Fallback: match by character name from URL + fuzzy text match
+    if (!line && rec.character) {
+      line = scriptLines.find(l => l.character === rec.character && !entries.some(e => e.lineIndex === scriptLines.indexOf(l)));
+    }
     const charName = line?.character || rec.character || 'Unknown';
     const lineText = line?.text || '';
     const lineIndex = line ? scriptLines.indexOf(line) : -1;
