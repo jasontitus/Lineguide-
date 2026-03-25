@@ -2,7 +2,7 @@
 
 | Play | Characters | Dialogue Lines | Acts | Scenes | Top Character | Top Lines |
 |------|-----------|---------------|------|--------|---------------|-----------|
-| chekhov cherry orchard | 32 | 1387 | 4 | 4 | IRINA | 118 |
+| chekhov cherry orchard | 31 | 1386 | 4 | 4 | IRINA | 118 |
 | congreve way of the world | 18 | 948 | 5 | 63 | MIRA | 151 |
 | goldsmith she stoops to conquer | 23 | 842 | 5 | 5 | MARLOW | 161 |
 | hamlet-pg1524-images-3 | 27 | 1098 | 2 | 6 | HAMLET | 350 |
@@ -27,8 +27,8 @@
 | sheridan school for scandal | 19 | 1264 | 5 | 13 | SIR PETER | 210 |
 | sheridan the rivals | 13 | 718 | 5 | 14 | ABSOLUTE | 222 |
 | sophocles oedipus rex | 22 | 1203 | 1 | 1 | OEDIPUS | 383 |
-| wilde an ideal husband | 16 | 1185 | 4 | 1 | LORD GORING | 359 |
+| wilde an ideal husband | 15 | 1184 | 4 | 1 | LORD GORING | 359 |
 | wilde importance of being earnest | 13 | 877 | 4 | 2 | JACK | 217 |
 | wilde lady windermeres fan | 16 | 720 | 4 | 1 | LADY WINDERMERE | 180 |
 
-Generated: 2026-03-18T12:43:12.134317
+Generated: 2026-03-20T16:47:29.628056

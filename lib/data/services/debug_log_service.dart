@@ -13,6 +13,7 @@ enum LogCategory {
   tts('TTS', '🔊'),
   rehearsal('REH', '🎭'),
   network('NET', '🌐'),
+  firebase('FIR', '🔥'),
   general('GEN', '📋'),
   error('ERR', '❌'),
   ;

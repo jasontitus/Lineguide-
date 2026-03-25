@@ -30,8 +30,8 @@
 		BGDL000200000000000001 /* BackgroundDownloadPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = BGDL000100000000000001 /* BackgroundDownloadPlugin.swift */; };
 		C0C0C0C0C0C0C0C000000001 /* ContactPickerPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C0C0C0C0C0C0C000000002 /* ContactPickerPlugin.swift */; };
 		D0D0D0D0D0D0D0D000000001 /* PdfTextPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D0D0D0D0D0D0D000000002 /* PdfTextPlugin.swift */; };
-		E0E0E0E0E0E0E0E000000001 /* ObjCExceptionCatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = E0E0E0E0E0E0E0E000000002 /* ObjCExceptionCatcher.m */; };
 		DE692ADA3E0BB1A2C1F59A64 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BF4A753B5CF707B8A544B3E9 /* GoogleService-Info.plist */; };
+		E0E0E0E0E0E0E0E000000001 /* ObjCExceptionCatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = E0E0E0E0E0E0E0E000000002 /* ObjCExceptionCatcher.m */; };
 		FFAB98203095BFA6CE48969C /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C27C3A984572946223BDF96 /* Pods_RunnerTests.framework */; };
 		KOKORO000200000000000001 /* AlbertEmbeddings.swift in Sources */ = {isa = PBXBuildFile; fileRef = KOKORO000100000000000001 /* AlbertEmbeddings.swift */; };
 		KOKORO000200000000000002 /* AlbertEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = KOKORO000100000000000002 /* AlbertEncoder.swift */; };
@@ -588,6 +588,7 @@
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				D3D9E841F947EDACEE7DB073 /* [CP] Embed Pods Frameworks */,
 				46FBC6474268DB995C8943BC /* [CP] Copy Pods Resources */,
+				C33E93F671AB59274F7122DC /* FlutterFire: "flutterfire upload-crashlytics-symbols" */,
 			);
 			buildRules = (
 			);
@@ -776,6 +777,24 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		C33E93F671AB59274F7122DC /* FlutterFire: "flutterfire upload-crashlytics-symbols" */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "FlutterFire: \"flutterfire upload-crashlytics-symbols\"";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\n#!/bin/bash\nPATH=\"${PATH}:$FLUTTER_ROOT/bin:${PUB_CACHE}/bin:$HOME/.pub-cache/bin\"\n\nif [ -z \"$PODS_ROOT\" ] || [ ! -d \"$PODS_ROOT/FirebaseCrashlytics\" ]; then\n  # Cannot use \"BUILD_DIR%/Build/*\" as per Firebase documentation, it points to \"flutter-project/build/ios/*\" path which doesn't have run script\n  DERIVED_DATA_PATH=$(echo \"$BUILD_ROOT\" | sed -E 's|(.*DerivedData/[^/]+).*|\\1|')\n  PATH_TO_CRASHLYTICS_UPLOAD_SCRIPT=\"${DERIVED_DATA_PATH}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\nelse\n  PATH_TO_CRASHLYTICS_UPLOAD_SCRIPT=\"$PODS_ROOT/FirebaseCrashlytics/run\"\nfi\n\n# Command to upload symbols script used to upload symbols to Firebase server\nflutterfire upload-crashlytics-symbols --upload-symbols-script-path=\"$PATH_TO_CRASHLYTICS_UPLOAD_SCRIPT\" --platform=ios --apple-project-path=\"${SRCROOT}\" --env-platform-name=\"${PLATFORM_NAME}\" --env-configuration=\"${CONFIGURATION}\" --env-project-dir=\"${PROJECT_DIR}\" --env-built-products-dir=\"${BUILT_PRODUCTS_DIR}\" --env-dwarf-dsym-folder-path=\"${DWARF_DSYM_FOLDER_PATH}\" --env-dwarf-dsym-file-name=\"${DWARF_DSYM_FILE_NAME}\" --env-infoplist-path=\"${INFOPLIST_PATH}\" --default-config=default\n";
 		};
 		D3D9E841F947EDACEE7DB073 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;

@@ -1,0 +1,2039 @@
+# test3
+
+## Cast of Characters
+
+- **ELIZABETH** (246 lines)
+- **DARCY** (90 lines)
+- **MRS. BENNET** (80 lines)
+- **LYDIA** (51 lines)
+- **MR. BENNET** (49 lines)
+- **JANE** (48 lines)
+- **COLLINS** (37 lines)
+- **WICKHAM** (37 lines)
+- **KITTY** (35 lines)
+- **MISS BINGLEY** (31 lines)
+- **BINGLEY** (29 lines)
+- **MRS. GARDINER** (26 lines)
+- **LADY CATHERINE** (17 lines)
+- **MR. GARDINER** (16 lines)
+- **CHARLOTTE** (15 lines)
+- **FITZWILLIAM** (13 lines)
+- **MARY** (12 lines)
+- **HOUSEKEEPER** (11 lines)
+- **GEORGIANA** (5 lines)
+- **MRS** (3 lines)
+- **MR. LUCAS** (2 lines)
+- **MISS BINGLEY, JANE** (2 lines)
+- **KITTY, LYDIA, ELIZABETH** (2 lines)
+- **MARY, KITTY, LYDIA** (1 lines)
+- **SIR WILLIAM LUCAS** (1 lines)
+- **JANE. MI** (1 lines)
+- **KITTY, LYDIA** (1 lines)
+- **INE** (1 lines)
+- **ANNE** (1 lines)
+- **DARCY, MISS BINGLEY** (1 lines)
+- **ELIZABETH, DARCY** (1 lines)
+- **EA** (1 lines)
+- **ELIZABETH. M** (1 lines)
+- **JANE AND ELIZABETH** (1 lines)
+
+---
+
+**MR. BENNET.** You are very punctual to your time I see. Very glad indeed. Delighted to have the pleasure of receiving you here at Longbourn. The Bennets of Longbourn, eh? Pray allow me to make you acquainted with my daughters. Come along Jane. Miss Jane Bernnet.
+
+**ELIZABETH.** Hush Lydia.
+
+**LYDIA.** The eldest. Though I cannot see why she must always have the chair nearest the window.
+
+**MARY.** *(Glancing at JANE)* And the prettiest of all.
+
+**JANE.** Mary, for goodness sake.
+
+**MR. BENNET.** The next, Elizabeth.
+
+**MARY.** Wittiest of all.
+
+**LYDIA.** Though Captain Talley of the regiment expressed her to be the most critical young lady in Hertfordshire.
+
+**ELIZABETH.** In the only complete sentence I ever heard him construct.
+
+**LYDIA.** La.
+
+**MR. BENNET.** And book in hand, as always, Mary.
+
+**KITTY.** The proudest.
+
+**MARY.** *(Without skipping a beat)* Pride isa very common failing, I believe. By all that I have ever read, I am convinced that it is very common indeed, and that there are very few of us who do not cherish Jon Jory a feeling of self-complacency on the score of some quality or other, real or imaginary.
+
+**MR. BENNET.** And last, but-
+
+**MARY.** Vanity and pride are different things, though the words are often used synonymously. A person may be proud without being vain.
+
+**MR. BENNET.** I–
+
+**MARY.** Pride relates more to our opinion of ourselves; vanity to what we would have others think of,us.
+
+*(Curtseys and returns to her chair to read.)*
+
+**MR. BENNET.** *(Nonplussed)* Well. Yes. Quite so. And the two youngest, of course, Kitty and Lydia.
+
+**KITTY.** Are we to be only "the youngest," have we no qualities?
+
+**LYDIA.** We are the best dancers with the prettiest hats.
+
+**KITTY.** And sing most charmingly...well, I do.
+
+**MRS. BENNET.** *(Entering in a fluster)* My dear Mr. Bennet..
+
+**MR. BENNET.** *(To audience; She pays no attention but knous the matter at hand and our story is begun.)* Mrs. Bennet, to be sure.
+
+**MRS. BENNET.** My dear Mr. Bennet, have you heard that Netherfield Park is let at last?
+
+**MR. BENNET.** I have not.
+
+**MRS. BENNET.** But it is, for Mrs. Long has just been there and she told me all about it.
+
+**LYDIA.** Probably an elderly bachelor with a King Charles spaniel.
+
+**MRS. BENNET.** Indeed Mr. Bennet, do not you want to know who has taken it?
+
+**MR. BENNET.** You want to tell me, and I have no objection to hearing it.
+
+**MRS. BENNET.** Mrs. Long says that Netherfield is taken by a young man of large fortune..
+
+**KITTY.** Really?
+
+**MRS. BENNET.** That he came down on Monday and was so delighted with it that he is to take possession before Michaelmas.
+
+**LYDIA.** Married or single? Pride and Prejudice
+
+**MR. BENNET.** We might first enquire of the gentleman's name, Lydia.
+
+**MRS. BENNET.** Bingley. second level.) (BINGLEY is revealed on
+
+**KITTY.** But, married or single?
+
+**MRS. BENNET.** Oh, single, my dears, to be sure! A single man of large fortune; four or five thousand a year!
+
+**MARY, KITTY, LYDIA.** *(To the audience; They tum back up as ELIZABETH comes down. The BINGLEY reveal ends.)* It is a truth universally acknowledged that a single man in possession of a good fortune must be in want of a wife.
+
+**ELIZABETH.** *(To the audience)* However little known the feelings or views of such a man may be, this truth is so well fixed in the minds of the surrounding families...
+
+*(Now speaks to JANE:)*
+
+**JANE.** *(Smiling)* Oh dear.
+
+**MRS. BENNET.** Hush, Lizzy. What a fine thing for our girls.
+
+**MR. BENNET.** How so?
+
+**KITTY.** That he might marry one of us, Papa.
+
+**MR. BENNET.** And is that his design in settling here?
+
+**MRS. BENNET.** Design? Nonsense. But it is not unusual that a young man may fall in love.
+
+**LYDIA.** Though he must be a solider in a red regimental jacket.
+
+**MRS. BENNET.** You must visit him as soon as he comes.
+
+**MR. BENNET.** I see no occasion for that. You and the girls may go, or send them by themselves, which perhaps will be still better, for as you are as handsome as any of themn, Mr. Bingley might like you the best of the party!
+
+**MRS. BENNET.** Well, I certainly have my share of beauty but when a woman has five grown up daughters she ought to give over ideas of her own attractions. Jon Jory
+
+**MR. BENNET.** In such cases, a woman has not often much beauty to think of.
+
+**MRS. BENNET.** But consider your daughters, think what an establishmernt it would be for one of them. You must go, for it will be impossible for us to visit him, if you do not.
+
+**MR. BENNET.** You are over scrupulous surely. I will send a few lines by you to assure him of my hearty consent to his marrying whichever he choses.
+
+**MRS. BENNET.** Mr. Bennet, you take delight in vexing me. You have no compassion on my poor nerves.
+
+**MR. BENNET.** My dear, I have a high respect for your nerves. They are my old friends.
+
+**MRS. BENNET.** Ah, you do not know what I suffer.
+
+**MR. BENNET.** But I hope you will get over it, and live to see many young men of four thousand a year come into the neighbourhood.
+
+**MRS. BENNET.** It will be of no use to us, if twenty such should come, since you will not visit them.
+
+**MR. BENNET.** Depend upon it, my dear, when there are twenty, I will visit them all.
+
+**JANE.** *(To audience)* Despite his protestations, Papa was among the earliest of those who waited on Mr. Bingley.
+
+*(LYDIA is trimming a hat.)*
+
+**MR. BENNET.** Capital Lydia, I hope Mr. Bingley will like it.
+
+**MRS. BENNET.** We are not in a way to know what Mr. Bingley likes, since we are not to visit.
+
+**KITTY.** It isn't fair Papa, really it isn't.
+
+**ELIZABETH.** You forget that we shall meet him at the assemblies, and that Mrs. Long has promised to introduce him.
+
+**MRS. BENNET.** She is a selfish, hypocritical woman, and I have no
+
+**MRS. BENNET.** I do not believe Mrs. Long will do any such thing She has two nieces of her own.
+
+**LYDIA.** And plain as cake, both of them. opinion of her.
+
+**MR. BENNET.** Indeed, but let us return to Mr. Bingley.
+
+**MRS. BENNET.** And I say I am sick of Mr. Bingley! Pride and Prejudice
+
+**MR. BENNET.** My dear, why did you not tell me so before?IfI had known as much this morning I certainly would not have called on him.
+
+**MRS. BENNET.** Called on him. Called on him!?
+
+**LYDIA.** Oh Papa!
+
+**KITTY.** Truly Father?
+
+**MRS. BENNET.** Now see what an excellent father you have girls. But I knew I should persuade you at last. We must decide on your owns for tho Assembly Bal! Hi!."HILL!
+
+*(Shift begins into First Ball.)*
+
+**MR. BENNET.** *(The ball begins. ELIZABETH sits to one side. DARCY and BINGLEY stand on the other.)* Yes, I fear that as I have actually paid the visit we cannot escape his acquaintance now.
+
+**BINGLEY.** *(As they watch the dancers. He has just danced with JANE)* Come, Darcy, I hate to see you standing about by yourself in this stupid manner. You had much better dance.
+
+**DARCY.** You know how I detest it unless I am particularly acquainted with my partner. Your sister is engaged, and there is Tot another woman in the room whom it would not be a punishment to me to stand up with.
+
+**BINGLEY.** I would not be so fastidious as you are for a kingdom! I never met with so many pleasarnt girls in my life and several uncommonly pretty.
+
+**DARCY.** Your partner, the eldest Miss Bennet is the only handsome girl in the room.
+
+**BINGLEY.** Indeed the most beautiful creature I ever beheld! But there is one of her sisters...
+
+*(ELIZABETH has risen and is talking to a young man.)*
+
+**BINGLEY.** Just there, whom I dare say is very agreeable. Allow me to ask my partner to introduce you. t handSOe enouan
+
+**DARCY.** She is tolerabie, but ati icient to tempt me. Pray return to Miss Bennet, you are wasting your time with me.
+
+*(The ball begins. BINGLEY dances with JANE.)*
+
+**MRS. BENNET.** Oh my dear Mr. Bennet, we have a most excellent ball. Jane is so admired and Mr. Bingley danced with her twice. Then the third he turned to Miss King, the fourth with Maria Lucas, the fifth with Jane again, the sixth with... I-2 ady Lucas (to Mrs,. 8): ar. Bongley is dancing with onvr Dharlote And thee, Dpeaking with Sr William is his sister, Ms Hurst, and her husband And that is his othe Ster, M iss carolie Bingey Mrs. Bennet who is the other genteman? The tall, prond one? Lady Lncas: Mr. Bingley's fiend, a Mr. Dary Mrs. Bemmet Well! A shame he is not the pleasant loKiny one. Come Jane! Jon Jory
+
+**MR. BENNET.** *(The scene between MR. and MRS. BENNET is now interspersed with JANE and ELIZABETH talking elsewhere in the room.)* If he had any compassion for me, he would not have danced half so much.
+
+**JANE.** He is just what a young man ought to be, sensible, good humoured, lively; and I never saw such happy manners! So much ease, with such perfect good breeding.
+
+**ELIZABETH.** He is also handsome which a young man should be if he possibly can.
+
+**MRS. BENNET.** I can hardly explain to you the shocking rudeness of Mr. Darcy.
+
+**MR. BENNET.** Then how wise not to try, my love.
+
+**JANE.** I was very much flattered by his asking me to dance a second time. I did not expect such a compliment.
+
+**ELIZABETH.** Did not you? Compliments always take you by surprise and me never.
+
+**MRS. BENNET.** I can assure you that Lizzy loses nothing by not suiting that Mr. Darcy's fancy; for he is a disagreeable horrid man.
+
+**MR. BENNET.** But tall my dear, tolerably tall.
+
+**ELIZABETH.** You are a great deal too apt to like people in general. You never see a fault in anybody. I swear, Jane, that I never heard you speak ill of a human being in my life.
+
+**JANE.** I would not wish to be hasty in censuring anyone.
+
+**MRS. BENNET.** Your Mr. Darcy is so high and conceited that there is no enduring him. Lizzy not handsome enough to dance with. Oh, I quite detest the man.
+
+**JANE.** I always speak what I think.
+
+**ELIZABETH.** With your good sense, to be so honestly blind to the follies and nonsense of others.
+
+*(BINGLEY ayproaches.)*
+
+**BINGLEY.** *(To JANE)* Miss Bennet, might you consider a stroll about the room? (She takes his arm and they move off. Shift begins into Second Ball, at the home of Sir William Lucas. LYDIA steps down to speak to the audience.) i.3 Pride and Prejudice
+
+**LYDIA.** Within a short walk of Longbourn lived a family with whom we were particularly intimate.
+
+**MRS. BENNET.** *(To the audience)* Sir William Lucas, formerly in trade in Meryton, had made a tolerable fortune and risen to the honour of knighthood. KITTY...and gives two balls a season.
+
+**MRS. BENNET.** Lady Lucas was a very good woman and not too clever which I find restful.
+
+**ELIZABETH.** And their daughter Charlotte...
+
+*(She appears.)*
+
+**LYDIA.** Truly, an assembly bal is a paradise to me!
+
+**CHARLOTTE.** *(To ELIZABETH. The ball begins behind them.)* Occupied as you are in observing Mr. Bingley's attentions to your sister, I think you do not suspect that you yourself have become, shall I say, an object of interest.
+
+**ELIZABETH.** Indeed? Where?
+
+**MR. LUCAS.** Welcome ladies and gentlemen all to my hearth and home. What more charming amusement for young people than the dance, eh? I consider it one of the first refinemernts of polished societies.
+
+**DARCY.** Any savage can dance sir.
+
+**MR. LUCAS.** Wit, sir. Wit indeed. My deu, if ypm will.
+
+*(MR. DARCY moves to where he can observe ELIZABETH talking to CHARLOTTE.)*
+
+**CHARLOTTE.** *(To ELIZABETH)* Do you not notice that Mr. Darcy seems always on the fringes of your conversation?
+
+**ELIZABETH.** Mrs. Long told me last night that he sat close to her for half an hour without once opening his lips.
+
+**JANE.** *(Who has joined them)* Miss Bingley told me that he never speaks much unless among his intimate acquaintances.
+
+*(LYDIA dances by.)*
+
+**CHARLOTTE.** *(Seeing DARCYS look)* Note him.
+
+**LYDIA.** You waste the ball
+
+**ELIZABETH.** He has an extremely critical eye, and if I do not begin by being impertinent myself, I shall soon grow afraid of him. (Turn- Lady LucaS announ eS the dan ce Jon Jory ing to DARCY:) Did you not think Mr. Darcy, that I expressed myself uncommonly well just now when I was teasing Colonel Forster to give us a ball at Meryton?
+
+**DARCY.** With great energy; but it is a subject which always makes a lady energetic.
+
+**SIR WILLIAM LUCAS.** *(Coming up to them)* My dear Eliza, why are you not dancing? Mr. Darcy, you cannot refuse to dance I am sure when such beauty is before you?
+
+**ELIZABETH.** Indeed sir, I have not the least intention of dancing. I entreat you not to suppose I moved this way in order to beg for a partner.
+
+**DARCY.** *(With grave propriety)* Might I have the honour of your hand for the next, Miss Bennet?
+
+**ELIZABETH.** *(The ball begins. She moves to talk to one of her sisters. DARCY looks after her. MISS BINGLEY moves to him as he regards the dancers.)* Mr. Darcy is all politeness but I must deny myself the pleasure.
+
+**DARCY.** Miss Bingley.
+
+**MISS BINGLEY.** Mr. Darcy. I can guess the subject of your reverie.
+
+**DARCY.** I should imagine not.
+
+**MISS BINGLEY.** You are considering how insupportable it would be to pass many evenings in such society; and indeed I am quite of your opinion.
+
+**LYDIA.** *(Dancing by)* La, I once wore a gown with twelve ribbons and a double rosette.
+
+**MISS BINGLEY.** The insipidity, the noise, the nothingness and yet the self-importance of all these people! What I would give to hear your strictures on them.
+
+**DARCY.** Your conjecture is totally wrong, I assure you.
+
+**MISS BINGLEY.** Oh?
+
+**DARCY.** I have been meditating on the very great pleasure which a pair of fine eyes in the face ofa pretty woman can bestow.
+
+**MISS BINGLEY.** Truly? Pray tell me what lady has the credit of inspiring such reflections?
+
+**DARCY.** Miss Elizabeth Bennet. Pride and Prejudice
+
+**MISS BINGLEY.** I confess I am all astonishment. How long has she been such a favourite? And pray when am I to wish you joy?
+
+**DARCY.** I expected as much. A lady's imagination is very rapid; it jumps from admiration to love to matrimony, in a moment.
+
+**MISS BINGLEY.** *(A burst of braying laughter from MRS. BENNET who is talking to SIR WILLIAM LUCAS,)* Nay, I shall consider the matter as absolutely settled.
+
+*(More laughter.)*
+
+**MRS. BENNET.** Indeed you are a scamp and a rogue Sir William. You will make me laugh.
+
+*(And does.)*
+
+*(MRS. BENNET laughs.)*
+
+**MISS BINGLEY.** You will have a charming mother-in-law, indeed. and you will have the pleasure of her always being at Pemberley with you.
+
+**MRS. BENNET.** *(MISS BINGLEY moves away. On another part of the dance floor BINGLEY approaches JANE.)* Mr. Bennet, you must hear what this mischievous fellow is saying.
+
+**BINGLEY.** Miss Bennet, pray forgive even the appearance of unwanted attention, but might I request this reel?
+
+**JANE.** Indeed sir, it is rather an honour than a request.
+
+**BINGLEY.** *(The reel begins. They dance away. ELIZABETH and CHAR- LOTTE are talking.)* The honour I believe to be mine.
+
+**CHARLOTTE.** It seems that Jane quite admires Mr. Bingley.
+
+**ELIZABETH.** Noticeably, I would agree.
+
+**CHARLOTTE.** Bingley likes your sister undoubtedly; but he may never do more than like her, if she does not help him on.
+
+**ELIZABETH.** But she does help him on, as much as her nature will allow.
+
+**CHARLOTTE.** Remember, Eliza, that he does not know Jane's disposition as you do. Though they meet tolerably often, it is never for r. Hurst; hat woman is singularly the most insuffurabe woman I hae entr met. Wt are we here'. Urs, Hurst: L find lite beauty and no fashion in tne assemey Miss Bennetis vey prety Charles-Iwill qant you tnat Mr. Hursti Howertr, she smiles too much. Caroline: I showldà like tetr acq uantane with Miss Jane Bent. Jon Jory many hours together. Jane should therefore make the most of every noment she can command his attention.
+
+**ELIZABETH.** Your plan isa good one, where nothing is in question but the determination to get a rich husband. These are not Jane's feelings and she has no such design. She takes time, I think to study his character.
+
+**CHARLOTTE.** Well, I wish her success with all my heart; and if she married him tomorrow, I should think she had as good a chance of happiness as if she had studied his character for a twelve mnonth. It is better to know as little as possible of the defects of the person with whom you are to pass your life.
+
+**ELIZABETH.** You make me laugh, Charlotte; but it is not sound and you know, full well, you would never act in such a way yourself.
+
+**CHARLOTTE.** *(ELIZABETH turns just in time to see DARCY turning away. Shift begins, returning us to Longbourn. ELIZABETH steps forward.)* You are being watched.
+
+**ELIZABETH.** Soon enough, at Longbourn, Jane found herself in receipt of an invitation frorm...
+
+**JANE.** *(Reading)* "My dear friend, if you are not so compassionate as to dine today with me..."
+
+*(MISS BINGLEY appears behind her on the second level.)*
+
+**MISS BINGLEY.** ...we shall be in danger of hating each other for the rest of our lives. Come as soon as you can on receipt of this. We shall dine with my brother..
+
+**MISS BINGLEY, JANE.** ..as well as other gentlemen...
+
+**MISS BINGLEY.** ...and sundry officers...
+
+**JANE.** Yours ever...
+
+**MISS BINGLEY, JANE.** ...Caroline Bingley.
+
+*(MISS BINGLEY's reveal ends.)*
+
+**LYDIA.** *(Immediately on the scent)* With the officers! May Kitty and I go as well, Mamma?
+
+**KITTY.** We should like to meet sundry officers.
+
+**MR. BENNET.** Am I mistaken that there was but one name on the invitation? A leter fo Miss Jane. Pride and Prejudice
+
+**JANE.** May I have the carriage, Father?
+
+**MR. BENNET.** Of course.
+
+**MRS. BENNET.** Indeed not. It would be much better, Jane, to go on horseback for the weather looks ill and you might have the good in ill health. e) fortune to be thoroughly soaked and stay longer with the Bingleys
+
+*(A chaise appears and JANE lies on it. She is at Netherfield.)*
+
+**ELIZABETH.** *(To audience)* Mamma's hopes were answered. Jane had not been gone long when it rained torrents.
+
+*(Sound of thunder.)*
+
+**MRS. BENNET.** That was a lucky idea of mine indeed. H (Bringing a letter to ELIZABETH:) For you biz; news from Netherfield I think. s Elizabeth
+
+*(As ELIZABETH reads, JANE says the letter.)*
+
+**ELIZABETH.** *(Party nseS to mes Aer, Jane collayses)* My dearest Lizzy.. (Jane amves at Wetherield) Nichdls. Miss Bennet.
+
+**JANE.** ...I find myself very unwell this morning, which I suppose is to be imputed to my getting wet through yesterday. The Bingleys will not hear of my returning home till I am better..
+
+**ELIZABETH.** *(Picking up the thread)* "...though esxcepting a sore throat and headache, there is not much the matter with me. Yours, Jane."
+
+**MR. BENNET.** Well my dear, if your daughter should have a dangerous fit of illness and die, it would be a comfort to know that it was all in pursuit of Mr. Bingley and under your orders.
+
+**MRS. BENNET.** Nonsense, people do not die of little trifling colds, and the inconvenience, Mr. Bennet, is worth the prize.
+
+**ELIZABETH.** She feels ill and I will go to her.
+
+**MR. BENNET.** Is this a hint to me Lizzy to send for the horses?
+
+**MRS. BENNET.** You cannot go jumping over stiles and arrive with dirty stockings.
+
+**ELIZABETH.** The horses are wanted on the farm, I will walk. The distance is nothing when one has a motive; only 3 miles.
+
+**ELIZABETH.** *(She turns out of the scene and meets BINGLEY. She is now at Netherfield.)* Jane, at least, will forgive me Mother.
+
+**MRS. BENNET.** Mr. Bennet... Bennet has arrived, Sir. Jon Jory NichollsiA Miss Elizabeth
+
+*(Shift begins out of Longbourn.)*
+
+**BINGLEY.** Miss Elizabeth, how remarkably good of you to come.
+
+**ELIZABETH.** A pleasure, of course, Mr. Bingley. You can imagine that my sister's letter gave me some cause for concern.
+
+**BINGLEY.** Of course. I wish I could answer that concern more favourably. Miss Bennet has slept ill and though up is not well enough to leave her room. I will take you to her.
+
+*(They move to JANE lying on the chaise.)*
+
+**JANE.** Lizzy!
+
+**ELIZABETH.** Jane, you are flushed. Should not you be in bed?
+
+**BINGLEY.** We have sent for the apothecary. I would be most grateful, Miss Elizabeth, if you would remain at Netherfield until your sister is quite well.
+
+**JANE.** Yes, do stay.
+
+**BINGLEY.** I will dispatch a servant to acquaint your family and return with any necessities.
+
+**JANE. MI.** Bingley, I cannot attempt to thank you.
+
+**BINGLEY.** Any thanks are far beyond the occasion, Miss Bennet.
+
+*(Takes her hand.)*
+
+*(He exits,)*
+
+**ELIZABETH.** *(Looking after him with a smile; Shift begins into Netherfield drawing room, which appears on the other side of the stage during the following scene. MISS BINGLEY, BINGLEY and DARCY take their seats at a table with four chairs. A piano-forte stands at one side.)* Wel.
+
+**JANE.** He is most attentive.
+
+**ELIZABETH.** Indeed he is. You look quite drawn Jane, but I might say it serves you exactly for falling in with mother's advice.
+
+**JANE.** Lizzy, how did you get here?
+
+**ELIZABETH.** The carriage horses were commandeered for the fields so I walked
+
+**JANE.** Through the mud? → Mrs. Nicholls, iF you pleag. Mrs. Nicho ls) At one, Sir. Pride and Prejudice
+
+**ELIZABETH.** Through the mud, yes.
+
+*(The chaise, with JANE on it, exits.)*
+
+**MISS BINGLEY.** To walk three miles, or four miles, or five miles or whatever it is, above her ankles in mud and alone, quite alone, what could she mean by it? It seems to me to show an abominable sort of conceited independence and complete indifference to decorum.
+
+**BINGLEY.** It shows an affection for her sister that is very pleasing.
+
+**MISS BINGLEY.** I have an excessive regard for Jane Bennet, and I wish she were well settled. But with such a father and mother, and such low connections, I am afraid there is no chance of it. Their uncle is an attorney in Meryton and another lives somewhere near Cheapside.
+
+**BINGLEY.** If they had uncles enough to fill all Cheapside, it would not make them one jot less agreeable.
+
+*(ELIZABETH enters with a book.)*
+
+**BINGLEY.** Ah Miss Elizabeth a pleasure. Your sister improvesI hope?
+
+**ELIZABETH.** She is resting, but hopes not to be thought unsociable.
+
+**BINGLEY.** Indeed not.
+
+*(She smiles and sits away from the group.)*
+
+**BINGLEY.** I find it singular and intriguing that you prefer reading to cards Miss Benrnet.
+
+**ELIZABETH.** I deserve neither such praise nor such censure. I am not a great reader, and I have pleasure in many things.
+
+**MISS BINGLEY.** In nursing your sister you have pleasure I am sure.
+
+**MISS BINGLEY.** Miss Elizabeth Bennet despises cards. She is a great reader with little pleasure in anything else.
+
+**BINGLEY.** Hear, hear!
+
+**MISS BINGLEY.** *(To DARCY)* Is Miss Darcy much grown since the spring?
+
+*(He nods.)*
+
+**MISS BINGLEY.** How I long to see your charming sister again, such manners and so accomplished for her age.
+
+**BINGLEY.** It is amazing to me how young ladies can have patience to be so very accomplished as they all are.
+
+**MISS BINGLEY.** All? My dear Charles what do you mean? IK$ Binglg his adventurey Mr DaruI muSt well have dimmed your admiration of her fhe eyes Mr Darug t found them quite brightened by the exerise. Jon) Jory
+
+**BINGLEY.** Yes, Caroline, all. I have never heard a young lady spoken of for the first time without being informed that she was very accomplished.
+
+**DARCY.** I fear I cannot boast of knowing more than a half dozen in the whole range of my acquaintance that are really accomplished.
+
+**ELIZABETH.** Then you must comprehend a great deal in your idea of an accomplished woman.
+
+**MISS BINGLEY.** She must have a thorough knowledge of music, singing, drawing, dancing, languages and a certain something in her air and manner, the tone of her voice, her address and expressions or the word will be but half deserved.
+
+**DARCY.** And to all this she must yet add something more substantial in the improvement of her mind by extensive reading.
+
+**ELIZABETH.** I am no longer surprised at your knowing only six accomplished women. I rather wonder now at your knowing any
+
+**BINGLEY.** *(Changing the conversation)* I say, sister, woułd you perhaps take to the pianoforte and favour us with a liyety Scotch air?
+
+**DARCY.** Splendid. And perhaps Miss Benngwill then seize the opportunity to show wsa "ling."(No anszugrfrom ELIZABETH) Simple seeming, but difficuit the execution.
+
+*(MISS BINGLEY begiakaplay the piano-forte.)*
+
+**DARCY.** Will you essay Miss Bernet?
+
+**ELIZABETH.** Oheard you before. You wàsted me, I know, to say "yes" that yoấ might have the pleasure of despising my taste, but always deight in cheating a person of their premeditațed contempt I haye therefore made up my mind to tell you I do not waat to dance sfeel at all: and newdespise meifyou dare.
+
+**BINGLEY.** *(Taken aback he laughs and then stops.)* Oh, very sorry Darcy.
+
+**ELIZABETH.** And is Mr. Darcy not to be laughed at?
+
+**DARCY.** The wisest and best of men may be rendered ridiculous by a person whose first object in life is a joke.
+
+**ELIZABETH.** Certainly there are such people, but I hope I am not one of them. I hope I never ridicule what is wise and good. Follies and nonsense, whims and inconsistencies, do divert me, I own, and I laugh at them whenever I can. But these, I suppose, are precisely what you are without. Replace w/ Pride and Prejudice
+
+**DARCY.** Perhaps that is not possible for anyone. But it has been the study of my life to avoid those weaknesses which often expose a strong understanding to ridicule.
+
+**ELIZABETH.** Such as vanity and pride?
+
+**DARCY.** Yes, vanity is a weakness indeed. But pride- where there is a real superiority of mind-pride will be always under good regulation. I have faults enough but they are not, I hope, of understanding. My temper I dare not vouch for. It is, I believe, too little yielding and
+
+**ELIZABETH.** That is a failing indeed. But you have chosen your perhaps resentful. My good opinion once lost is lost forever. fault well. I really cannot laugh at it. You are safe from me.
+
+**DARCY.** There is, I believe, in every disposition a tendency to some particular evil, a natural defect, which even the best education canot overcome.
+
+**ELIZABETH.** And your defect is a propensity to hate everybody.
+
+**DARCY.** *(Smiling;)* And yours is willfully to misunderstand them. Ms. Hurs : Do letus have soml msicl Me Hurst: Preferably
+
+*(Shift begins, bringing us back to Longbourn)*
+
+**LYDIA.** *(To the audience)* On Sunday the carriage was sent and Jane : and Elizabeth returned home. Mamma, I fear, was not very cordial fhan this ConverSation and B o Somethng a touch ignter to them.
+
+**MRS. BENNET.** I cannot for the life of me see Elizabeth why you had to rush Jane home.
+
+**JANE.** I wasn't rushed Mamma.
+
+**MR. BENNET.** Well, I for one am gratified, our evening conversation had lost much of its animation and almost all its sense.
+
+**MRS. BENNET.** *(Reprovingly)* Mr. Bennet ...
+
+**MR. BENNET.** My dear, I hope that you have ordered a good dinner
+
+**LYDIA.** Oh, poo... today, because I have reason to expect an addition to our family party.
+
+**MRS. BENNET.** Is it Mr. Bingley? Why Jane, you never dropped a word of this- you sly thing-
+
+**MR. BENNET.** It is not Mr. Bingley, it is my cousin Mr. Collins, who when I am dead may turn you all out of this house as soon as he pleases.
+
+**KITTY.** But why Papa?
+
+**ELIZABETH.** I am no longer surprised at your knowing onty sir accomplished women. Irather wonder now at your knowing any.
+
+**MISS BINGLEY.** Miss Elizabeth, let me persuade you to follow my example and take a turn about the room. It can be so refreshing after a prolonged period of rest. Will you not join us, Mr. Darcy?
+
+**DARCY.** You can hve only two motives for walking about the room together, and my joining would interfere with eithér.
+
+**MISS BINGLEY.** What on earth can you mean, sir?
+
+**DARCY.** Either you are in each other's confidence and have secret affairs to discuss, or you are avware that your figures appear to best advantage when walking, in which case I might admire you much better from my present position.
+
+**MISS BINGLEY.** Shocking reply! How shall we punish him for such a speech, Miss Elizabeth?
+
+**ELIZABETH.** Nothing so easy. We can all plague one another. Tease him, laugh at him.
+
+**BINGLEY.** *(Taken aback he laughs and then stops)* Oh. Very sorry, Darcy. Jon Jory
+
+**MR. BENNET.** It is the entail Kitty, the entail of which I often remind you. The inheritance of my property is limited to male heirs, and I, having produced none, my cousin Mr. Collins has become the legal recipient. Now-
+
+**MRS. BENNET.** Pray do not talk of that odious man and this odious legality. It is monstrous that your estate should be entailed away from your own children!
+
+**KITTY.** *(To the audience)* Mr. Collins was punctual to his time.
+
+*(An ominous knock. The BENNETS all turn. COLLINS enters.)*
+
+**COLLINS.** Ah, Mrs. Bennet, Mr. Bennet, as a pastor of the Church of England I flatter myself that my present overtures of good will are highly commendable and that the circumstances of my being next in the entail of the Longbourn estate will be kindly overlooked on your part and not lead you to reject my proffered olive branch. (He bows,) As for your daughters, I have heard much of their beauty, but in the instance, fame has fallen short of the truth and I doubt not seeing them, as I might say, to be well disposed of in marriage.
+
+**MRS. BENNET.** You are very kind, sir, and I wish with all my heart it may prove so; for else they will be destitute enough.
+
+**COLLINS.** I am very sensible, madam, of the hardship of my fair cousins, but I can assure the young ladies that I come prepared to admire them. At present I will not say more, but perhaps when we are better acquainted. (The other BENNETS scatter and exit leaving COLLINS with
+
+**MRS.** BENNET.)
+
+**COLLINS.** Thus, in conclusion I may say that having a good house and good living as a clergyman, I intend to marry, and in reconciliation with your family, I propose to choose one of your daughters. Surely you will agree that this atonement is an excellent one both generous and disinterested on my part.
+
+**MRS. BENNET.** Indeed.
+
+**COLLINS.** I very much approve your eldest...
+
+**MRS. BENNET.** Jane.
+
+**COLLINS.** Indeed. I conceive her both fetching and decorous. She should do quite nicely and seniority must be served.
+
+**MRS. BENNET.** Jane. Sir, as to my younger daughters I cannot take it upon myself to say but I know of no predispositions. Concerning my eldest daughter.. Hill: Mr. Collins, sir. Pride and Prejudice
+
+**COLLINS.** Jane?
+
+**MRS. BENNET.** Jane.
+
+**COLLINS.** Jane.
+
+**MRS. BENNET.** I feel it incumbent to say she is very likely to be soon engaged.
+
+**COLLINS.** I see. And the next in age?
+
+**MRS. BENNET.** Elizabeth.
+
+**COLLINS.** Elizabeth, yes. Very forthright and not at all unpresentable.
+
+**MRS. BENNET.** *(Taps his chest.; Shift begins out of Longbourn, leaving us with a bare stage for the "stroll to Meryton." LYDIA appears followed by MR. BENNET, KITTY and ELIZABETH. To the audience.)* Done.
+
+**LYDIA.** To escape Mr. Collins' lectures...
+
+**MR. BENNET.** On the high quality and moral fitness of the pastorate of the Church of Englarnd...
+
+**KITTY.** Papa suggested a stroll to Meryton.
+
+**MR. BENNET.** *(They set off. COLLINS with MR. BENNET, LYDIA with KIT- TY and ELIZABETH behind.)* For I supposed him better fitted for a walker than a talker.
+
+**COLLINS.** Indeed, one must first learn that the highest laws for the governance of a Christian duty..
+
+**LYDIA.** And no sooner had I arrived at the regimental trumpetry than three ensigns bowed all at once...
+
+**COLLINS.** ...and discovered from within not from without...
+
+**LYDIA.** And all three asked me to walk out with them... COLLINS....that no man can become a serviceable servant solely by obedience to written edicts and though the principals elucidated...
+
+**LYDIA.** La, said I, I am but one young lady as you can plainly..
+
+**KITTY.** *(To audience)* When we soon espied...
+
+*(LYDIA follows her gaze.)*
+
+**LYDIA.** Oh. Yoo hoo.
+
+**KITTY.** Anewharried office-of 4he regiment. Denny! chamtorlane How was London" DENNY: We have returned to far more attractive and Soiable comm pany. Allow me to introdue mny friend, Mr. George WicKham My. Bennet and his daugnteS. HÐHA- be thee! KHH-Ofst gerteprartke appeararce whơ was introduced tn US-..
+
+**LYDIA.** (TO ayatencey aroficer already afor acquaintanee as. OFFHCERM Wiekha
+
+**KITTY.** His appearance was greatly in his favour.
+
+**LYDIA.** He had all the best parts of beauty...
+
+**KITTY.** A fine countenance...
+
+**LYDIA.** A good figure...
+
+**KITTY.** And very pleasing address.
+
+**WICKHAM.** How do you do. This is a lucky chance indeed. At the officers' table the Bernets are much spoken of and all of it approbation.
+
+*(Turns to the younger sisters.)*
+
+*(They laugh merrily.)*
+
+**KITTY.** Quite topsy turvy.
+
+**WICKHAM.** Profoundly sorry. I hope to be correct in addressing you as Miss Elizabeth Bernet.
+
+**ELIZABETH.** Yes, quite correct
+
+**WICKHAM.** I solicit your further acquaintance Miss Bennet.
+
+**ELIZABETH.** Our society sir is not extensive, I venture we will meet again.
+
+**LYDIA.** *(To the audience)* La, we were talking oh so very agreeably when the sound of horses drew our notice...
+
+**KITTY.** *(To audience)* And Mr. Bingley and Darcy came riding by...
+
+**ELIZABETH.** *(To audience)* Mr. Wickham barely touched his hat which Mr. Darcy hardly deigned to return.
+
+**KITTY, LYDIA, ELIZABETH.** What could be the meaning of it?
+
+**LYDIA.** Before walking on we naturally enjoined Mr. Wickham to pay us a visit.
+
+**WICKHAM.** With very great pleasure indeed. I fear we poor souls in the army lack greatly in feminine instruction. CHAMBERLA YNE: How's yowr eye for bonnets, Wiccham? WCKHAM: Unpracticed , Sua to Say I'm delighted acapt your invitation Jon Jory Pride and Prejudice
+
+*(KITTY and LYDIA laugh merrily.)*
+
+**WICKHAM.** Miss Elizabeth.
+
+**ELIZABETH.** Mr. Wickham.
+
+**LYDIA.** La, but our sister has made a conquest.
+
+*(She giggles with KITTY)*
+
+**ELIZABETH.** *(Shift begins into Longbourn. The ladies and MR. BENNET flter back into the parlor where COLLINS is holding forth.)* Lydia.
+
+**COLLINS.** I am very fortunate in my patroness the nonpareil Lady Catherine de Bourgh who has condescended to take me in hand.
+
+*(LADY CATHERINE aypears on second level.)*
+
+**COLLINS.** *(MRS. BENNET sees MR. BENNET nodding off and gives him a tap. Startled, he speaks.)* What beauty! What elevated style and affability! She is, of course, the proprietress of Rosings and of very, very, very, very extensive property. Her daughter's indifferent health unhappily prevents her being in town, which asI told Lady Catherine myself, one day, has deprived the British court of its brightest ornament.
+
+**MR. BENNET.** Absolutely splendid!
+
+*(LYDIA enters excited. LADY CATHERINE's reveal ends.)*
+
+**LYDIA.** Mr. Wickham has arrived!
+
+*(He enters.)*
+
+**LYDIA.** Mr. George Wickham, Papa.
+
+**MRS. BENNET.** Pleased.
+
+**MR. BENNET.** Delighted.
+
+**ELIZABETH.** Parson Collins, Mr. Wickham.
+
+**WICKHAM.** *(Shift begins out of Longbourn on the words. Bushes, indicating that we are in the garden, enter.)* Always a pleasure to meet a gentleman of the cloth. I had a near miss myself.
+
+**MARY.** *(To the audience)* As Mr. Collins once again held forth.
+
+**COLLINS.** I have more than once observed to Lady Catherine that her charming daughter seemed born to be a Duchess; and that the I.3 Jon] Jory most elevated rank, instead of giving her consequence, would be adorned by her. But to be brief...
+
+**ELIZABETH.** *(The shiff is complete, and ELIZABETH and WICKHAM are left alone on the grounds.)* Mr. Wickham suggested that I show him around the grounds.
+
+**WICKHAM.** Please excuse my temerity in accepting your sisters' kind invitation with an almost unbecoming alacrity.
+
+**ELIZABETH.** It is a great kindness to seek us out. The regiment, I hope, is not unhappily quartered here?
+
+**WICKHAM.** I cannot speak for the regiment but I may say I am personally improved by acquaintance with your family.
+
+**ELIZABETH.** A courtesy very prettily put.
+
+**WICKHAM.** And sincerely meant.
+
+**ELIZABETH.** I could not help noticing, sir, a certain coolness of regard passing between yourself and Mr. Darcy.
+
+**WICKHAM.** You have a keen eye Miss Bennet.
+
+**ELIZABETH.** And a curious one, sir.
+
+**WICKHAM.** Might you tell me how far Netherfield is from Meryton?
+
+**ELIZABETH.** Three miles perhaps.
+
+**WICKHAM.** Indeed? How long has Mr. Darcy been staying there?
+
+**ELIZABETH.** About a month. He is a man of very large property in Derbyshire, I understand.
+
+**WICKHAM.** His estate there is a noble one. In fact I have been connected with his family from my infancy. Are you much acquainted with him?
+
+**ELIZABETH.** I have spent four days in the same house with him, and I think him very disagreeable.
+
+**WICKHAM.** I believe your opinion of him would in general astorish.
+
+**ELIZABETH.** Really? He is not at all liked in Hertfordshire.
+
+**WICKHAM.** May I express surprise? The world is perhaps blinded by his fortune and consequence and sees him only as he chooses to be seern.
+
+**ELIZABETH.** I should take him even on my slight acquaintance to be an ill-tempered man. Pride and Prejudice
+
+**WICKHAM.** I fear I have considerable knowledge of him. The late Mr. Darcy, his father, was excessively attached to me. I cannot do justice to his kindness. His son and I were born in the same parish, sharing the same amusements. My father was his father's estate manager. The elder Mr. Darcy knew the church ought to be my profession and he promised me the family parish when it came available or, if not, a voluntary promise of providing for me. Both were countermanded by young Darcy after his fathers death.
+
+**ELIZABETH.** On what grounds?
+
+**WICKHAM.** Had the late Mr. Darcy liked me less, his son might have borne with me better; but his father's uncommon attachment to me irritated him. He had not a temper to bear the sort of competition in which we stood. In short, his behaviour to me has been scandalous. But I do not trust myself on the subject, I can hardly be fair to him now.
+
+**ELIZABETH.** I had not thought Mr. Darcy as bad as this.
+
+**WICKHAM.** I do feel that almost all his actions may be traced to his considerable pride.
+
+**ELIZABETH.** But can such abominable pride as his have ever done him good?
+
+*(A park bench is brought on.)*
+
+**WICKHAM.** I must own him to be liberal and generous, display hospitality, assist his tenants and relieve the poor. Family pride and filial pride have done this. His father's preference for me has pricked that pride and made him my enemy.
+
+**ELIZABETH.** I am astonished at his intimacy with Mr. Bingley. Do you know him?
+
+**WICKHAM.** Not at all.
+
+**ELIZABETH.** He is a sweet tempered, amiable, charming man. He cannot know what Mr. Darcy is.
+
+**WICKHAM.** Mr. Darcy can please where he chooses. He does not want abilities.
+
+**ELIZABETH.** My judgment would be that he deserves to be publicly disgraced.
+
+**WICKHAM.** Sometime or other he will be-but it shall not be by me. Miss Bennet, allow me to say, that the troubling aspect of our subject has not made you a whit less delightful. Jon Jory
+
+**ELIZABETH.** I must suppose that the relationship you have described will not allow your presence at the coming ball at Netherfield.
+
+**WICKHAM.** I would fear a discomfort for all involved, but make no mistake Miss Bennet, I keenly feel the loss.
+
+*(He bows and departs.)*
+
+**ELIZABETH.** *(To the audience; Park bench and bushes are struck, leaving us with a bare stage. JANE enters to ELIZABETH.)* Well, whatever he said was well said and whatever he did was done gracefully.
+
+**JANE.** But dear sister, I am all astonishment and concern I know not how to believe Mr. Darcy could be so unworthy of Mr. Bingley's regard.
+
+**ELIZABETH.** I can much more easily believe Mr. Bingley's being imposed on than Mr. Wickham should invent such a history of himself.
+
+**JANE.** But it is so distressing. One does not know what to think.
+
+**ELIZABETH.** I beg your pardon; one knows exactly what to think.
+
+**JANE.** I know only with certainty that poor Mr. Bingley would have much to suffer if Wickham's charge becomes public.
+
+**ELIZABETH.** "Poor Mr. Bingley?"
+
+**JANE.** *(Flushed)* I speak only as an observer.
+
+*(JANE moves away, we are at Longbourn.)*
+
+**ELIZABETH.** *(As BINGLEY and his sister appear, revealed on the first level.)* Back at home Mr. Bingley and his sister came to give their personal invitation for the long expected ball at Netherfield which was fixed for the following Tuesday.
+
+**ELIZABETH.** While Mr. Collins...
+
+*(BINGLEY hands ELIZABETH an invitation, bows and disappears. COLLINS appears.)*
+
+**COLLINS.** I am by no means of the opinion, I assure you, that a ball of this kind, given by a young man of character can have any evil tendency and I am so far from objecting to dancing myself that I take this opporturnity Miss Elizabeth of soliciting the first two dances with you especially.
+
+**ELIZABETH.** *(Back to audience as COLLINS disappears)* And it struck me that I had been selected from among my sisters as worthy of being the mistress of Hunsford Parsonage. Denny: Miss Elizabeth. A mutual friend asKed me to espeS how Sin erehy he rearets not being able to claim a His dese to do was only dane with you. overpowered by his desie to avoid a certan entleman. Pride and Prejudice (Shift begins into ball at Netherfield. Music begins. Dancers enter. ELIZABETH dances with COLLINS. JANE speaks to the audience.)
+
+**JANE.** I perceived that Elizabeth still longed to see Mr. Wickham among those assembled.
+
+**KITTY.** *(BINGLEY sweeps JANE away and another young man, KITTY. ELIZABETH escapes COLLINS and speaks to us.)* Seeking the conquest of all that remained unsubdued of his heart.
+
+**ELIZABETH.** I might title them "dances of mortification."
+
+*(DARCY approaches ELIZABETH,)*
+
+**DARCY.** May I hope for the next Miss Bennet?
+
+**ELIZABETH.** *(Taken aback; But before she can finish the sentence she is taken aside by CHARLOTTE.)* Well, I hardly think...
+
+**CHARLOTTE.** *(iez, music begins. She gives her a push back to DARCY. The stage clears, leaving them alone.)* Do not be a simpleton and allow your fancy for Wickham to make you appear unpleasant in the eyes of a man of ten times his consequence.
+
+**DARCY.** Well then.
+
+*(They tyatE)*
+
+**ELIZABETH.** The music is well played do you not think?
+
+*(He nods. After they dance silently for a moment.)*
+
+**ELIZABETH.** It is your turn to say something now, Mr. Darcy. I talked about the dance, and you ought to make some kind of remark on the size of the room, or the number of couples.
+
+**DARCY.** I quite assure you that whatever you wish me to say will be said.
+
+**ELIZABETH.** Very well, that reply will do for the present, now we may be silent.
+
+**DARCY.** Do you talk by the rule then when you are dancing?
+
+**ELIZABETH.** I have always, Mr. Darcy, seen a great similarity in the turn of our minds. We are each of an unsocial taciturn disposition, unwilling to speak unless we expect to say something that will Jon Jory amaze the whole room, and be handed down to posterity with all the éclat of a proverb.
+
+**DARCY.** This is no very striking resemblance of your own character, I am sure. How near it may be to mine I cannot pretend to say.
+
+**ELIZABETH.** I have recently had the pleasure of forming a new acquaintance with a childhood friend of yours.
+
+*(They stop dancing)*
+
+**ELIZABETH.** A Mr. Wickham.
+
+**DARCY.** Mr. Wickham is blessed with such happy manners as may ensure his making friends–whether he may be equally capable of retaining them, is less certain.
+
+**ELIZABETH.** He has been so unlucky as to lose your friendship, and in a manner which he is likely to suffer from all his life.
+
+*(A silence.)*
+
+**DARCY.** What think you of books Miss Elizabeth?
+
+**ELIZABETH.** I cannot talk of books in a ballroom, my head is full of something else.
+
+*(DARCY inclines his head civilly and begins to turn away.)*
+
+**ELIZABETH.** Iremember hearing you say Mr. Darcy that you hardly ever forgave, that your resentment once created was unappeasable. You are very cautious, I suppose as to its being created?
+
+**DARCY.** I am.
+
+**ELIZABETH.** And never allow yourself to be blinded by prejudice?
+
+**DARCY.** May I ask to what these questions tend?
+
+**ELIZABETH.** Merely to the illustration of your character. I am trying to make it out.
+
+**DARCY.** And what is your success?
+
+**ELIZABETH.** I do not get on at all. I hear such different accounts of you as to puzzle me exceedingly.
+
+**DARCY.** I can readily believe that reports may vary greatly with respect to me; and I could wish, Miss Bennet, that you would not sketch my character at present, as there is reason to fear that the performance would reflect no credit on either.
+
+*(COLLINS enters to them.)*
+
+**COLLINS.** Ah, Mr. Darcy, you are ifI am not mistaken the nephew of my eminent patroness Lady Catherine de Bourgh who secured for me the living at Hunsford Parsonage thus allow me to observe that I consider the clerical office as equal in point of dignity with the highest rank in the kingdomn-provided that a proper humility of behaviour is at the same time maintained.
+
+**DARCY.** You have neglected your name sir.
+
+**COLLINS.** *(Taken aback)* Have I?
+
+**DARCY.** You have.
+
+**COLLINS.** Mr. Collins, sir.
+
+**DARCY.** *(Bowing, speaking and departing)* Delighted.
+
+*(He moves away. ELIZABETH stares in wondermentat COLLINS.)*
+
+**COLLINS.** Excellent, most excellent. I have no reason, I assure you, to be dissatisfied with my reception. He answered me with the utmost civility and, upon the whole, I am much pleased with him.
+
+**ELIZABETH.** Though he neglected his name?
+
+*(She leaves him.)*
+
+**COLLINS.** Did he?
+
+**MISS BINGLEY.** *(The ball begins. Coming towards ELIZABETH)* So, Miss Eliza, I hear you are quite delighted with George Wickham.. Oh yes, your sister Jane has been talking with me...did you know he was the son of the late Mr. Darcy's steward?
+
+**ELIZABETH.** I believe he so asserted.
+
+**MISS BINGLEY.** Let me recommend you, however, as a friend, not to give implicit confidence to all his assertions. As to Mr. Darcy's using him ill, it is perfectly false, for, on the contrary he has always been remarkably kind to him.
+
+**ELIZABETH.** Well...
+
+**MISS BINGLEY.** George Wickham has reated Mr. Darcy in a most infamous manner. I do not know the particulars but his coming into the country at all is a most insolent thing. Considering his descent, one could not expect much better.
+
+**ELIZABETH.** His guilt and his descent appear by your account to be one and the same, for I have heard you accuse him of nothing worse than of being the son of Mr. Darcy's steward, and of that, I can assure you, he informed me himself. Jon Jory
+
+**MISS BINGLEY.** I beg your pardon. Please excuse my interference, it was kindly meant.
+
+*(She coldly moves away.)*
+
+**ELIZABETH.** *(To herself)* Insolent girl.
+
+*(She watches JANE and BINGLEY dance.)*
+
+**BINGLEY.** *(To JANE)* By heavens, you step it wonderfully!
+
+**JANE.** Under yor instruction, sir.
+
+**ELIZABETH.** *(Watching them)* Well, that at least promises the felicity which a marriage of true affection can bestow.
+
+*(MRS. BENNET has cornered MISS BINGLEY,)*
+
+**MRS. BENNET.** Ah, Miss Bingley...
+
+*(Who is watching her brother dance.)*
+
+**MRS. BENNET.** Im sure I needn't enumerate the advantages of such a match...
+
+**ELIZABETH.** Mamma..
+
+**MRS. BENNET.** Such an advantage living but three miles apart, and such a comfort knowing how fond you are of Jane..
+
+**ELIZABETH.** *(Taking her mother's arm)* Sadly, our carriage waits...
+
+**MRS. BENNET.** But...
+
+**ELIZABETH.** *(Moves her mother away from MISS BINGLEY who departs. They are immediately stopped by COLLINS.)* And we must go.
+
+**COLLINS.** *(ELIZABETH escapes him. Shift begins back to Longbourn as LYDIA speäks to the audience.)* Ah Miss Elizabeth, it is a great shame we footed it but once.
+
+**LYDIA.** When at last the guests and officers quitted the house, Mamma spoke all the way home of preparations, new carriages, wedding clothes and seeing Jane settled at Netherfield within three months.
+
+*(Starts to leave; turns back,)*
+
+**COLLINS.** *(To MRS. BENNET)* May I hope, Madam, for your interest in the matter of your penultimate eldest, Elizabeth, for I solicit the honour of a private audience with her in the course of this morring. Pride and Prejudice
+
+**MRS. BENNET.** What? Oh yes, I see... dear me... yes, certainly... A private audience, I see the drift. Dear Mr. Collins, I am sure Lizzy will be very happy-I am sure she can have no objection. A private audience! Come Kitty, I want you upstairs.
+
+**ELIZABETH.** Dear Madam, do not go.
+
+**MRS. BENNET.** Not go?
+
+**ELIZABETH.** Mr. Collins must excuse me. He can have nothing to say to me that anybody need not hear. I am going away myself.
+
+**MRS. BENNET.** Nonsense Lizzy. I desire you will stay where you are.
+
+*(ELIZABETH turns to go.)*
+
+**MRS. BENNET.** Lizzy, I insist upon your staying and hearing Mr. Collins. Come Kitty. (False exit, te-entea) Hill!.
+
+*(Grabs her by the arms and exits with her.)*
+
+**MRS. BENNET.** Stay!
+
+**COLLINS.** Your modesty adds only to your other perfections, for my attentions have been too marked to be mistaken. But before I am run away with by my feelings...I shall enumerate my reasons for marrying. First, to set the example of matrimony in my parish...
+
+**ELIZABETH.** Of course.
+
+**COLLINS.** Secondly, it greatly adds to a man's well being. And thirdly by the particular advice and recommendation of Lady de Bourgh, my patroness "Let her be an active, useful sort of person able to make a small income go a long way," her very words. You may observe, fair cousin that I do not reckon thenotice of Lady Catherine de Bourgh the least of my advantages. Your wit and vivacity, I think, must be acceptable to her, especially when tempered with the silence and respect which her rank invariably excites. Fourth, as I am to inherit this estate after the death of your honoured father, I feel bound to choose a wife from among his daughters that the loss to them might be as little as possible.
+
+**ELIZABETH.** *(Fuming)* Hmmmm.
+
+**COLLINS.** And now nothing remains for me but to assure you in the most animated language of the violence of my affection. To fortune I am perfectly indifferent, and as to dowry, I am well aware of your father's finances and you may assure yourself that no ungenerous reproach shall ever pass my lips when we are married.
+
+**ELIZABETH.** No.
+
+**COLLINS.** No?
+
+**ELIZABETH.** I am very sensible of the honour of your proposals but it is impossible for me to do otherwise than decline them.
+
+**COLLINS.** Oh, it is usual with young ladies to reject at first the addresses of the man they secretly mean to accept.
+
+**ELIZABETH.** I do assure you that I am not one of those young ladies. You could not make me happy and I am convinced that I am the last womarn in the world who would make you so. Were your friend Lady Catherine to know me, she would find me in every respect ill qualified. This matter may be considered, therefore, as finally setled.
+
+**COLLINS.** Naturally you cannot be serious in your rejection of me. Good sense and financial necessity forbid it. It is your wish to increase my love by suspense, according to the usual practice of elegant females.
+
+**ELIZABETH.** I am not, Mr. Collins, an elegant female intending to plague you. I an a rational creature speaking the truth from her heart. I will not have you. Can I speak plainer?
+
+**COLLINS.** You are uniformly charming!
+
+*(ELIZABETH exits. MRS. BENNET enters.)*
+
+**MRS. BENNET.** Dear Mr. Collins, allow me to be the first to congratulate you!
+
+**COLLINS.** She has begun delightfully with a refusal.
+
+**MRS. BENNET.** A refusal?!
+
+**COLLINS.** Out of bashful modesty and the genuine delicacy of her character.
+
+**MRS. BENNET.** *(Calling offstage)* Mr. Bennet you are wanted immediately!
+
+*(To COLLINS)*
+
+**COLLINS.** Headstrong..
+
+**MRS.** BENNET....but I will make her know it.
+
+**COLLINS.** Headstrong? Foolish? Dear me, if so it were better not to force her acceptance because if liable to such defects of temper, she could not contribute much to my felicity. Jon Jory Pride and Prejudice
+
+*(MR. BENNET enters.)*
+
+**MRS. BENNET.** Mr. Bennet, you must come and make Lizzy marry Mr. Collins for she vows she will not have him.
+
+**COLLINS.** Pray, excuse me.
+
+*(He exits.)*
+
+**MR. BENNET.** I have not the pleasure of understanding you.
+
+**MRS. BENNET.** ...and Mr. Collins begins to say he will not have Lizzy. Lizzy!
+
+**MR. BENNET.** And what am I to do on the occasion?
+
+**MRS. BENNET.** *(ELIZABETH enters.)* Why tell her you insist upon her marrying him.
+
+**MR. BENNET.** Come here child. Is it true Mr. Collins has made you an offer of marriage?
+
+**ELIZABETH.** It is.
+
+**MR. BENNET.** And this offer of marriage you have refused?
+
+**ELIZABETH.** I have sir.
+
+**MR. BENNET.** An unhappy alternative is before you Elizabeth. Your mother will never see you again if you do not marry Mr. Collins, and I will never see you again if you do.
+
+**MRS. BENNET.** I tell you what Miss Lizzy, go on in this way and you will never get a husband at all-and I am sure I do not know who is to maintain you when your father is dead.
+
+*(MR. COLLINS enters.)*
+
+**MRS. BENNET.** Oh, Mr. Collins.
+
+**COLLINS.** Please excuse me, but I wish to withdraw my pretensions to your daughter's favour. I have come to feel that her high spirits may not find their perfect expression in the somewhat circumscribed life of the parsonage. I have certainly meant well and if my manner has been in any way reprehensible, I here beg leave to apologize. am resigned but, I hope improved. Resignation is never so perfect as when the blessing denied begins to lose its value in our estimation.
+
+*(He exits.)*
+
+**MRS. BENNET.** Miss Lizzy, I shall simply say that I will never speak to you again and you will find me as good as my word. I have no pleasure in talking to undutiful children. Jon Jory
+
+*(She exits. Shift begins to new configuration of Longbourn furniture.)*
+
+**KITTY.** *(Steps forward)* The discussion of Mr. Collin's offer was now nearly at an end; but rather than decamp in disarray he made it known...
+
+**LYDIA.** ...that he was always to have gone on Saturday and to Saturday he still meant to stay.
+
+**KITTY.** And..
+
+**LYDIA.** ...the assiduous attentions paid to Lizzy were transferred...
+
+*(CHARLOTTE LUCAS is revealed.)*
+
+**KITTY.** ...to Charlotte Lucas who was visiting...
+
+**LYDIA.** ...whose civility in listening to him..
+
+**KITTY, LYDIA.** ...was a seasonable relief to us all. (CHARLOTTE and COLLINS walk off arm in arm. KITTY immediately turns to JANE with a letter.) MiS,,Bnnet R. Me, ths has come from Netherfield.
+
+**JANE.** *(Unfolds the note.)* From Netherfield?
+
+**KITTY.** Caroline Bingley says their whole party are leaving for town without any intention of coming back again...
+
+**JANE.** *(Reading)* "I do not pretend to regret anything I shall leave in Hertfordshire except your society my dearest friend." It is evident by this that Mr. Bingley comes back no more this winter.
+
+**ELIZABETH.** It is only evident that Miss Bingley does not mean he should.
+
+**JANE.** I will read you the passage which particularly hurts me. I will have no reserves from you. "Mr. Darcy is impatient to see his younger sister; and to confess the truth we are scarcely less eager to meet her again. Georgiana has no equal for beauty, elegance and accomplishments and we dare entertain the hope of her being hereafter our sister.
+
+**ELIZABETH.** Foolishness, she is a child.
+
+**JANE.** Is it not clear enough? Does it not expressly declare that Caroline neither expects nor wishes me to be her sister arnd that she is perfectly convinced of her brother's indifference to me? Can there be any other opinion on the subject? Mill Pride and Prejudice
+
+**ELIZABETH.** Yes, there can; for mine is totally different. Will you hear it?
+
+**JANE.** Most willingly.
+
+**ELIZABETH.** It is this. Miss Bingley sees that her brother is in love with you and wants him to marry Georgiana Darcy. I also suspect that Mr. Bingley's regard was further suppressed by his friend, Mr. Darcy's, interference. He watched you most narrowly as you danced.
+
+**JANE.** You must not criticize, Lizzy. Perhaps I have imagined Mr. Bingley's regard. Women fancy admiration means more than it does.
+
+**ELIZABETH.** And men take care that it should. His sister has influenced him as well Jane, in conjunction with his friend.
+
+**JANE.** Surely she only wishes his happiness.
+
+**ELIZABETH.** Oh, she may wish many things beside his happiness. Such as an increase in wealth, consequence and great connections.
+
+**JANE.** No, Lizzy. I think no ill of him or his sister. Let me take it in the best light, in the light in which it may be understood. I have at least the comfort that it has not been more than an error of fancy on my side, and that it has done no harmn to anyone but myself.
+
+**ELIZABETH.** Really, you are too good. You wish to think all the world respectable. The more I see of the world the more I am dissatisfied with it; and every day confirms my belief of the inconsistency of all human characters. I have come to distrust the appearance of either merit or sense.
+
+**JANE.** You must not hinder your happiness on my behalf.
+
+*(She exits and MR. BENNET enters.)*
+
+**MR. BENNET.** So Lizzy, your sister is crossed in love, I find. I congratulate her. Next to being married, a girl likes to be crossed in love a little now and then. You will hardly bear to be long outdone by Jane. Here are officers enough at Mery ton to disappoint all the young ladies in the country. Let Wickham be your man. He is a pleasant fellow, and would jilt you creditably.
+
+**ELIZABETH.** Thank you, sir, but a less agreeable man would satisfy me. We must not all expect Jane's good fortune. (ELIZABETH exits one way, MR. BENNET another, and LYD- IA moves to the audience.) Jon Jory
+
+**LYDIA.** Amazement! Within the very week and in as short a time as Mr. Collin's long speeches would allow, all was settled between him and Charlotte Lucas by way... by way of...
+
+**JANE.** *(Revealed on first level.)* Domestic arrangement...
+
+**LYDIA.** And Lizzy feels she accepted him solely from..
+
+**ELIZABETH.** *(Poking her head in)* The pure and disinterested desire of an establishment...
+
+**LYDIA.** And as Mamma said.
+
+**MRS. BENNET.** Cared not how that establishment was gained! JANE and ELIZABETH meet.)
+
+**ELIZABETH.** Charlotte's marriage is unaccountable! In every view unaccountable!
+
+**JANE.** My dear Lizzy, do not give way to such feelings as these. They will ruin your happiness. JANE leaves and CHARLOTTE enters to ELIZABETH.)
+
+**ELIZABETH.** Engaged to Mr. Collins! My dear Charlotte, impossible!
+
+**CHARLOTTE.** Why should you be so surprised, my dear Eliza? Do you think it incredible that Mr. Collins should be able to procure any womans good opinion because he was not so happy as to succeed with you?
+
+**ELIZABETH.** Indeed not, but two offers of marriage in three days?
+
+**CHARLOTTE.** Dear Eliza, I am sure when you have had time to think it all over that you will be satisfied for me. I am not a romantic, you know, I never was.
+
+*(Starts to leave.)*
+
+*(MR. and MRS. BENNET enter as CHARLOTTE exits.)*
+
+**MRS. BENNET.** And I tell you Mr. Collins has been taken in! Worse, Elizabeth I am sure, is the cause of all the mischief.
+
+**MR. BENNET.** No.
+
+**MRS. BENNET.** I tell you we are in a pitiable state. Because of the entail Charlotte Lucas will be mistress of this house and I will be forced to make way for her and live to see her take my place in it! Sir Willm:/ We are planning for a iSt in Mare. I in Sist you be t Dne of our party Pride and Prejudice
+
+**MR. BENNET.** Let us hope for better things. Let us flatter ourselves that I may be the survivor.
+
+*(Shift to different Longbourn configuration.)*
+
+**KITTY.** *(To the audience)* In our gloom, Mr. Wickham's society was of material service, and his betrayal by Mr. Darcy was general knowledge. We all agreed that...
+
+**KITTY, LYDIA, ELIZABETH.** Mr. Darcy was the worst of men.
+
+*(KITTY and LYDIA exit.)*
+
+**ELIZABETH.** On the following Monday the Gardiners, my mother's brother and his wife arrived.
+
+*(We see them at the back of the stage.)*
+
+*(MR. GARDINER exits. MRS. GARDINER moves down to*
+
+**MRS. GARDINER.** A young man such as you describe Mr. Bingley so easily falls in love with a pretty girl for a few weeks and just as easily forgets her. Now as to Mr. Wickham, whom you mention far too frequently, I would have you be on your guard.
+
+**ELIZABETH.** Oh, he shall not be in love with me if I can prevent it.
+
+**MRS. GARDINER.** Do not involve yourself in an affection which the want of fortune should make very imprudent.
+
+**ELIZABETH.** At presentI am not in love with Mr. Wickham but I count him as the most agreeable man I ever saw.
+
+**MRS. GARDINER.** Unwise.
+
+**ELIZABETH.** But how can I be wiser than so many of my fellowcreatures if I am tempted, or how am I even to know that it would be wisdom to resist? All that I can promise you therefore, is not to be in a hurry.
+
+**MRS. GARDINER.** I say no more. I shall take Jane with me to London, poor girl, as a change of scene might be of service. It had better have happened to you Lizzy; you would have laughed yourself out of it sooner. I understand you are to visit the Collinses in their newly married state and you must visit me as well. Jon] Jory JANE enters above them. She is in London. MRS. GARDINER joins her.) RAEEL (To the audience:) As March was' to take se to Hunsford Parsonage, the improvement of spending a night in London nade the plan perfect as plan could be. alreadg (Shift begins into MRS. GARDINER's London home. ELIZA- BETH "enters" to JANE.)
+
+**ELIZABETH.** Jane! Look now, I see London is agreeable to you.
+
+**JANE.** My dearest Lizzy. Sit with me.
+
+**ELIZABETH.** With every pleasure. You look so well.
+
+**JANE.** I confess myself to have been entirely deceived in Miss Bingley's regard for me. She has barely visited me here in London and when she did come it was very evident she had no pleasure in it, in fact she seemed to have come to convince me of her brother's interest in Miss Darcy.
+
+**MRS. GARDINER.** All gentlemen are held in my lowest repute. It is said that Mr. Wickham is now the admirer of a certain Miss King...
+
+**ELIZABETH.** Oh.
+
+**MRS. GARDINER.** Whose most remarkable charm, I might add, seems to be the acquisition through family mortality of ten thousand pounds and it is at the least indelicate to direct his attentions toward her so soon after this event. You are pale Elizabeth, are you ill?
+
+**ELIZABETH.** A man in distressed circumstances has not time for the elegant decorums which others might observe. If she does not object to it, why should we?
+
+**MRS. GARDINER.** Her not objecting to it does not justify him.
+
+**ELIZABETH.** *(Pacing)* I have a very poor opinion of young men who live in Derbyshire; and their intimate friends who live in Hertfordshire are not much better. I am sick of them all. Thank heaven I am going tomorrow to the Collinses' parsonage where I shall find a man who has not one agreeable quality, who has neither manner nor sense to recommend him. Perhaps stupid men are the only ones worth knowing after all.
+
+**MRS. GARDINER.** Bravo. You must accompany Mr. Gardiner and myself on a tour of pleasure this summer where we shall avoid the sex altogether, and regard the landscape. Lady ucas Pride and Prejudice
+
+**ELIZABETH.** *(An actor appears, as the "gate." COLLINS and CHARLOTTE appear.)* My dear aunt, what delight, what felicity! You give me fresh life and vigor. Adieu to disappointment and spleen. What are men to rocks and mountains! (Shift out of Mrs. Gardiner's house to a bare stage. ELIZABETH speaks to the audience.) Every object in my next day's journey was new and interesting, the chaise comfortable, the weather delightful and all conspired for the pleasure of the traveler. At length, the parsonage was discernible and Mr. Collins and Charlotte appeared at the gate.
+
+**CHARLOTTE.** Dearest Eliza, you are welcome and then welcome again! Come in immediately you must be wearied and jostled. (Two chairs indicating the parsonage are brought on. These two chairs will also form part of LADY CATHERINE's drawing room.
+
+**COLLINS.** *(Shift begins, and LADY CATHERINE's drawing room is assembled before us.)* I have news of Lady Catherine's delicate consideration and civility in inviting us to dine at Rosings the next night but one. Do not make yourself uneasy my dear cousin about your apparel. Lady Catherine will not think the worse of you for being simply dressed.
+
+**ELIZABETH.** The dinner was exceedingly handsome and there were all the servants and each article of plate which Mr. Collins had promised and elaborately described.
+
+*(CHARLOTTE jOins her.)*
+
+**CHARLOTTE.** *(Confidingly)* You must not be surprised that Mr. Darcy will be in attendance, bringing with him a Colonel Fitzwilliam, the younger son of his uncle. RumoY Claims that Mr. Daryis intended bu (COLLINS enters with LADY CATHERINE) his aunt to marn Miss Anne.
+
+**COLLINS.** It is my pleasure to introduce the Right Honourable Lady Catherine de Bourgh, my esteemed patroness whose wit, affability and condescension make her the admired ornament of...
+
+**LADY CATHERINE.** *(Stopping him witha gesture.)* Yes, yes, quite so. You are, I believe, Elizabeth Bennet.
+
+**ELIZABETH.** I am. L5) Jon) Jory
+
+**LADY CATHERINE.** Your ather's estate is entailed on Mr. Collins, I think?
+
+*(To CHARLOTTE:)*
+
+*(To COLLINS,)*
+
+*(Takes him auvay as DARCY and FITZWILLIAM enter.)*
+
+**DARCY.** Miss Bennet, I had not hoped to meet you here.
+
+**ELIZABETH.** Nor I.
+
+**DARCY.** Allow me to present Colonel Fitzwilliam.
+
+**FITZWILLIAM.** Your beauty, oft reported, exceeds, Miss Bennet.
+
+**ELIZABETH.** This has not been true Colonel Fitzwilliam in all quarters.
+
+**LADY CATHERINE.** Miss Bennet, your family?
+
+**ELIZABETH.** My family?
+
+**LADY CATHERINE.** How many sisters have you, Miss Bennet?
+
+**ELIZABETH.** I have four sisters.
+
+**LADY CATHERINE.** That is a great many. Are you the eldest?
+
+**ELIZABETH.** I am the second.
+
+**LADY CATHERINE.** Are they handsome?
+
+**ELIZABETH.** Indeed.
+
+**LADY CATHERINE.** Do your sisters play and sing? Do you draw?
+
+**ELIZABETH.** No, not at all.
+
+**LADY CATHERINE.** What, none of you?
+
+*(ELIZABETH shakes her head,)*
+
+**LADY CATHERINE.** That is very strange. Has your governess left you?
+
+**ELIZABETH.** We never had a governess.
+
+**LADY CATHERINE.** No governess! How was that possible? Five daughters brought up at home without a governess! I never heard of such a thing. Your mother must have been quite a slave to your education. that JElizabeth: As for Miss de Boagh, She looks Somenat Sickhy and crosS. yes, She wil do fy Dary veg well. Pride and Prejudice
+
+**ELIZABETH.** Not perhaps as you might think. NMN ETCA
+
+**INE.** Then who taught you? Who atternded to you?
+
+**ELIZABETH.** Such of us as wished to learn never wanted the means. We were always encouraged to read, and books were always provided. Those who chose to be idle certainly might. ANN
+
+**LADY CATHERINE.** Aye, no doubt; but that is what a governess will prevent; hadI known your mother, I should have advised her most strenuously to engage one. Are any of your younger sisters out?
+
+**ELIZABETH.** Yes, ma'am, all.
+
+**LADY CATHERINE.** Al! All five out at once? Very odd! The younger ones out before the eldest are married!
+
+**ELIZABETH.** But really, ma'am, I think it would be very hard upon younger sisters that they should not have their share of society and amusement, because the elder may not have the means or inclination to marry early.
+
+**LADY CATHERINE.** Upon my word, you give your opinion very decidedly for so young a person. Pray what is your age?
+
+**ELIZABETH.** With three younger sisters grown up, your ladyship can hardly expect me to own it.
+
+*(FITZWILLIAM leans over to talk to her.)*
+
+**LADY CATHERINE.** What is that you are saying Fitzwilliam? What are you telling Miss Bennet?
+
+**FITZWILLIAM.** We are speaking of music, madam.
+
+**LADY CATHERINE.** Of music? Then pray speak aloud.
+
+**FITZWILLIAM.** I am reminding Miss Bennet of her earlier promise to favour us at the pianoforte.
+
+**ELIZABETH.** *(To LADY CATHERINE)* Ah, yes. Pray excuse me.
+
+*(Moves to the piano.,)*
+
+*(Begins to play.)*
+
+**LADY CATHERINE.** *(Listens for a moment as ELIZABETH plays.)* I often tell young ladies, that no excellence in music is to be acquired without constant practice. TSn't that so, Anne?
+
+**ANNE.** Quite so, Ma ma.
+
+**LADY CATHERINE.** TDo continul, Miss Bennet Jon Jory
+
+**ELIZABETH.** *(ELIZABETH seated at the pianoforte finds DARCY stationed where he may closely observe her)* You mean to frighten me, Mr. Darcy but my courage always rises with every attempt to intimidate me.
+
+**DARCY.** You could not really believe me to entertain any design of alarming you. I have had the pleasure of your acquaintance long enough to know that you find great enjoyment in occasionally professing opinions which in fact are not your own.
+
+**ELIZABETH.** *(To FITZWILLIAM)* Your cousin will give you a very pretty notion of me and teach you not to believe a word I say. Take
+
+*(ELIZABETH stops playing, laughs.)*
+
+**DARCY.** *(Smiling)* I am not afraid of you.
+
+**FITZWILLIAM.** Pray let me hear what you accuse him of? I should like to know how such a paragon behaves amnong strangers.
+
+**ELIZABETH.** You shall hear then, but prepare for something very dreadful. The first time of ever my seeing him was at a ball and he refused to dance, and more than one young lady was sitting down in want of a partner.
+
+**DARCY.** I had not at that time the honour of knowing any lady in the assembly and I am ill qualified to recommend myself to strangers.
+
+**ELIZABETH.** Shall we ask him why a man of sense and education who has lived in the world is ill qualified to recommend himself to strangers?
+
+**DARCY.** I have not the talent of conversing easily with those I have never seen before.
+
+**ELIZABETH.** WSHfOuatty fr-allprasentthatisnottheeasehere
+
+*(ELIZABETH moves down to the audience.)*
+
+*(Shift begins out of Lady Catherine's, to a bare stage.)*
+
+*(CHARLOTTE joins ELIZABETH)*
+
+**CHARLOTTE.** If you would not laugh me to scorn Eliza, I might suggest the possibility of his being partial to you.
+
+**ELIZABETH.** *(Startled into laughter)* The gentleman seldom meets my eyes and frequently sits there ten minutes together without opening his lips.
+
+**CHARLOTTE.** Ah, but he often looks at you quite when your look is engaged elsewhere. appraisingly
+
+**ELIZABETH.** *(She moves off, donning a red cape. CHARLOTTE exits. COLO- NEL FITZWILLIAM enters and calls to ELIZABETH who is walking away from him.)* Stuff. I am going for a ramble in the park.
+
+**FITZWILLIAM.** Ah, Miss Bennet.
+
+**ELIZABETH.** Colonel Fitzwilliam, I did not know you ever walked this way.
+
+**FITZWILLIAM.** Are you going much further?
+
+**ELIZABETH.** No, I shoulid have turned in a moment.
+
+*(He joins her.)*
+
+**FITZWILLIAM.** Yes, if Darcy does not put it off again.
+
+**ELIZABETH.** I do not know anybody who seems more to enjoy the power of doing what he likes than Mr. Darcy.
+
+**FITZWILLIAM.** But so we all do. It is only that he has better means of having it than many others and I am at his disposal.
+
+**ELIZABETH.** I imagine your cousin brought you down with him for the sake of having somebody at his disposal. I wonder he does not marry, to secure a lasting convenience of that kind. But perhaps his sister does as well for the present as she is under his sole care.
+
+**FITZWILLIAM.** In fact I am joined with him in the guardianship of Miss Darcy.
+
+**ELIZABETH.** Are you indeed? Young ladies of her age are sometimes a little difficult to manage; and if she has true Darcy spirit, she may like to have her own way.
+
+**FITZWILLIAM.** Indeed she is one of the most tractable creatures in the world and a great favourite of Miss Bingley. I thinkI have heard you say you know her? Jon Jory
+
+**ELIZABETH.** A little. Darcy is uncommonly kind to Mr. Bingley, and takes a prodigious deal of care of him.
+
+**FITZWILLIAM.** From something Darcy said, I have reason to think Bingley very much indebted to him. It is a circumstance which Darcy of course could not wish to be generally known because if it were to get round to the lady's family, it would be an unpleasant thing.
+
+**ELIZABETH.** You may, of course, depend on mny not mentioning it.
+
+**FITZWILLIAM.** He told me merely that he congratulated himself on having lately saved a friend from the inconveniences of a most imprudent marriage and I only suspected it to be Bingley as his open nature might get him into a scrape of that sort.
+
+**ELIZABETH.** Please pardon me, but I do not see what right Mr. Darcy had to decide on the propriety of a friend's inclination.
+
+**FITZWILLIAM.** As I recall there were some very strong objections to the lady's family. I believe one was a country attorney and another with a sort of mercantile background and perhaps an unsuitable mother. But this is all conjecture. Good day to you, Miss Bennet.
+
+**ELIZABETH.** *(On the phrase "worst kind of pride, " a chair enters for Elizabeth. She is now back at the parsonage. DARCY enters.)* To Jane herself there could be no possibility of objection- all loveliness and goodness as she is! Neither could anything be urged against my father, who though with some peculiarities, has abilities Mr. Darcy himself need not disdain. Of course my mother.. (ELIZABETH breaks downstage. FITZWILLIAM continues off. Her speech is to herself.) But Mr. Darcy would receive a deeper wound from the want of importance in his friend's connections than from their want of sense. He has been governed by this worst kind of pride, and partly from the wish of retaining Mr. Bingley for his sister.
+
+**DARCY.** Miss Bennet.
+
+**ELIZABETH.** Mr. Darcy.
+
+**DARCY.** May I...would it be suitable ifI...enquired of your health.
+
+**ELIZABETH.** My health?
+
+**DARCY.** As I've not...encountered you these past days I thought..I come to...enquire of your health.
+
+**ELIZABETH.** My health, Mr. Darcy, meets all the usual standards.
+
+**DARCY.** Ah. Pride and Prejudice
+
+**ELIZABETH.** Yes.
+
+**DARCY.** Ah.
+
+*(A silence.)*
+
+**DARCY.** *(ELIZABETH, startled, looks down.)* In vain have I struggled. It will not do. My feelings will not be repressed. You must allow me to tell you how ardently I admire and love you.
+
+**DARCY.** I see I dismay you. I am slow, even dilatory. I should have declared myself at an earlier date. But there were, of course, the family obstacles which judgment always opposed to inclination. The general sense of your social inferiority, of it being a degradation of the line. I could not forget my responsibility to an estate, a way of life, a pride of place which might given your circumstances disinclude you and thus the very ardency I described took place against my will and reason, or rather in opposition to my character and inclination, but the very strength of my attachment has made it impossible for me to conquer my feelings and I can only express the hope that these feelings will now be rewarded by your acceptance of my hand. There.
+
+*(She doesn't speak.)*
+
+**DARCY.** I have spoken ill but mean well, Miss Bennet.
+
+**ELIZABETH.** In such cases as this, it is, I believe, the established mode to express a sense of obligation for the sentiments avowed however unequally they may be returned. It is natural that obligation should be felt, and if I could feel gratitude I would now thank you. But I cannot-I have never desired your good opinion, and you have certainly bestowed it most unwillingly. The feelings which you tell me have long prevented the acknowledgment of your regard can have litle difficulty in overcoming it after this explanation.
+
+**DARCY.** And this is all the reply which I am to have the honour of expecting! I might, perhaps, wish to be informed why, with so little endeavour at civility, I am thus rejected?
+
+**ELIZABETH.** I might as well enquire, why, with so evident a design of offending and insulting me you chose to tell me that you liked me against your will, against your reason and even against your character? Was not this some excuse for incivility, if I was uncivil? But I have other provocations. You know I have. Do you think that any consideration would tempt me to accept the man who has been the means of ruining, perhaps forever, the happiness of a beloved sister? Jon Jory You divided Mr. Bingley and Jane from each other, or at the very least yours was the principal means, involving them both in misery of the acutest kind. Can you deny that you have done it?
+
+**DARCY.** I have no wish to deny that I did everything in my power to separate my friend from your sister, or that I rejoice in my success. Towards him I have been kinder than towards myself.
+
+**ELIZABETH.** Quite clearly said. But it is not merely this affair on which my dislike is founded. Your character was unfolded in the recital which I received many months ago from Mr. Wickham.
+
+**DARCY.** You take an eager interest in that gentleman's concerns.
+
+**ELIZABETH.** Knowing his misfortunes who would not feel an interest in him?
+
+**DARCY.** His misfortunes!
+
+**ELIZABETH.** And of your infliction. You have withheld the advantages which you must know to have been designed for him and yet you treat the mention of his misfortunes with contempt.
+
+**DARCY.** And this is your opiion of me!I thank you for explairing it so fully. These bitter accusations might have been suppressed had I, with greater policy flattered you into the belief of my being impelled by unqualified, unalloyed inclination. But disguise of every sort is my abhorrence.
+
+**ELIZABETH.** The mode of your declaration has not affected me Mr. Darcy. You could not have made me the offer of your hand in any possible way that would have tempted me to accept it. From the very beginning your arrogance and selfish disdain for the feelings of others have built an immovable dislike. You are Mr. Darcy the last man in the world whom I could ever be prevailed on to marry.
+
+**DARCY.** You have said quite enough, Madam. I perfectly comprehend your feelings. Forgive me for having takern up so much of your time, and accept my best wishes for your health and happiness.
+
+*(He exits. ELIZABETH moves downstage as the lights fade.)*
+
+## ACT II
+
+*(ELIZABETH alone.)*
+
+**ELIZABETH.** Next morning I awoke to the same thoughts that had kept sleep long at bay and resolved to see what air and exercise might do for my meditations thus proceeded to my favourite walk.
+
+*(She walks. DARCY blocks her path.)*
+
+**DARCY.** *(He hands it to her, moves away upstage of her where he becomes one of the voices in ELIZABETHS reading of the letter.)* I have been wandering in the grove some time in the hope of meeting you. Will you do me the honour of reading this letter?
+
+**ELIZABETH.** *(Reading)* "Two offences you last night laid to my charge. First that I had detached Mr. Bingley from your sister (Throughout the reading of the letter characters appear and disappear in the six openings of the sky. Some on the first level, some on the second.) and the other that I had in defiance of honour blasted the prospects of Mr. Wickham."
+
+*(WICKHAM appears,)*
+
+**WICKHAM.** Ah, Miss Bennet, you are well known in Hertfordshire... ELIZABETH."...I had not been long in Hertfordshire..."
+
+*(BINGLEY appears.)*
+
+**BINGLEY.** Will you think me too forward if I apply to you for a second dance?
+
+*(JANE and BINGLEY dance together across the stage.)*
+
+**ELIZABETH.** "Before I observed my friend's behaviour and perceived his most surprising partiality..."
+
+**DARCY.** Your şister I also watched.. ARETE "And though her manners were open and erngaging there was no symptom of warm regard or sentiment. She received his atterntions but remained, to my eye, indifferent."
+
+*(JANE and BINGLEY finish dancing and exit.)*
+
+**DARCY.** My objections to the marriage proceeded also from other causes of repugnance. Your family's want of propriety betrayed by your mother's manners, your younger sisters' forwardness, and even forgive me your father's misplaced wit. All confirmed my sense.. Jon Jory
+
+**ELIZABETH.** "...that I must preserve my friend from a most unhappy connecticon."
+
+*(MISS BINGLEY appears.)*
+
+**DARCY.** In London I found his sister's uneasiness...
+
+**MISS BINGLEY.** Has been greatły excited.
+
+**DARCY.** And we were alike sensible that...
+
+**DARCY, MISS BINGLEY.** No time should be lost in detaching him.
+
+**ELIZABETH.** "Bingley has great natural modestly with a stronger dependernce on my judgment than on his own."
+
+**DARCY.** To convince him he had deceived himself was not difficult.
+
+**ELIZABETH, DARCY.** "On this subject I have nothing more to say and no apology to offer.
+
+**DARCY.** With respect to that other, more weighty accusation of having injured Mr. Wickham, that I will attempt to refute.
+
+*(BINGLEY, JANE and MISS BINGLEY exit. WICKHAM remains.)*
+
+**WICKHAM.** In short, his behavior to me has been scandalous. man's society
+
+**DARCY.** My father was not only fond of this young but hoped the church would be his profession.
+
+**ELIZABETH.** *(Still reading)* "And intended to provide for him in it. He would situate him at the family parsonage and provide a legacy of one thousand pounds. On my father's death Mr. Wickham wrote to inform me that..
+
+**WICKHAM.** I have resolved not to pursue a church living but to study law for which the thousand pounds would be insufficient. I hope you shall not think it unreasonable for me to expect more immediate pecuniary advantage.
+
+**ELIZABETH.** "The business was soon settled. He resigned all claim to assistance in the church..."
+
+**DARCY.** ...and accepted in return three thousand pounds. Three years later he applied to me again having found the law an unprofitable study and being then again resolved to be ordained.
+
+**ELIZABETH.** *(Looking away from the letter)* This must be false! This cannot be! (Back to the letter.) "He assured me his circumstances were. Pride and Prejudice
+
+**WICKHAM.** ...exceedingly bad.
+
+**ELIZABETH.** *(Away from the letter)* Indeed on both sides this is only an assertion and yet every line confuses my belief in Mr. Darcy's infany.
+
+*(Back to the letter.)*
+
+**DARCY.** You will hardly blame me for refusing his entreaty and his resentment was so great...
+
+**WICKHAM.** *(Direct to DARCY)* You betray your father's wishes and your own honour sir.
+
+**DARCY.** ...that every appearance of acquaintance was dropped.
+
+**ELIZABETH.** *(Reading)* "Last summer he again, most painfully obtruded on my notice. My sister Georgiana.
+
+*(She appears.)*
+
+*(WICKHAM approaches GEORGIANA) 40V4rnss, Miss5 main wh*
+
+**WICKHAM.** Ah, Miss Darcy, it is my pleasure to renew your ChAY acquaintance.
+
+**ELIZABETH.** "She was then but fifteen and was persuaded to believe herself in love and consented to an elopement."
+
+*(GEORGIANA and WICKHAM kiss.)*
+
+**DARCY.** Fortunately, regarding me as almost a second father, she confessed her plans.
+
+**ELIZABETH.** "You may imagine what I felt and how I acted.
+
+**DARCY.** I wrote to Mr. Wickham in undisguised heat and he left London immediately and alone.
+
+*(WICKHAM and GEORGIANA exit in diferent directions.)*
+
+**DARCY.** His chief object had unquestionably been my sister's fortune of thirty thousand pounds and the hope, I think of revenging himself on me.
+
+**ELIZABETH.** *(To herself)* Irn this light his attentions to Miss King seem now the consequence of views solely and hatefully mercenary.
+
+**DARCY.** *(Moves close belind ELIZABETH.)* This Madam, is a faithful narrative of every event. If your abhorrence of me should make my whose ter we wed most unhyily deceived Jon Jory assertions valueless, I direct you to Colonel Fitzwilliam, also guardian of Georgiana who is fully aware of every particular described above. ELIZABETH/ DARCY. I will only add, God bless you.
+
+*(DARCY exits.)*
+
+**ELIZABETH.** *(Folds the letter.)* How humiliating is this discovery, yet how just a humiliation. Had I been in love I could not have been more wretchedly blind, but vanity, not love has been my folly.
+
+*(All the BENNETS appear behind her in tableau.)*
+
+*(The family disappears, leaving ELIZABETH alone.)*
+
+*(Shift back into the BENNETS at Longbourn.)*
+
+**MARY.** I am glad you are back Lizzy.
+
+**LYDIA.** Have you had any flirting? I was in great hopes you would have got a husband before you got back.
+
+**MARY.** Our sisters have been more than ordinarily silly.
+
+**LYDIA.** Oh poo. Aunt Phillips says Lizzy had better taken Mr. Collins; but I do not think there would have been any fun in it. Jane will be quite an old maid soon. Lord! How I should like to be married before any of you! And then I should chaperone you about to all the balls. Kitty and I have been to the shops.
+
+**KITTY.** I do wish you had gone along with us Mary, for we had such fun. We talked and laughed so loud, that anybody might have heard us ten miles off!
+
+**MARY.** Far be it from me, my dear sister, to depreciate such pleasures. But I confess they would have no charms for me. I should infinitely prefer a book.
+
+**LYDIA.** Look here, I have bought this bonnet. I do not think it is very pretty; but I thought I might as well buy it as not. Pride and Prejudice
+
+**MARY.** *(To ELIZABETH)* You see?
+
+**LYDIA.** Oh, but there were two or thrcc much uglier in the shop; and when I have bought some prettier coloured satin to trim it with fresh, I think it will be very tolerable.
+
+*(She exits with KITTY trailing.)*
+
+**JANE.** *(Quietly)* Sister, I am heartily sorry that Mr. Darcy should have delivered his sentiments in a manner so little suited to recommend them, but I grieve for the unhappiness your refusal must have given him.
+
+**ELIZABETH.** You do not blame me, however, for refusing him?
+
+**JANE.** *(JANE kisses her sister lightly and moves off as MRS. BENNET enters.)* Blame you! Oh no. But Wickham so very bad! It is almost past belief. How unfortunate that you should have used such very strong expressions in speaking of Wickham to Mr. Darcy, for now they do appear wholly undeserved.
+
+**MRS. BENNET.** Well Lizzy, what is your opinion now of this business of Jane's?
+
+**ELIZABETH.** My belief...
+
+**MRS. BENNET.** He is a very undeserving young man, I don't believe she shall ever get him now.
+
+**ELIZABETH.** Mamma...
+
+**MRS. BENNET.** Well, my comfort is, I am sure Jane will die of a broken heart, and then he will be sorry for what he has done.
+
+*(LYDIA rushes in followed by KITTY.)*
+
+**LYDIA.** News! Ecstatic, delicious...
+
+**KITTY.** Wonderful...
+
+**LYDIA.** News!
+
+**KITTY.** Hearing the regiment would leave for Brighton..
+
+**LYDIA.** I thought my heart should have broken...
+
+**KITTY.** My heart!
+
+**LYDIA.** Mine! But, oh Mamma, I have received an invitation...
+
+*(MR. BENNET enters.)*
+
+**KITTY.** Brighton. forstes ADA. To Brighton!
+
+**KITTY.** And I carnot see why I should not be asked as well.
+
+**LYDIA.** Shan't. Mgorst .LYDTA:Mrs. Forster has aşKed re...
+
+**LYDIA.** You confuse your steps to the Danse Espanol and you've but one dress for the new season and that an unsuitable green.
+
+**MRS.** FORSTER: As my garticular fiend
+
+**KITTY.** Shall.
+
+*(KITTY ofended moves avay)*
+
+**MR. BENNET.** Lydia will never be easy 'til she has exposed her qualities in some public place or other, and we can never expect her to do it with so little expense or inconvenience to her family as under the present circumstances.
+
+**LYDIA.** *(Embracing him)* Oh, Papa!
+
+**ELIZABETH.** Were you aware of the very great disadvantage to us all which must arise from the public notice of Lydia's unguarded and imprudent manner, nay, which has already arisen from it.
+
+**MR. BENNET.** What, has she frightened away some of your lovers?
+
+**ELIZABETH.** I have no such injuries to resent but, dear Father, if there is no check to her exuberant spirits she will soon be beyond the reach of amendment.
+
+**LYDIA.** Oh poo.
+
+**KITTY.** Yes, poo.
+
+**ELIZABETH.** And Kitty will follow wherever Lydia leads.
+
+**LYDIA.** Papa has said I may. Indeed a visit to Brighton comprises every possibility of earthly happiness.
+
+**ELIZABETH.** Where you may play the common flirt with at least six officers at once.
+
+**LYDIA.** *(In a spoiled fit)* I tell you all I shan't dine or ever leave my room if
+
+**MR. BENNET.** We shall have no peace at Longbourn if Lydia does not go to Brighton. Pride and Prejudice
+
+**MRS. BENNET.** *(Returns with WICKHAM in tow)* Mr. Wickham has arrived to say his goodbyes as the regiment tomorrow decamps for Brighton. one MisS Bennet
+
+**EA.** But Mr. Wickham$ will not say goodbyef-for Pape-tras, agreedmay aeeept Mrs Forsters-invitatio for- et-extended isit
+
+**WICKHAM.** *(Kissing her hand; As he speaks MRS. BENNET signals the family that ELIZA- BETH and WICKHAM should be left alone and, in a trice, they are.)* It will be my pleasure, if asked, to introduce you in Brighton and share the town's historical views.
+
+**WICKHAM.** Miss Bennet.
+
+**ELIZABETH.** Mr. Wickham.
+
+**WICKHAM.** Am I in disgrace Miss Bernet?
+
+**ELIZABETH.** I do not rightly understand you.
+
+**ELIZABETH.** Have I mentioned I met Colonel Fitzwilliam and Mr.
+
+**WICKHAM.** In passing: You saw Mr. Darcy frequently?
+
+**WICKHAM.** I have always admired your understanding. Darcy at Rosings? You know Colonel Fitzwilliam I believe?
+
+**ELIZABETH.** Yes, almost every day. I believe Mr. Darcy improves on acquaintance.
+
+**WICKHAM.** Indeed! Is it in address he improves? For I dare not hope he is improved in essentials?
+
+**ELIZABETH.** I mean that from knowing him better, his disposition was better understood.
+
+**WICKHAM.** *(ELIZABETH, unable to suppress a smile, inclines her head as an answer.)* I must rejoice that he is wise enough to assume even the appearance of what is right, for it must deter him from such foul misconduct as I have suffered by.
+
+**WICKHAM.** *(He exits. ELIZABETH moves downstage. Behind her, the BEN- NETS assemble in a living tableau as Longbourn is struck, leaving a bare stage except for one chair, in which MR. BENNET sits.)* But I fear I must leave you. We are on the march. A last word on Mr. Darcy. His manners being in a state of improvement may be imputed to his wish of forwarding with his new affability a match with the daughter of Lady Catherine de Bourgh. A mnatch long contemplated by both families as a boon to the growth of their estates and the continuance of their honourable lines. Goodbye Miss For MisS Lyaia has acepted w initahon tor a enended iSit Jon Jory Bennet, I am not sure we will meet again. I wish you good fortune in whatever way your inclinations lie.
+
+**ELIZABETH.** The departure of the regiment, including many acquaintances, wrapped a cloak of gloom and disinclination around our domestic circle.
+
+**MRS. BENNET.** *(Addressing the audience)* Lydia has promised to write very often but her letters are always very short.
+
+**KITTY.** Where such and such officers had attended them...
+
+**MARY.** Where she had seen such beautiful ornaments as made her quite wild..
+
+**MR. BENNET.** And how she had purchased another new gown and another new parasol.
+
+**ELIZABETH.** And my constant hope of a tour to the lakes with the Gardiners was now the object of my happiest thoughts.
+
+*(The family exits. MRS. GARDINER enters to her.)*
+
+**MRS. GARDINER.** My dear Elizabeth our plans, due to Mr. Gardiner's business must be somewhat curtailed in extent. We must give up the lakes and substitute a more contracted tour. Had you set your heart on seeing the lakes?
+
+**ELIZABETH.** Well, I own they were an attraction.
+
+**MRS. GARDINER.** I fear we are confined to Derbyshire though it leaves us the delights of Warwick, Kenelworth, Lambton and, of course, Pemberley.
+
+**ELIZABETH.** Oh, Pemberley.
+
+**MRS. GARDINER.** The Darcy estate?
+
+**ELIZABETH.** Yes, I recall.
+
+**MRS. GARDINER.** If it were merely a fine house richly furnished I should not care about it myself, but the grounds are delightful.
+
+**ELIZABETH.** *(Lost in thought)* The grounds, yes. But is not the family down for the summer?
+
+**MRS. GARDINER.** Indeed not, you goose, for they summer always in London. Elizabeth? a.3 3 Pride and Prejudice (A carriage is formed with a stool and the actors. Journey to Pemberley begins. A "carriage" pull-toy travels from stage right to stage left below the actors. The "Pemberley" pull-toy enters from stage left, pulled by the HOUSEKEEPER. ELIZABETH speaks first to us, and then enters the carriage.)
+
+**ELIZABETH.** The journey was, for scenery splendid, and when we turned in at the lodge we saw that Pemberley Park was large...
+
+**MR. GARDINER.** Contains quite a variety of ground.
+
+**MRS. GARDINER.** Glorious woods.
+
+**MR. GARDINER.** Eh?
+
+**MRS. GARDINER.** Woods. fishing.
+
+**ELIZABETH.** The house sits well on rising ground.
+
+**MR. GARDINER.** Good stream for
+
+*(The GARDINERS agree.)*
+
+**ELIZABETH.** I own, I have never seen natural beauty so little contradicted by an awkward taste.
+
+**MR. GARDINER.** *(To the horse; A HOUSEKEEPER approaches, they exit the carriage. The stool is taken off.)* Whoa there, Alexander.
+
+**HOUSEKEEPER.** You are very welcome. The master is, of course, absent but we expect him tomorrow, with a large party of friends. We are instructed always to show the house if you would like.
+
+**MRS. GARDINER.** Most kind indeed.
+
+**MR. GARDINER.** Your master much at Pemberley, is he?
+
+**HOUSEKEEPER.** Not so much as I could wish sir.
+
+**MR. GARDINER.** *(Detaching himself)* Have a look at the stream, eh?
+
+**HOUSEKEEPER.** *(ELIZABETH and MRS. GARDINER do so, by literally taking a "step.")* Please to step in.
+
+**HOUSEKEEPER.** That above the grand fireplace would be my master, drawn perhaps eight years ago.
+
+**MRS. GARDINER.** A handsome face, but Lizzy you can tell us whether it is like or not?
+
+**HOUSEKEEPER.** Does the young lady know Mr. Darcy? Jon Jory
+
+**ELIZABETH.** I do.
+
+**HOUSEKEEPER.** And do you not think him a very handsome gentleman, Ma'am?
+
+**ELIZABETH.** Yes, very handsome.
+
+**HOUSEKEEPER.** He is the best master as have ever lived. I have never had a cross Word from him in my life.
+
+**ELIZABETH.** Mr. Darcy, you mean?
+
+**HOUSEKEEPER.** Yes Ma'am. Go as you please, see what you ike.
+
+*(She departs.)*
+
+**MRS. GARDINER.** In what an amiable light does this place him, though not quite consistent with his behaviour to our poor friend.
+
+**ELIZABETH.** It is possible we are deceived. Perhaps Aunt we may view the grounds.
+
+**MRS. GARDINER.** Ah, with the greatest pleasure.
+
+*(They are now outside.)*
+
+*(DARCY suddenly appears.)*
+
+**DARCY.** Oh.
+
+**ELIZABETH.** Oh.
+
+**MRS. GARDINER.** Ah.
+
+*(An uncomfortable pause.)*
+
+**DARCY.** Miss Bennet, this is a...most welcome surprise.
+
+**ELIZABETH.** Indeed...most welcome.
+
+**DARCY.** May I enquire of your well being and that of your family?
+
+**ELIZABETH.** In all regards...well.
+
+**DARCY.** I am very pleased to hear so. Would you do me the honor of introducing me to your friends?
+
+**ELIZABETH. M.** and Mrs. Gardiner may I present Mr. Darcy.
+
+**MRS. GARDINER.** Charmed.
+
+**MR. GARDINER.** Delighted.
+
+**ELIZABETH.** My uncle and aunt. a.5 Elizabeth: And of all this I might have been mistress! Pride and Prejudice
+
+**DARCY.** That, of course, only adds to the honour.
+
+*(ELIZABETH does a double take.)*
+
+**MR. GARDINER.** Wonderful stream Mr. Darcy, capital angling I suspect?
+
+**DARCY.** Quite satisfactory Mr. Gardiner, should you continue in the neighbourhood please do me the pleasure of fishing here as often as you choose. I can easily provide the requisite tackle and direct you to those parts of the stream where there is usually most sport.
+
+**MR. GARDINER.** *(fiurd ufenring)* Eh?
+
+**DARCY.** Best sport.
+
+**MR. GARDINER.** Very generous, sir. Look forward to it.
+
+**ELIZABETH.** *(A bit taken aback)* Very generous indeed.
+
+**MRS. GARDINER.** Please exempt our forwardness in walking the grounds. Your housekeeper informed us you would certainly not be here until tomorrow.
+
+**DARCY.** I have preceded my party to arrange their comfort.
+
+*(To ELIZABETH:;)*
+
+**DARCY.** Ah.
+
+**ELIZABETH.** I anm delighted by this compliment.
+
+**ELIZABETH.** Yes.
+
+**MRS. GARDINER.** *(DARCY, at a loss, bous and moves on. The "Pemberley" pull toy is struck offstage right by the HOUSEKEEPER.)* Great pleasure.
+
+**MR. GARDINER.** Perfectly well behaved, polite and unassuming.
+
+**MRS. GARDINER.** There is something a little aloof in him. To be sure, Lizzy, he is not handsome but his features are perfectly good. How came you to tell us he was so disagreeable?
+
+**ELIZABETH.** Well..
+
+**MR. GARDINER.** Eh?
+
+**MRS. GARDINER.** Disagreeable. Jon Jory
+
+**MR. GARDINER.** *(Chairs and lap tables are brought on for MRS. GARDINER and ELIZABETH, who move down and "write" letters.)* ndeed not. At the worst a little whimsical in his civilities.
+
+**MRS. GARDINER.** My dearest daughter: The meetings and introductions suggested by Mr. Darcy took place two days following and excited my lively attention. I had conceived, you might say, a suspicion of Mr. Darcy and my niece which on that occasion grew to a full conviction that one of then at least knew what it was to love. Of Lizzy's sensations I remained a little in doubt; but that the gentleman was overflowing with admiration was evident enough...
+
+**ELIZABETH.** Thus, dearest Jane, in speaking of your supposed rival Miss Darcy I saw no looks between her and Mr. Bingley that spoke of particular regard. He also asked of me with great interest if all my sisters were still at Longbourn which I took to be an enquiry as to your married state. Miss Bingley continues in her dislike of me. Georgiana Darcy was greatly civil but very shy.
+
+*(MRS. GARDINER exits and the HOUSEKEEPER brings a letter to ELIZABETH)*
+
+**HOUSEKEEPER.** Something come for you Miss.
+
+**ELIZABETH.** Oh.
+
+**HOUSEKEEPER.** Thought you might be wanting it.
+
+**ELIZABETH.** News from Jane and very welcome.
+
+*(The chairs and lap tables are removed.)*
+
+**HOUSEKEEPER.** *(Exiting)* Brought it to you then.
+
+**ELIZABETH.** *(Reading. JANE appears.)* "Dearest Lizzy, something has occurred of a most serious and unexpected nature." JANE.Colonel Forster informed us that Ly dia has run off to Scotland with one of his officers; to own the truth, Lizzy, it is with Wickham.
+
+**ELIZABETH.** "Worse still..." JANE. .imprudent as a poor Lydia would be... marriage between Mr. Wickham and our (MRS. BENNET appears. A chair for Elizabeth is brought on, as well as a chair and a writing desk for DARCY, who enters and writes at his desk.) Add 6a.5 here Pride and Prejudice
+
+**MRS. BENNET.** We are now frantic to be assured it has taken place at all, for we now hear they are not gone to Scotland but to London!
+
+**JANE.** And there is reason to believe...
+
+**ELIZABETH.** That he never intended to marry Lydia at all..
+
+**JANE.** And Colonel Forster...
+
+**MRS. BENNET.** ...fears Wickhamn is not a man to be trusted!
+
+**JANE.** ather is going to London with Colonel Forster to try to discover her, and what he mneans to do, I know not.
+
+**MRS. BENNET.** He shall shoot the scoundrel through the heart and we shall all be ruined!
+
+*(Exits.)*
+
+**JANE.** Adieu! I cannot help earnest begging you.
+
+**JANE AND ELIZABETH.** ...to come as soon as possible.
+
+*(JANE exits. ELIZABETH rises and rushes into DARCY.)*
+
+**ELIZABETH.** Oh! Where, where is my aunt? I must find her this moment on business that cannot be delayed. wine; shall I get you one?
+
+**DARCY.** Good God, what is the matter?
+
+**ELIZABETH.** I have not an instant to lose.
+
+**DARCY.** I will send a servant, you cannot go yourself. A glass of
+
+**ELIZABETH.** No...I.. .no..
+
+**DARCY.** You are very ill.
+
+**ELIZABETH.** No, I thank you. Only dreadful news. My younger sister has left all her friends, has eloped, under the power of...of Mr. Wickham. You know him too well to doubt the rest..she is lost forever.
+
+**DARCY.** I am grieved...shocked, but is it absolutely certain?
+
+**ELIZABETH.** Certain. My father is gone to London and I am sure Mr. Gardiner will assist but how is such a man to be worked on, how are they even to be discovered?
+
+**DARCY.** If there is anything.
+
+**ELIZABETH.** Most kind but.
+
+**DARCY.** Would to heaven that anything could be said or done on my part, that might offer consolation to such distress.
+
+**MR. GARDINER.** *(We transition back to Peimberley, where GEORGIANA iS playing the pianoforte as the Bingleys, Hursts, Gardiners, Elizabeth, and Darcy listen. They applaud her performance.)* Indeed not. At thệ wo'st a little whimsical in his civilities.
+
+**ELIZABETH.** I now feel extremely sorry for your brother. He once had to put up with my playing.
+
+**GEORGIANA.** Oh, but he says you play so well. I should love to hear you.
+
+**ELIZABETH.** I'm afraid thaťis a gross exaggeration.
+
+**GEORGIANA.** It cannot be. I've never heard my brother tell a lie. ELIZABETH, It is a beautiful instrument. And you play it so well.
+
+**GEORGIANA.** My brother gave it to me last year. He is so good to me and I don't deserve it.
+
+**ELIZABETH.** You most certainly do. He believe you do, and didn't you just tell me that he is incapable of lying? Do play another, please.
+
+*(GEORGIANA does so as BINGLEY approaches.)*
+
+**ELIZABETH.** Quite so, Mr. Bingley.
+
+**BINGLEY.** Since the 26th of November - when we all danced at Netherfield.
+
+**ELIZABETH.** Your memory is very exact.
+
+**BINGLEY.** And ifyour family well?
+
+**ELIZABETH.** Quite.
+
+**BINGLEY.** And...are all of your sisters still at Longbourn?
+
+**ELIZABETH.** All but one.
+
+**BINGLEY.** Ah...
+
+**ELIZABETH.** My sister Lydia has gone to Brighton for the summer with Colonel and Mrs. Forster.
+
+**MISS BINGLEY.** Ah, the militia has left Hertfordshire? That must be such a loss tó your family. I'm sure you are particularly feeling the loss of a certain gentleman.
+
+**ELIZABETH.** I can't imagine to whom you refer.
+
+**MISS BINGLEY.** I thought I had understood you to be quite taken with a certain Mr. W...
+
+*(GEORGIANA falters at the piano.)*
+
+**ELIZABETH.** Forgive me, Miss Darcy. I have neglected to turn your pages for you. Do begin again.
+
+**GEORGIANA.** *(whispering)* Thank you.
+
+*(GEORGIANA finishes the song as BINGLEY shoots MISS BINGILEY a warning glare.)*
+
+**GEORGIANA.** I know we are only of a short acquaintance, Miss Bennet, but I do hope you might be willing to consider me as a friend.
+
+**ELIZABETH.** Nothing would delight me mnore.
+
+*(MRS. GARDINER and ELIZABETH turn to address the audience, as though voicing letters.)*
+
+**ELIZABETH.** We must go at once. Pray apologize for us to Miss Darcy.
+
+*(She exits. MISS BINGLEY enters to DARCY.)*
+
+*(DARCY who was momentarily lost in thought.)*
+
+**DARCY.** Your pardon?
+
+**MISS BINGLEY.** How very ill Eliza Bernet looked this morming, Mr. Darcy. I never in my life saw anyone so much altered as she is since the winter. She is grown so brown and coarse!
+
+**DARCY.** It is, perhaps, no miraculous consequence of traveling in the summer.
+
+**MISS BINGLEY.** *(She looks for agreement to DARCY. He remains silent,)* I particularly recollect your saying one night "She a beauty, I should as soon call her mother a wit." But afterwards she seemed to improve on you. I believe you thought her rather pretty at one time?
+
+**DARCY.** Yes, but that was only when I first knew her, for I now consider her the handsomest woman of my acquaintance.
+
+**MISS BINGLEY.** *(DARY exits. MISS BINGLEY looks after him a moment as ELIZABETH moves down to the audience. MISS BINGLEY exits; Shift begins to Longbourn above ELIZABETH with the Bennet ladies and MR. GARDINER in attendance. MR. BENNET is missing.)* Oh.
+
+**ELIZABETH.** I had never perceived while the regiment was in Hertfordshire, that Lydia had any partiality for Wickham but she only wanted encouragement to attach herself to anybody. The mischief of neglect and mistaken indulgence towards such a girl! A family so deranged, a father absent, a mother incapable of exertion. And it is all my fault that knowing what I did of Wickham that I had not the foresight to make that knowledge public!
+
+*(ELIZABETH now enters into the scene with her family at Longbourn.)*
+
+**ELIZABETH.** Has anything been heard of the fugitives?
+
+**JANE.** Not yet. But now that my dear uncle is come I hope all will be well.
+
+**ELIZABETH.** Is Father in London? JMr Hlurst: Shameful mannes. But now a moe pleasanteveny fars! a.6 Pride and Prejudice
+
+**JANE.** Yes, he went on Tuesday.
+
+**MRS. BENNET.** f I had been able to carry mny point in going to Brighton with all the family, this would never have happened. Why did the Forster's let her out of their sight?
+
+**ELIZABETH.** Mother.
+
+**MRS. BENNET.** And now Mr. Bennet will fight Wickham wherever he meets him...I do not know what we shall do!
+
+**MR. GARDINER.** Eh?
+
+**MRS. BENNET.** Not know what we shall do?
+
+**MR. GARDINER.** *(MR. GARDINER exits. MRS. BENNET, JANE, KITTY, MARY and ELIZABETH remain.)* Ah. Do not give way to useless alarm. I shall go to London, calm my brother and consult together what is to be done.
+
+**MARY.** This is a most unfortunate affair but we must stem the tide of malice and pour into the wounded bosoms of each other the balm of sisterly consolation.
+
+**KITTY.** You see? Mary thinks it's all a book!
+
+*(MARY exits.)*
+
+**JANE.** Lydia wrote saying if we knew where she was going..
+
+**LYDIA.** *(Appearing in the sky)* You would laugh. What a good joke it will be when I write to Mama and sign my name "Lydia Wickham." I hope you will drink to our good journey.
+
+*(Disaypears,)*
+
+**ELIZABETH.** Thoughtless, thoughtless Lydia! But at least it shows that she was serious in the object of her journey. Whatever he might afterwards persuade her to, it was not on her side a scheme of infamy. My poor father! How he must have felt it!
+
+**JANE.** I never saw anyone so shocked. He could not speak a word.
+
