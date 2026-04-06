@@ -33,6 +33,9 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Standalone experiment / clone project — not part of CastCircle build
+KokoCloneMLX/
+
 # Symbolication related
 app.*.symbols
 

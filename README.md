@@ -6,6 +6,57 @@ CastCircle is a Flutter app that helps actors learn their lines by running throu
 
 ---
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/01_home_empty.png" width="220" alt="Empty home screen"><br>
+      <sub><b>Home</b> — empty state</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/02_home_with_production.png" width="220" alt="Home with Hamlet production"><br>
+      <sub><b>Home</b> — with a production</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/03_import_preview.png" width="220" alt="Script import screen"><br>
+      <sub><b>Import</b> — txt, markdown, or PDF</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/04_production_hub.png" width="220" alt="Production hub with scenes"><br>
+      <sub><b>Production hub</b> — scene picker</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/05_rehearsal_readthrough.png" width="220" alt="Rehearsal in readthrough mode"><br>
+      <sub><b>Rehearsal</b> — readthrough mode</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/06_rehearsal_actor.png" width="220" alt="Rehearsal in actor mode"><br>
+      <sub><b>Rehearsal</b> — actor mode</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/screenshots/07_settings.png" width="220" alt="Settings screen"><br>
+      <sub><b>Settings</b> — jump-back, speed, STT</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/08_ai_models.png" width="220" alt="AI models download"><br>
+      <sub><b>AI Models</b> — Kokoro TTS</sub>
+    </td>
+    <td align="center">
+      <img src="docs/screenshots/09_cast_manager.png" width="220" alt="Cast manager"><br>
+      <sub><b>Cast</b> — roles & voice assignment</sub>
+    </td>
+  </tr>
+</table>
+
+<sub>Generated from a real Hamlet import (35 characters, 5 acts, 20 scenes, 1,185 lines) on iPhone 16 Pro Max — see `scripts/generate_screenshots.sh`.</sub>
+
+---
+
 ## How It Works
 
 ### 1. Import a Script

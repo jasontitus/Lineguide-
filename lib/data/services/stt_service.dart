@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'apple_stt_channel.dart';
 import 'debug_log_service.dart';
@@ -48,6 +49,17 @@ class SttService {
   /// British vocabulary and speech patterns.
   Future<bool> init({String locale = 'en-US'}) async {
     _locale = locale;
+
+    // Screenshot mode: skip native STT init so we don't trigger the iOS
+    // speech recognition permission dialog, which blocks the screenshot run.
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('screenshot_mode') == true) {
+        DebugLogService.instance.log(
+            LogCategory.stt, 'Screenshot mode: skipping STT init');
+        return false;
+      }
+    } catch (_) {}
 
     // Dispose any previously loaded MLX model to free memory —
     // we use Apple STT now, Parakeet is only for batch file transcription

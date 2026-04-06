@@ -89,6 +89,18 @@ class _ProductionHubScreenState extends ConsumerState<ProductionHubScreen> {
   }
 
   Future<void> _checkModels() async {
+    // Screenshot mode: pretend models are ready so the banner/prompt is hidden.
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('screenshot_mode') == true) {
+      if (mounted) {
+        setState(() {
+          _checkedModels = true;
+          _modelsReady = true;
+        });
+      }
+      return;
+    }
+
     final ready = await ModelManager.instance.isAllReady();
     if (mounted) {
       setState(() {
